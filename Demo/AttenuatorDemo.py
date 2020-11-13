@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../Devices")
+
 from Attenuator import *
 
 verbose=False
