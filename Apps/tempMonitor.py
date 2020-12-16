@@ -33,9 +33,19 @@ def getRamp():
     rVar.set(ramp1)
     rVar2.set(ramp2)
 
-def updateValues():
+def updateTemp():
     tVar.set(getTemp())
-    root.after(10000, updateValues)
+    root.after(10000, updateTemp)
+
+def updateValues():
+    getSP()
+    getRamp()
+    root.after(60000, updateValues)
+
+def updateAll():
+    tVar.set(getTemp())
+    getSP()
+    getRamp()
 
 def rampOff():
     fridge.rampOff()
@@ -83,9 +93,9 @@ def setSP():
     getRamp()
 
 sButton = Button(root, text="Set", command=setSP).grid(row=5,column=2)
+fButton = Button(root, text="Refresh", command=updateAll).grid(row=4,column=0)
 rButton = Button(root, text="Ramp Off", command=rampOff).grid(row=4,column=1)
 
-getSP()
-getRamp()
+updateTemp()
 updateValues()
 root.mainloop()
