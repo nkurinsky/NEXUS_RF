@@ -19,6 +19,20 @@ class ADR:
     def getSP(self):
         return float(self._sendCmd("setp?,")[:-2])
 
+    def calcSP(self,temp):
+        #function determined from temperature scan
+        return 0.8899705*temp - 8.302112e-3
+
+    def calcTempSP(self,sp):
+        #function determined from temperature scan
+        return 1.1236327*sp + 9.328524e-3
+
+    def getTempSP(self):
+        return self.calcTempSP(self.getSP())
+
+    def setTempSP(self,tempSP):
+        self.setSP(self.calcSP(tempSP))
+
     def rampOff(self):
         retval=self._sendCmd("rampoff,")
         return retval
