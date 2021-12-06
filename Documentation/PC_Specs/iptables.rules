@@ -1,0 +1,14 @@
+#### USING iptables
+#$ sudo iptables -A INPUT -p tcp --dport 22 -s 192.168.0.0/16 -j ACCEPT
+#$ sudo iptables -A INPUT -p tcp --dport 22 -s 127.0.0.0/8 -j ACCEPT
+#$ sudo iptables -A INPUT -p tcp --dport 22 -j REJECT
+#$ sudo /sbin/iptables-save
+#
+#
+#### USING ufw
+#$ sudo ufw reset
+#$ sudo ufw enable
+#$ sudo ufw allow proto tcp from 127.0.0.0/8 to any port 22
+#$ sudo ufw allow proto tcp from 192.168.0.0/16 to any port 22
+#$ sudo ufw reject proto tcp from any to any port 22
+#$ sudo ufw status
