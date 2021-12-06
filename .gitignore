@@ -1,0 +1,5 @@
+*.pyc
+./AcquisitionScripts/__pycache__/*
+./AnalysisScripts/__pycache__/*
+./DeviceControl/__pycache__/*
+./DeviceControl/*/__pycache__/*
