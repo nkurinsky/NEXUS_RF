@@ -70,7 +70,18 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.168.40.0    0.0.0.0         255.255.255.0   U     103    0        0 enp179s0f0
 192.168.70.0    0.0.0.0         255.255.255.0   U     0      0        0 enp179s0f1
 ```
-Routes can be created using commands such as `sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0`. It is unclear if these routes persist on a machine reboot. 
+Routes can be created using commands such as `sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0`. It is unclear if these routes persist on a machine reboot. Note that the first entry is the "default" route, which is using the GbE connection to the USRP - this is not desired. To remove this route use the command
+```
+sudo /sbin/route del -net 0.0.0.0 gw 192.168.40.1 netmask 0.0.0.0 dev enp179s0f0
+``` 
+When you run the `sudo /sbin/route -n" command with the USB LAN connection enabled, you should have an entry like
+```
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         131.225.192.222 0.0.0.0         UG    20104  0        0 enxa0cec852e5df
+```
+If it's not there, you should add it.
+
 
 - Check the Ubuntu firewall settings, it should be enabled (`sudo ufw enable`) and the command `sudo ufw status` should return the following:
 ```
