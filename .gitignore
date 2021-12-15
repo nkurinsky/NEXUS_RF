@@ -1,6 +1,6 @@
 *.pyc
-./AcquisitionScripts/__pycache__/*
-./AnalysisScripts/__pycache__/*
-./DeviceControl/__pycache__/*
-./DeviceControl/*/__pycache__/*
-./DeviceControl/RF_Switch/__pycache__/*
+AcquisitionScripts/__pycache__/*
+AnalysisScripts/__pycache__/*
+DeviceControl/__pycache__/*
+DeviceControl/*/__pycache__/*
+DeviceControl/RF_Switch/__pycache__/*
