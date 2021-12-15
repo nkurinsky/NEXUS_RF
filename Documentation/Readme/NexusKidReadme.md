@@ -50,7 +50,45 @@ On the first layer of the virtual desktop, another VNC viewer software should be
 
 ## Checking Connections on NEXUS LAN
 
-From `nexus-arion`, you should be able to `ping` all the network devices on the NEXUS LAN, including the power strip (192.169.0.145), HEMT power supplies (192.168.0.40 and 192.168.0.41), and the RF switch (192.168.0.43). If you do not get a response, ensure the device is powered on. 
+From `nexus-arion`, you should be able to `ping` all the network devices on the NEXUS LAN, including the power strip (192.169.0.145), HEMT power supplies (192.168.0.40 and 192.168.0.41), and the RF switch (192.168.0.43). If you do not get a response, ensure the device is powered on.
+
+The USRP (Ettus Research X300) should have an IP address of `192.168.40.2` but it may show up at `192.168.30.2`. It is connected to the gigabit-ethernet PCI card port with adapter ID `enp179s0f0`. It should be configured as follows:
+```
+enp179s0f0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 9000
+        inet 192.168.40.1  netmask 255.255.255.0  broadcast 192.168.40.255
+        inet6 fe80::1dc3:5afc:b493:9700  prefixlen 64  scopeid 0x20<link>
+        ether f8:f2:1e:9a:f9:7c  txqueuelen 1000  (Ethernet)
+```
+With these settings you should be able to get a response from `ping 192.168.40.2`. If not, here are some troubleshooting tips.
+- The network routes must be set for the adapters on the GbE card. Run the command `sudo /sbin/route -n` to list current routes. You should get the following output:
+```
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+0.0.0.0         192.168.40.1    0.0.0.0         UG    20103  0        0 enp179s0f0
+169.254.0.0     0.0.0.0         255.255.0.0     U     1000   0        0 enp179s0f0
+192.168.0.0     0.0.0.0         255.255.255.0   U     102    0        0 eno1
+192.168.40.0    0.0.0.0         255.255.255.0   U     103    0        0 enp179s0f0
+192.168.70.0    0.0.0.0         255.255.255.0   U     0      0        0 enp179s0f1
+```
+Routes can be created using commands such as `sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0`. It is unclear if these routes persist on a machine reboot. 
+
+- Check the Ubuntu firewall settings, it should be enabled (`sudo ufw enable`) and the command `sudo ufw status` should return the following:
+```
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW       127.0.0.0/8               
+22/tcp                     ALLOW       192.168.0.0/16            
+Anywhere                   ALLOW       192.168.30.0/24/tcp       
+Anywhere                   ALLOW       192.168.40.0/24/tcp       
+22/tcp                     REJECT      Anywhere                  
+22/tcp (v6)                REJECT      Anywhere (v6)
+```
+Firewall rules can be added with commands like `sudo ufw allow proto tcp from 192.168.0.0/16 to any port 22`. To disable the firewall (which can only be done if the USB LAN connection is disabled) use the command `sudo ufw disable` and to reset the rules to rebuild the table, use `sudo ufw reset`. These firewall rules persist on a machine reboot.
+
+- The USB ethernet dongle connects to the Fermilab network, which dictates the firewall rules above (ensuring no ssh connections can be established except for the LAN). This connection is disabled by default (when the machine reboots) and can be enabled with the command `usb_lan_up` if you need to see the internet (for updates, etc.). Only enable the USB LAN connection if the ufw is enabled. The connection can be disabled again using the command `usb_lan_down`. These are simple aliases and can be found by `cat ~/.bash_aliases`.
+
 
 ## Getting or Setting the RF Switch Configuration
 
@@ -66,7 +104,7 @@ Connect the USB cable from the laser Arduino to the USB signal conditioner board
 
 To start the laser controller GUI, move to the laser code directory:
 ```
-cd ~/LaserCode/
+cd ~/NEXUS_RF/DeviceControl/LaserDriver/
 ```
 Then, run the gui (using Python3):
 ```
@@ -88,7 +126,7 @@ The RF switch is on the NEXUS LAN at IP address 192.168.0.43. To control the swi
 http://192.168.0.43/SETB=1
 ```
 
-Alternatively, there is a Python (3) GUI that controls the switch state. It operates both switches "A" and "B" simultaneously, such that the KID is either connected to the VNA or the USRP solely, with no possibility of crossed states. To run this code, ensure you are in a Python3 environment, then navigate to `/home/nexus-admin/NEXUS_rf_switch/`. To start the GUI, run
+Alternatively, there is a Python (3) GUI that controls the switch state. It operates both switches "A" and "B" simultaneously, such that the KID is either connected to the VNA or the USRP solely, with no possibility of crossed states. To run this code, ensure you are in a Python3 environment, then navigate to `/home/nexus-admin/NEXUS_RF/DeviceControl/RF_Switch/`. To start the GUI, run
 ```
 python start_gui.py
 ```
@@ -98,7 +136,7 @@ First, click the "Probe" button to ensure the RF switch communication is active.
 
 ## Starting the VNA
 
-The VNA is controlled by the KID PC over a USB connection. The program that runs it is a compiled executable, which lives at `/home/nexus-admin/VNA/`. There are two executables, the newer version is `CMT_S2VNA_19.1.3_x86_64.appimage`. This can be run from the command line with the command
+The VNA is controlled by the KID PC over a USB connection. The program that runs it is a compiled executable, which lives at `/home/nexus-admin/NEXUS_RF/DeviceControl/VNA/`. There are two executables, the newer version is `CMT_S2VNA_19.1.3_x86_64.appimage`. This can be run from the command line with the command
 ```
 ./CMT_S2VNA_19.1.3_x86_64.appimage
 ```
@@ -106,17 +144,42 @@ while in the appropriate directory, or by opening a file browser (`nautilus`) an
 
 ## Starting the USRP
 
-The USRP is controlled by the KID PC over a Gigabit ethernet connection. First, a USRP server session must be started, which requires Python 2. To start a server session, navigate to the relevant directory:
+The USRP is controlled by the KID PC over a Gigabit ethernet connection, described above. First we want to verify the USRP can be found by the server software. To do this issue the command `uhd_find_devices --args="addr=192.168.40.2"` which should give the following output:
 ```
-cd /home/nexus-admin/NEXUS_RF/Devices/GPU_SDR_old/
+-------------------------
+-- UHD Device 0
+-------------------------
+Device Address:
+    serial: 31E0018
+    addr: 192.168.40.2
+    fpga: XG
+    name: 
+    product: X300
+    type: x300
+```
+Some settings may need to be changed, including maximum memory, and fpga firmware. To update the settings, use the commands
+```
+sudo sysctl -w net.core.wmem_max=24862979
+sudo sysctl -w net.core.rmem_max=24862979
+```
+To change the firmware on the USRP, use the following command:
+```
+ uhd_image_loader --args="addr=192.168.40.2,fpga=XG,type=x300"
+```
+then power-cycle the USRP using the LAN-controlled power strip.
+
+
+Next, a USRP server session must be started, which requires Python 2. To start a server session, navigate to the relevant directory:
+```
+cd /home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/
 ```
 and issue the command
 ```
 sudo ./server
 ```
-Presumably, the code in `/home/nexus-admin/NEXUS_RF/Devices/GPU_SDR/` can be compiled using the `Makefile` to create the server executable. 
+Presumably, the code in `/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/` can be compiled using the `Makefile` to create the server executable. 
 
-You should start a new terminal before doing this since that terminal will be occupied by the server process. Once a server session has been established, scripts that control the USRP can be run. Note that all the scripts need to be run using `python2.7`. Scripts can be found at `NEXUS_RF/Devices/GPU_SDR/scripts/` or `NEXUS_RF/Scripts/`.
+You should start a new terminal before doing this since that terminal will be occupied by the server process. Once a server session has been established, scripts that control the USRP can be run. Note that all the scripts need to be run using `python2.7`. Scripts to acquire data with the USRP can be found at `NEXUS_RF/DeviceControl/GPU_SDR/scripts/`.
 
 ## Biasing the KID Amplifiers
 
@@ -160,4 +223,6 @@ python plot_VNA_PowerScan.py
 ```
 First it will try to locate, then fit, a single resonance in each file (corresponding to a single power). A diagnositic plot will appear for each power that shows the identified resonance. Click to exit each of these plot windows as they appear. Once all the data files have been fit and parameters extracted, the script will display a plot of Peak Frequency vs Power and Resonator Q vs Power.
 
+## Performing a VNA Measurement with the USRP
 
+Start a server session for the USRP using the above instructions. 
