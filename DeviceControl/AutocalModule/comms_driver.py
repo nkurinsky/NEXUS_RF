@@ -23,7 +23,7 @@ def Send(msg, arg_str=None):
     v._sendCmd(msg_str)
 
     ## Query the device for the state
-    r = v._getData(str(msg)+"?\n")
+    # r = v._getData(str(msg)+"?\n")
 
     ## Return the message, query, and answer as one string
-    return msg_str+str(msg)+"?\n"+r+"\n"
+    return msg_str+str(msg)+"?\n"#+r+"\n"
