@@ -26,4 +26,4 @@ def Send(msg, arg_str=None):
     # r = v._getData(str(msg)+"?\n")
 
     ## Return the message, query, and answer as one string
-    return msg_str+str(msg)+"?\n"#+r+"\n"
+    return msg_str#+str(msg)+"?\n"#+r+"\n"

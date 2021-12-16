@@ -82,7 +82,7 @@ b_load.grid(row=4, column=0)
 ## Create the functions to execute on a button press
 
 def b_thru_press():
-    ans = Send("SYST:COMM:ECAL:THRU")
+    ans = Send("SYST:COMM:ECAL:THRU", arg_str="1,2")
     t1.insert(END, ans)
     return 0
 b_thru["command"] = b_thru_press
@@ -94,19 +94,25 @@ def b_attn_press():
 b_attn["command"] = b_attn_press
 
 def b_shrt_press():
-    ans = Send("SYST:COMM:ECAL:IMP", arg_str="SHORT")
+    ans = Send("SYST:COMM:ECAL:IMP", arg_str="1,SHORT")
+    t1.insert(END, ans)
+    ans = Send("SYST:COMM:ECAL:IMP", arg_str="2,SHORT")
     t1.insert(END, ans)
     return 0
 b_shrt["command"] = b_shrt_press
 
 def b_open_press():
-    ans = Send("SYST:COMM:ECAL:IMP", arg_str="OPEN")
+    ans = Send("SYST:COMM:ECAL:IMP", arg_str="1,OPEN")
+    t1.insert(END, ans)
+    ans = Send("SYST:COMM:ECAL:IMP", arg_str="2,OPEN")
     t1.insert(END, ans)
     return 0
 b_open["command"] = b_open_press
 
 def b_load_press():
-    ans = Send("SYST:COMM:ECAL:IMP", arg_str="LOAD")
+    ans = Send("SYST:COMM:ECAL:IMP", arg_str="1,LOAD")
+    t1.insert(END, ans)
+    ans = Send("SYST:COMM:ECAL:IMP", arg_str="2,LOAD")
     t1.insert(END, ans)
     return 0
 b_load["command"] = b_load_press
