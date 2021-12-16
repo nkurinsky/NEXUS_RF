@@ -1,3 +1,5 @@
+import sys
+
 ## Point to the backend function scripts
 sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
