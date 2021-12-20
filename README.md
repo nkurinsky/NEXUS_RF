@@ -7,7 +7,8 @@ When cloning the directory for the first time, do the following:
 git clone git@github.com:nkurinsky/NEXUS_RF.git
 cd NEXUS_RF
 git submodule init
-git submodule update
+git submodule sync 
+git submodule update --init --recursive
 ```
 which should populate both of the git `submodule`s.
 
