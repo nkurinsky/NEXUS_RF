@@ -1,10 +1,10 @@
+from __future__ import division
+
 ## Import the relevant modules
 import sys, os
 import numpy as np
 import time
 import h5py
-
-from __future__ import division
 
 ## Try to read in the USRP modules
 ## Exit out if you can't after adjusting path
