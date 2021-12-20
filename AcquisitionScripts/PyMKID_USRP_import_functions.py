@@ -1,5 +1,10 @@
-from __future__ import division
+## Import the relevant modules
 import sys
+
+from __future__ import division
+
+## Try to read in the USRP modules
+## Exit out if you can't after adjusting path
 try:
     import pyUSRP as u
 except ImportError:
@@ -8,6 +13,7 @@ except ImportError:
         import pyUSRP as u
     except ImportError:
         print("Cannot find the pyUSRP package")
+        exit()
 
 def noise_run(rate,freq,front_end,tones,lapse,decimation,tx_gain,rx_gain,vna,mode,pf,trigger,amplitudes,delay):
 
