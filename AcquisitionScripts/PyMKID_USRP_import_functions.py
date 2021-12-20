@@ -4,7 +4,7 @@ try:
     import pyUSRP as u
 except ImportError:
     try:
-        sys.path.append('GPU_SDR')
+        sys.path.append('../DeviceControl/GPU_SDR')
         import pyUSRP as u
     except ImportError:
         print("Cannot find the pyUSRP package")

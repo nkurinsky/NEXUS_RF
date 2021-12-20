@@ -100,6 +100,7 @@ for i in n.arange(n_pwrs):
 
     ## For each power, loop over all the calibration offsets
     for j in n.arange(n_c_deltas):
+        ## Pick this calibration delta
         delta = cal_deltas[j]
 
         readout_tones  = (f + delta*float(f)/q) + tracking_tones
