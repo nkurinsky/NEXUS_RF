@@ -10,17 +10,29 @@ from __future__ import division
 ## Exit out if you can't after adjusting path
 try:
     import pyUSRP as u
-    import PyMKID_USRP_functions as puf
-    import PyMKID_USRP_import_functions as puf2
 except ImportError:
     try:
         sys.path.append('../DeviceControl/GPU_SDR')
         import pyUSRP as u
-        import PyMKID_USRP_functions as puf
-        import PyMKID_USRP_import_functions as puf2
     except ImportError:
         print("Cannot find the pyUSRP package")
         exit()
+
+try:
+    import PyMKID_USRP_functions as puf
+except ImportError:
+    try:
+        sys.path.append('../AnalysisScripts')
+        import PyMKID_USRP_functions as puf
+    except ImportError:
+        print("Cannot find the PyMKID_USRP_functions package")
+        exit()
+
+try:
+    import PyMKID_USRP_import_functions as puf2
+except ImportError:
+    print("Cannot find the PyMKID_USRP_import_functions package")
+    exit()
 
 ## Attempt to connect to GPU SDR server
 if not u.Connect():
