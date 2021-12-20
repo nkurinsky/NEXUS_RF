@@ -1,5 +1,5 @@
 # NEXUS_RF
-`NEXUS_RF/DeviceControl/GPU_SDR` is the repository `LorenzoMinutolo/GPU_SDR` available at `https://github.com/LorenzoMinutolo/GPU_SDR` (which itself is a fork of `nasa/GPU_SDR` available at https://github.com/nasa/GPU_SDR)
+`NEXUS_RF/DeviceControl/GPU_SDR` is the repository `LorenzoMinutolo/GPU_SDR` available at https://github.com/LorenzoMinutolo/GPU_SDR (which itself is a fork of `nasa/GPU_SDR` available at https://github.com/nasa/GPU_SDR)
 
 `NEXUS_RF/DeviceControl/uhd` is the repository `EttusResearch/uhd` available at https://github.com/EttusResearch/uhd
 
