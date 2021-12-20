@@ -1,5 +1,6 @@
 # NEXUS_RF
 `NEXUS_RF/DeviceControl/GPU_SDR` is the repository `nasa/GPU_SDR` available at https://github.com/nasa/GPU_SDR
+
 `NEXUS_RF/DeviceControl/uhd` is the repository `EttusResearch/uhd` available at https://github.com/EttusResearch/uhd
 
 When cloning the directory for the first time, do the following:
