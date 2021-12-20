@@ -1,0 +1,8 @@
+[submodule "GPU_SDR"]
+    path = DeviceControl/GPU_SDR
+    url = https://github.com/LorenzoMinutolo/GPU_SDR.git
+    branch = N321
+
+[submodule "uhd"]
+    path = DeviceControl/uhd
+    url = git@github.com:EttusResearch/uhd.git
