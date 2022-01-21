@@ -36,7 +36,21 @@ except ImportError:
 
 ## Attempt to connect to GPU SDR server
 if not u.Connect():
-    u.print_error("Cannot find the GPU server!")
+    u.print_error("Cannot find the GPU server! Exiting.")
+    quit()
+
+## Create some directories for the data files
+dataPath = '/data/UsrpNoiseScans'
+if not os.path.exists(dataPath):
+    os.makedirs(dataPath)
+
+dateStr    = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+seriesPath = dataPath + '/' + series 
+if not os.path.exists(seriesPath):
+    os.makedirs(seriesPath)
+print ("Scan stored as series "+series+" in path "+dataPath)
+
     
 ## Set some noise scan parameters
 rate    = 200e6
@@ -77,7 +91,8 @@ vna_file, delay = puf2.vna_run(tx_gain        = tx_gain ,
                                points         = 1e5     ,
                                ntones         = N_power ,
                                delay_duration = 0.1     ,
-                               delay_over     = 'null'  )
+                               delay_over     = 'null'  ,
+                               subfolder      = seriesPath )
 
 ## Fit the data acquired in this noise scan
 fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_file + '.h5',[res],show=False)
