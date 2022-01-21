@@ -14,7 +14,7 @@ except ImportError:
         print("Cannot find the pyUSRP package")
         exit()
 
-def noise_run(rate,freq,front_end,tones,lapse,decimation,tx_gain,rx_gain,vna,mode,pf,trigger,amplitudes,delay):
+def noise_run(rate,freq,front_end,tones,lapse,decimation,tx_gain,rx_gain,vna,mode,pf,trigger,amplitudes,delay,subfolder=None):
 
     if trigger is not None:
         try:
@@ -28,13 +28,13 @@ def noise_run(rate,freq,front_end,tones,lapse,decimation,tx_gain,rx_gain,vna,mod
 
     noise_filename = u.Get_noise(tones, measure_t = lapse, rate = rate, decimation = decimation, amplitudes = amplitudes,
                               RF = freq, output_filename = None, Front_end = front_end,Device = None, delay = delay*1e-9,
-                              pf_average = pf, tx_gain = tx_gain, rx_gain = rx_gain, mode = mode, trigger = trigger)
+                              pf_average = pf, tx_gain = tx_gain, rx_gain = rx_gain, mode = mode, trigger = trigger, subfolder = subfolder)
     if vna is not None:
         u.copy_resonator_group(vna, noise_filename)
 
     return noise_filename
 
-def vna_run(tx_gain,rx_gain,iter,rate,freq,front_end,f0,f1,lapse,points,ntones,delay_duration,delay_over='null',output_filename=None):
+def vna_run(tx_gain,rx_gain,iter,rate,freq,front_end,f0,f1,lapse,points,ntones,delay_duration,delay_over='null',output_filename=None, subfoler=None):
 
     if delay_over != 'null':
         delay = delay_over
@@ -67,7 +67,7 @@ def vna_run(tx_gain,rx_gain,iter,rate,freq,front_end,f0,f1,lapse,points,ntones,d
 
     print("Starting single VNA run...")
     vna_filename = u.Single_VNA(start_f = f0, last_f = f1, measure_t = lapse, n_points = points, tx_gain = tx_gain, rx_gain= rx_gain, Rate=rate, decimation=True, RF=freq, Front_end=front_end,
-               Device=None, output_filename=output_filename, Multitone_compensation=ntones, Iterations=iter, verbose=False)
+               Device=None, output_filename=output_filename, Multitone_compensation=ntones, Iterations=iter, verbose=False, subfolder=subfolder)
     print("Done.")
 
     return vna_filename,delay
