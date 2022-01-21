@@ -50,16 +50,24 @@ def vna_run(tx_gain,rx_gain,iter,rate,freq,front_end,f0,f1,lapse,points,ntones,d
                 delay_filename = output_filename + '_delay'
             filename = u.measure_line_delay(rate, freq, front_end, USRP_num=0, tx_gain=tx_gain, rx_gain=rx_gain, output_filename=delay_filename, compensate = True, duration = delay_duration)
 
+            print("Analyziung line delay file...")
             delay = u.analyze_line_delay(filename,False)
+            print("Done.")
 
+            print("Writing line delay to file...")
             u.write_delay_to_file(filename, delay)
+            print("Done.")
 
+            print("Loading line delay from file...")
             u.load_delay_from_file(filename)
+            print("Done.")
 
     if ntones ==1:
         ntones = None
 
+    print("Starting single VNA run...")
     vna_filename = u.Single_VNA(start_f = f0, last_f = f1, measure_t = lapse, n_points = points, tx_gain = tx_gain, rx_gain= rx_gain, Rate=rate, decimation=True, RF=freq, Front_end=front_end,
                Device=None, output_filename=output_filename, Multitone_compensation=ntones, Iterations=iter, verbose=False)
+    print("Done.")
 
     return vna_filename,delay
