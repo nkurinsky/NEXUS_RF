@@ -34,7 +34,7 @@ def noise_run(rate,freq,front_end,tones,lapse,decimation,tx_gain,rx_gain,vna,mod
 
     return noise_filename
 
-def vna_run(tx_gain,rx_gain,iter,rate,freq,front_end,f0,f1,lapse,points,ntones,delay_duration,delay_over='null',output_filename=None, subfoler=None):
+def vna_run(tx_gain,rx_gain,iter,rate,freq,front_end,f0,f1,lapse,points,ntones,delay_duration,delay_over='null',output_filename=None, subfolder=None):
 
     if delay_over != 'null':
         delay = delay_over
