@@ -1,5 +1,4 @@
 import sys, os
-# sys.path.append("../Devices")
 from time import sleep
 import numpy as np
 import datetime
@@ -27,14 +26,14 @@ print ("Scan stored as series "+series+" in path "+sweepPath)
 
 
 ## Initialize the NEXUS fridge
-# nf = NEXUSFridge()
+# nf = NEXUSFridge(server_ip="192.168.0.34",server_port=11034)
 
 #powers = [-55, -50, -45, -40, -35, -30, -25, -20]
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
-P_max  = -35.0
-P_step =   1.0
+P_max  = -20.0
+P_step =   5.0
 
 powers = np.arange(start = P_min,
                    stop  = P_max+P_step,
@@ -82,6 +81,10 @@ for power in powers:
 
   ## Store the data in our file name
   v.storeData(freqs, S21_real, S21_imag, output_filename)
+
+## Diagnostic text
+# print("Current Fridge Setpoint    (mK): ", nf.getSP())
+# print("Current Fridge Temperature (mK): ", nf.getTemp())
 
 ## 
 print("Power scan complete.")
