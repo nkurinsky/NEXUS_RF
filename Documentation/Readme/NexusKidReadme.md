@@ -70,7 +70,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.168.40.0    0.0.0.0         255.255.255.0   U     103    0        0 enp179s0f0
 192.168.70.0    0.0.0.0         255.255.255.0   U     0      0        0 enp179s0f1
 ```
-Routes can be created using commands such as `sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0`. It is unclear if these routes persist on a machine reboot. Note that the first entry is the "default" route, which is using the GbE connection to the USRP - this is not desired. To remove this route use the command
+Routes can be created using commands such as `sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0`. These routes persist on a machine reboot. Note that the first entry is the "default" route, which is using the GbE connection to the USRP - this is not desired. To remove this route use the command
 ```
 sudo /sbin/route del -net 0.0.0.0 gw 192.168.40.1 netmask 0.0.0.0 dev enp179s0f0
 ``` 
