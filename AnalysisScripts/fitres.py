@@ -525,8 +525,7 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     peaklist = sorted(peaklist)
     print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
 
-    # ## Create a plot 
-    # def peak_figure():
+    ## Create a plot 
     fig = plt.figure(figsize=(9,7))
 
     # Define the grid
@@ -536,8 +535,6 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     # Define the plot array
     ax0 = fig.add_subplot(gs[0])
     ax1 = fig.add_subplot(gs[1])
-
-    # fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
 
     ## Set plot title
     ax0.set_title('Transmission with Resonance Identification')
@@ -554,28 +551,33 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     ax0.set_ylabel("|$S_{21}$| [dB]")
     ax1.set_ylabel("|filtered z| [#std]")
 
+    ## Set the x-tick markers to be smaller
+    ax0.set_xticklabels(ax0.get_xticklabels(), fontsize=10)
+    ax1.set_xticklabels(ax1.get_xticklabels(), fontsize=10)
+
     ## Draw some lines
-    ax1.axhline(y=nsig, color="red", label="nsig = "+str(nsig))
+    ax1.axhline(y=nsig, color="red")#, label="nsig = "+str(nsig))
     ax1.axhline(y=gamma/bstd, color="green")
     ax1.axvline(x=start_f, color="gray")
     ax1.axvline(x=stop_f, color="gray")
 
-    ## Draw a point
+    ## Draw a point for each resonance found
     ax1.plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
-    ax1.plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
+
+    ## Draw a point for each resonance added manually
+    if len(additions)>0:
+        ax1.plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
+    
+    ## Draw the legend
     plt.legend()
-    # return fig
 
-    # # Plot the transmission and peaks
-    # fig = peak_figure()
-
-    # # Save to pdf if pdf_rewrite == True
-    # if pdf_rewrite == True:
-    #     plt.figure(figsize=(10, 10))
-    #     peak_figure()
-    #     Res_pdf = PdfPages(filename+'.pdf')
-    #     Res_pdf.savefig()
-    #     plt.close()
+    ##Save to pdf if pdf_rewrite == True
+    if pdf_rewrite == True:
+        plt.figure(figsize=(10, 10))
+        peak_figure()
+        Res_pdf = PdfPages(filename+'.pdf')
+        Res_pdf.savefig()
+        plt.close()
 
     # initialize the parameter lists
     fr_list = np.zeros(len(peaklist))
