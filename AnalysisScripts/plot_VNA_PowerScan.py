@@ -26,8 +26,8 @@ dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 dataPath = '/data/PowerSweeps/VNA/'
 
 ## Series identifier
-day    = '20220126'
-time   = '180408'
+day    = '20220127'
+time   = '160519'
 series = day + '_' + time
 srPath = dataPath + day + '/' + series + '/'
 
