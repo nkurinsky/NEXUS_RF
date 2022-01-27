@@ -80,7 +80,7 @@ for fname in vna_files:
     f /= 1.0e9
 
     ## Fit this data file
-    fr, Qr, Qc, Qi = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
+    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
 
     fr_list.append(fr[0]); Qr_list.append(Qr[0])
     Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
