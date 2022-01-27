@@ -526,7 +526,6 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
 
     ## Create a plot 
     def peak_figure():
-        plt.figure()
         fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
 
         ## Set plot title
