@@ -47,7 +47,24 @@ class VNAMeas:
 			d_S21imagvals = f.create_dataset("S21imagvals", data=self.S21imagvals)
 
 			f.close()
-			
+
 		return filename+".h5"
 
 
+def decode_hdf5(filename):
+
+	with h5py.File(filename+".h5", "r") as f:
+		sweep = VNAMeas(f["date"],f["series"])
+
+		sweep.power   = f["power"]
+		sweep.n_avgs  = f["n_avgs"]
+		sweep.n_samps = f["n_samps"]
+		sweep.f_min   = f["f_min"]
+		sweep.f_max   = f["f_max"]
+		sweep.start_T = f["start_T"]
+		sweep.final_T = f["final_T"]
+		sweep.frequencies = f["frequencies"]
+		sweep.S21realvals = f["S21realvals"]
+		sweep.S21imagvals = f["S21imagvals"]
+
+		return sweep
