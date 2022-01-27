@@ -552,8 +552,8 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     ax1.set_ylabel("|filtered z| [#std]")
 
     ## Set the x-tick markers to be smaller
-    ax0.set_xticklabels(ax0.get_xticklabels(), fontsize=10)
-    ax1.set_xticklabels(ax1.get_xticklabels(), fontsize=10)
+    plt.setp(ax0.get_xticklabels(), fontsize=10)
+    plt.setp(ax1.get_xticklabels(), fontsize=10)
 
     ## Draw some lines
     ax1.axhline(y=nsig, color="red")#, label="nsig = "+str(nsig))
