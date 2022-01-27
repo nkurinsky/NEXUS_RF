@@ -94,7 +94,7 @@ class NEXUSTemps:
         return v[0];
 
     def _getAllVars(self):
-        f,v = self._sendCmd("2;2;"+str(var))
+        f,v = self._sendCmd("2;2")
         vStr = v[0]
         return vStr
 
