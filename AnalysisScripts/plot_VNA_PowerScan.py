@@ -82,8 +82,12 @@ for fname in vna_files:
     ## Fit this data file
     fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
 
+    ## Store the fit results
     fr_list.append(fr[0]); Qr_list.append(Qr[0])
     Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
+
+    ## Save the figure
+    fig.savefig(os.path.join(out_path,"freq_fit_P"+str(power)+"dBm.png"), format='png')
     #power = -14 + 20*np.log10(amplitude)
 
     # temp = fname.split('_')[1][1:]
@@ -99,8 +103,12 @@ plt.figure()
 plt.plot(power_list,fr_list)
 plt.xlabel('power (dBm)')
 plt.ylabel('resonator frequency')
+fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
 
 plt.figure()
 plt.plot(power_list,Qr_list)
 plt.xlabel('power (dBm)')
 plt.ylabel('resonator Q')
+fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
+
+plt.show()
