@@ -89,7 +89,8 @@ for fname in vna_files:
     Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
 
     ## Save the figure
-    fig.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
+    plt.gcf()
+    plt.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
     fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
     #power = -14 + 20*np.log10(amplitude)
 
