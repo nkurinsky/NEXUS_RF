@@ -28,7 +28,7 @@ class VNAMeas:
 
 	def show(self):
 		print("VNA Measurement:", self.series)
-		print("====-----------------------====")
+		print("====---------------------------====")
 		print("|             Date:  ", self.date)
 		print("|   RF Power [dBm]:  ", self.power)
 		print("|   N averages:      ", self.n_avgs)
@@ -36,13 +36,13 @@ class VNAMeas:
 		print("|   Sweep f min [Hz]:", self.f_min)
 		print("|   Sweep f max [Hz]:", self.f_max)
 		for i in range(len(self.start_T)):
-			print("| Start Temp "+str(i)+ " [mK]:", self.start_T[i])
+			print("|  Start Temp "+str(i)+ " [mK]:", self.start_T[i])
 		for i in range(len(self.final_T)):
-			print("| Final Temp "+str(i)+ " [mK]:", self.final_T[i])
+			print("|  Final Temp "+str(i)+ " [mK]:", self.final_T[i])
 		print("|   # freq saved:    ", len(self.frequencies))
 		print("|   # Re(S21) saved: ", len(self.S21realvals))
 		print("|   # Im(S21) saved: ", len(self.S21imagvals))
-		print("====-----------------------====")
+		print("====---------------------------====")
 
 
 	def save_hdf5(self, filename):
