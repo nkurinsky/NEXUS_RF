@@ -8,7 +8,7 @@ sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
 from VNAfunctions import *  #using the VNA to do a power sweep
 from NEXUSFunctions import * #control NEXUS fridge
-from VNAMeas import VNAMeas
+from VNAMeas import * #vna measurement class
 
 dataPath = '/data/PowerSweeps/VNA'  #VNA subfolder of TempSweeps
 if not os.path.exists(dataPath):
