@@ -35,9 +35,9 @@ class VNAMeas:
 		print("|   N sweep samples: ", self.n_samps)
 		print("|   Sweep f min [Hz]:", self.f_min)
 		print("|   Sweep f max [Hz]:", self.f_max)
-		for i in n.arange(len(start_T)):
+		for i in range(len(start_T)):
 			print("| Start Temp "+str(i)+ " [mK]:", self.start_T[i])
-		for i in n.arange(len(final_T)):
+		for i in range(len(final_T)):
 			print("| Final Temp "+str(i)+ " [mK]:", self.final_T[i])
 		print("|   # freq saved:    ", len(self.frequencies))
 		print("|   # Re(S21) saved: ", len(self.S21realvals))
