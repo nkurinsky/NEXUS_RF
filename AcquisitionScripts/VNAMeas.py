@@ -14,8 +14,8 @@ class VNAMeas:
 	f_min   = 4.24205e9				## [FLOAT] (Hz) minimum frequency of sweep range
 	f_max   = 4.24225e9				## [FLOAT] (Hz) minimum frequency of sweep range
 
-	start_T = 0.0 					## [FLOAT] (mK) Temperature at start of the f sweep
-	final_T = 0.0 					## [FLOAT] (mK) Temperature at end of the f sweep
+	start_T = np.array([])			## [array of FLOAT] (mK) Temperature at start of the f sweep
+	final_T = np.array([])			## [array of FLOAT] (mK) Temperature at end of the f sweep
 
 	frequencies = np.array([])
 	S21realvals = np.array([])
@@ -29,15 +29,15 @@ class VNAMeas:
 	def save_hdf5(self, filename):
 
 		with h5py.File(filename+".h5", "w") as f:
-			d_date    = f.create_dataset("date"   , data=self.date)
-			d_series  = f.create_dataset("series" , data=self.series)
+			d_date    = f.create_dataset("date"   , data=np.array([self.date, dtype='S']))
+			d_series  = f.create_dataset("series" , data=np.array([self.series, dtype='S']))
 
-			d_power   = f.create_dataset("power"  , data=self.power)
-			d_n_avgs  = f.create_dataset("n_avgs" , data=self.n_avgs)
-			d_n_samps = f.create_dataset("n_samps", data=self.n_samps)
+			d_power   = f.create_dataset("power"  , data=np.array([self.power]))
+			d_n_avgs  = f.create_dataset("n_avgs" , data=np.array([self.n_avgs]))
+			d_n_samps = f.create_dataset("n_samps", data=np.array([self.n_samps]))
 
-			d_f_min   = f.create_dataset("f_min"  , data=self.f_min)
-			d_f_max   = f.create_dataset("f_max"  , data=self.f_max)
+			d_f_min   = f.create_dataset("f_min"  , data=np.array([self.f_min]))
+			d_f_max   = f.create_dataset("f_max"  , data=np.array([self.f_max]))
 
 			d_start_T = f.create_dataset("start_T", data=self.start_T)
 			d_final_T = f.create_dataset("final_T", data=self.final_T)
@@ -53,7 +53,7 @@ class VNAMeas:
 
 def decode_hdf5(filename):
 
-	with h5py.File(filename+".h5", "r") as f:
+	with h5py.File(filename, "r") as f:
 		sweep = VNAMeas(f["date"],f["series"])
 
 		sweep.power   = f["power"]
