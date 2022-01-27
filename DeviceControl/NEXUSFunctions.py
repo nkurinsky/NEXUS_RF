@@ -99,5 +99,5 @@ class NEXUSTemps:
         return vStr[4:]
 
     def getTemp(self):
-        return self._getVar(3)
+        return float(self._getVar(3).split(';')[-1])
 
