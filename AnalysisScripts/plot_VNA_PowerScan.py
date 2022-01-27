@@ -99,13 +99,13 @@ for fname in vna_files:
     #plt.figure(1)
     #plt.plot(raw_VNA[::10].real,raw_VNA[::10].imag)
 
-plt.figure()
+fig = plt.figure()
 plt.plot(power_list,fr_list)
 plt.xlabel('power (dBm)')
 plt.ylabel('resonator frequency')
 fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
 
-plt.figure()
+fig = plt.figure()
 plt.plot(power_list,Qr_list)
 plt.xlabel('power (dBm)')
 plt.ylabel('resonator Q')
