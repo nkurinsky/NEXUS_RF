@@ -29,8 +29,8 @@ class VNAMeas:
 	def save_hdf5(self, filename):
 
 		with h5py.File(filename+".h5", "w") as f:
-			d_date    = f.create_dataset("date"   , data=np.array([self.date, dtype='S']))
-			d_series  = f.create_dataset("series" , data=np.array([self.series, dtype='S']))
+			d_date    = f.create_dataset("date"   , data=np.array([self.date], dtype='S'))
+			d_series  = f.create_dataset("series" , data=np.array([self.series], dtype='S'))
 
 			d_power   = f.create_dataset("power"  , data=np.array([self.power]))
 			d_n_avgs  = f.create_dataset("n_avgs" , data=np.array([self.n_avgs]))
