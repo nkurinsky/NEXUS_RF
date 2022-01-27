@@ -25,7 +25,6 @@ if not os.path.exists(seriesPath):
     os.makedirs(seriesPath)
 print ("Scan stored as series "+series+" in path "+sweepPath)
 
-
 # Initialize the NEXUS temperature servers
 nf = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
 # nf = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
@@ -43,20 +42,14 @@ print("Scanning over powers (dB):", powers)
 ## How many readings to take at each step of the sweep
 n_avs = 10
 
-## Parameters for each step of the sweep
-sleepTime = 5
-holdTime  = 60
-
 # Diagnostic text
 print("Current Fridge Temperature (mK): ", nf.getTemp())
 
 print("Power Scan Settings")
 print("   Start Power (dB):", P_min)
-print("     End Power (dB):", P_max+P_step)
+print("     End Power (dB):", P_max)
 print("    Power Step (dB):", P_step)
 print(" N Points Avgeraged:", n_avs)
-print("          Hold Time:", holdTime , "sec")
-print("   Reading Interval:", sleepTime, "sec")
 
 ## Initialize the VNA
 v = VNA()
