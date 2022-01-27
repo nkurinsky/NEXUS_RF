@@ -9,9 +9,11 @@ from   matplotlib import cm
 import pandas as pd
 from   glob import glob
 
-#sys.path.append('/home/nexus-admin/workarea/PyMKID')
 import PyMKID_USRP_functions as puf
 import fitres
+
+sys.path.append('/home/nexus-admin/NEXUS_RF/AcquisitionScripts')
+from VNAMeas import *
 
 ## Set up matplotlib options for plots
 plt.rcParams['axes.grid'] = True
@@ -31,7 +33,7 @@ srPath = dataPath + day + '/' + series + '/'
 
 ## File string format
 fn_prefix = "Psweep_P"
-fn_suffix = "_" + series + ".txt"
+fn_suffix = "_" + series + ".h5"
 
 ## Create a place to store processed output
 out_path = '/data/ProcessedOutputs/out_' + series
@@ -67,17 +69,17 @@ def read_cmt_vna(fname):
 norm = plt.Normalize(vmin=80,vmax=250)
 fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
 for fname in vna_files:
-    ## Extract the RF power from the file name
-    ix_pwr_i = len(srPath+fn_prefix)
-    ix_pwr_f = len(fname)-len(fn_suffix)
-    power = int(float(fname[ix_pwr_i:ix_pwr_f]))
-    print("Extracting data for power:",power,"dBm")
-    power_list.append(power)
+    ## Open the h5 file for this power and extract the class
+    sweep = decode_hdf5(fname)
+    sweep.show()
+
+    ## Extract the RF power from the h5 file
+    print("Extracting data for power:",sweep.power,"dBm")
+    power_list.append(sweep.power)
 
     ## Parse the file, get a complex S21 and frequency in GHz
-    f, S21_real, S21_imag = read_cmt_vna(fname)
-    z = S21_real + 1j*S21_imag
-    f /= 1.0e9
+    f = sweep.frequencies / 1.0e9
+    z = sweep.S21realvals + 1j*sweep.S21imagvals
 
     ## Fit this data file
     fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
