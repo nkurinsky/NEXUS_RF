@@ -522,49 +522,49 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
                     lookformax = True
 
     peaklist = sorted(peaklist)
-    print('Position of identified peaks (index)', peaklist)
+    print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
 
-    ## Create a plot 
-    def peak_figure():
-        fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
+    # ## Create a plot 
+    # def peak_figure():
+    fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
 
-        ## Set plot title
-        axarr[0].set_title('Transmission with Resonance Identification')
+    ## Set plot title
+    axarr[0].set_title('Transmission with Resonance Identification')
 
-        ## Plot the unaltered transmission on top panel
-        axarr[0].plot(f, 20*np.log10(abs(np.array(z))))
+    ## Plot the unaltered transmission on top panel
+    axarr[0].plot(f, 20*np.log10(abs(np.array(z))))
 
-        ## Plot the bottom panel
-        axarr[1].plot(f, mfz/bstd)
-        
-        ## Make the labels
-        axarr[1].set_xlabel("Frequency [GHz]")
+    ## Plot the bottom panel
+    axarr[1].plot(f, mfz/bstd)
+    
+    ## Make the labels
+    axarr[1].set_xlabel("Frequency [GHz]")
 
-        axarr[0].set_ylabel("|$S_{21}$| [dB]")
-        axarr[1].set_ylabel("|filtered z| [#std]")
+    axarr[0].set_ylabel("|$S_{21}$| [dB]")
+    axarr[1].set_ylabel("|filtered z| [#std]")
 
-        ## Draw some lines
-        axarr[1].axhline(y=nsig, color="red", label="nsig = "+str(nsig))
-        axarr[1].axhline(y=gamma/bstd, color="green")
-        axarr[1].axvline(x=start_f, color="gray")
-        axarr[1].axvline(x=stop_f, color="gray")
+    ## Draw some lines
+    axarr[1].axhline(y=nsig, color="red", label="nsig = "+str(nsig))
+    axarr[1].axhline(y=gamma/bstd, color="green")
+    axarr[1].axvline(x=start_f, color="gray")
+    axarr[1].axvline(x=stop_f, color="gray")
 
-        ## Draw a point
-        axarr[1].plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
-        axarr[1].plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
-        plt.legend()
-        return fig
+    ## Draw a point
+    axarr[1].plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
+    axarr[1].plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
+    plt.legend()
+    # return fig
 
-    # Plot the transmission and peaks
-    fig = peak_figure()
+    # # Plot the transmission and peaks
+    # fig = peak_figure()
 
-    # Save to pdf if pdf_rewrite == True
-    if pdf_rewrite == True:
-        plt.figure(figsize=(10, 10))
-        peak_figure()
-        Res_pdf = PdfPages(filename+'.pdf')
-        Res_pdf.savefig()
-        plt.close()
+    # # Save to pdf if pdf_rewrite == True
+    # if pdf_rewrite == True:
+    #     plt.figure(figsize=(10, 10))
+    #     peak_figure()
+    #     Res_pdf = PdfPages(filename+'.pdf')
+    #     Res_pdf.savefig()
+    #     plt.close()
 
     # initialize the parameter lists
     fr_list = np.zeros(len(peaklist))
