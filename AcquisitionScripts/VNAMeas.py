@@ -26,6 +26,25 @@ class VNAMeas:
 		self.series = series
 		return None
 
+	def show(self):
+		print("VNA Measurement:", self.series)
+		print("====-----------------------====")
+		print("|             Date:  ", self.date)
+		print("|   RF Power [dBm]:  ", self.power)
+		print("|   N averages:      ", self.n_avgs)
+		print("|   N sweep samples: ", self.n_samps)
+		print("|   Sweep f min [Hz]:", self.f_min)
+		print("|   Sweep f max [Hz]:", self.f_max)
+		for i in n.arange(len(start_T)):
+			print("| Start Temp "+str(i)+ " [mK]:", self.start_T[i])
+		for i in n.arange(len(final_T)):
+			print("| Final Temp "+str(i)+ " [mK]:", self.final_T[i])
+		print("|   # freq saved:    ", len(self.frequencies))
+		print("|   # Re(S21) saved: ", len(self.S21realvals))
+		print("|   # Im(S21) saved: ", len(self.S21imagvals))
+		print("====-----------------------====")
+
+
 	def save_hdf5(self, filename):
 
 		with h5py.File(filename+".h5", "w") as f:
@@ -54,17 +73,20 @@ class VNAMeas:
 def decode_hdf5(filename):
 
 	with h5py.File(filename, "r") as f:
-		sweep = VNAMeas(f["date"],f["series"])
+		_date = f["date"][0].decode('UTF-8')
+		_sers = f["series"][0].decode('UTF-8')
+		sweep = VNAMeas(_date,_sers)
 
-		sweep.power   = f["power"]
-		sweep.n_avgs  = f["n_avgs"]
-		sweep.n_samps = f["n_samps"]
-		sweep.f_min   = f["f_min"]
-		sweep.f_max   = f["f_max"]
-		sweep.start_T = f["start_T"]
-		sweep.final_T = f["final_T"]
-		sweep.frequencies = f["frequencies"]
-		sweep.S21realvals = f["S21realvals"]
-		sweep.S21imagvals = f["S21imagvals"]
+		sweep.power   = f["power"][0]
+		sweep.n_avgs  = f["n_avgs"][0]
+		sweep.n_samps = f["n_samps"][0]
+		sweep.f_min   = f["f_min"][0]
+		sweep.f_max   = f["f_max"][0]
+
+		sweep.start_T = np.array(f["start_T"])
+		sweep.final_T = np.array(f["final_T"])
+		sweep.frequencies = np.array(f["frequencies"])
+		sweep.S21realvals = np.array(f["S21realvals"])
+		sweep.S21imagvals = np.array(f["S21imagvals"])
 
 		return sweep
