@@ -67,16 +67,19 @@ def read_cmt_vna(fname):
 norm = plt.Normalize(vmin=80,vmax=250)
 fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
 for fname in vna_files:
+    ## Extract the RF power from the file name
     ix_pwr_i = len(srPath+fn_prefix)
     ix_pwr_f = len(fname)-len(fn_suffix)
     power = int(float(fname[ix_pwr_i:ix_pwr_f]))
     print("Extracting data for power:",power,"dBm")
     power_list.append(power)
 
+    ## Parse the file, get a complex S21 and frequency in GHz
     f, S21_real, S21_imag = read_cmt_vna(fname)
     z = S21_real + 1j*S21_imag
     f /= 1.0e9
 
+    ## Fit this data file
     fr, Qr, Qc, Qi = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
 
     fr_list.append(fr[0]); Qr_list.append(Qr[0])
@@ -101,13 +104,3 @@ plt.figure()
 plt.plot(power_list,Qr_list)
 plt.xlabel('power (dBm)')
 plt.ylabel('resonator Q')
-
-plt.title(('MKID Frequency Sweep at ' +("%.1f" % power)+' dBm'), fontdict = {'fontsize': 18})
-plt.figure()
-plt.xlabel('f [MHz]', fontdict = {'fontsize': 18})
-plt.ylabel('S21 [dB]', fontdict = {'fontsize': 18})
-cbar=plt.colorbar(cm.ScalarMappable(cmap=cm.jet, norm=norm),shrink=0.8)
-cbar.set_label('Temperature [mK]', size=16)
-plt.legend(loc='center left',bbox_to_anchor=(1.,0.5))
-plt.tight_layout()
-plt.show()

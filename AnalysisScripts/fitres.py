@@ -424,7 +424,7 @@ def sweep_fit_from_file(fname, nsig=3, fwindow=5e-4, chan="S21", h5_rewrite=Fals
     with h5py.File(fname, "r") as fyle:
         f = np.array(fyle["{}/f".format(chan)])
         z = np.array(fyle["{}/z".format(chan)])
-    fr_list, Qr_list, Qc_list, Qi_list = sweep_fit(f,z,nsig=nsig,fwindow=fwindow,pdf_rewrite=pdf_rewrite,additions=additions,filename=fname[:-3],start_f=start_f,stop_f=stop_f)
+    fr_list, Qr_list, Qc_list, Qi_list, fig = sweep_fit(f,z,nsig=nsig,fwindow=fwindow,pdf_rewrite=pdf_rewrite,additions=additions,filename=fname[:-3],start_f=start_f,stop_f=stop_f)
 
     # save the lists to fname
     if h5_rewrite == True:
@@ -461,33 +461,37 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
         fr_list, Qr_list, Qc_list, Qi_list (fitted values for each resonator)
     """
 
-    #organize the frequencies
+    # Sort the datapoints so frequencies are in order
     z_1 = [zs for _,zs in sorted(zip(f,z))]
     f_1 = [fs for fs,_ in sorted(zip(f,z))]
     z = np.array(z_1)
     f = np.array(f_1)
 
-    nfreq = 1/(2*(abs(f[-1]-f[0])/(len(f)-1)))    # The nyquist frequency [s]
-    evfreq = 1/(2*fwindow)    # The frequency corresponding to the expected window size [s]
-    b, a = sig.butter(2, evfreq/nfreq, btype='highpass')
-    mfz = np.sqrt(sig.filtfilt(b, a, z.real)**2 + sig.filtfilt(b, a, z.imag)**2)  # The magnitude of filtered z, The filtfilt part calls a deprication warning for unknown reasons
+    ## Extract Nyquist frequency [s]
+    nfreq = 1/(2*(abs(f[-1]-f[0])/(len(f)-1)))
 
-    # Do some averaging
+    ## The frequency corresponding to the expected window size [s]
+    b, a = sig.butter(2, evfreq/nfreq, btype='highpass')
+
+    ## The magnitude of filtered z, The filtfilt part calls a deprication warning for unknown reasons
+    mfz = np.sqrt(sig.filtfilt(b, a, z.real)**2 + sig.filtfilt(b, a, z.imag)**2)  
+
+    ## Do some averaging
     mfz = (mfz+np.append(0,mfz[:-1])+np.append(mfz[1:],0)+np.append([0,0],mfz[:-2])+np.append(mfz[2:],[0,0]))/5
     mfz = (mfz+np.append(0,mfz[:-1])+np.append(mfz[1:],0))/3
 
-    # Record the standard deviation of mfz
+    ## Record the standard deviation of mfz
     bstd = np.std(mfz)
 
-    # initialize peaklist
+    ## initialize peaklist
     peaklist = np.array([], dtype = int)
 
-    # add the manually entered frequencies to peaklist
+    ## add the manually entered frequencies to peaklist
     for added in additions:
         peaklist = np.append(peaklist, np.argmin(abs(f-added)))
     addlist = peaklist
 
-    # initialize mx below min
+    ## initialize mx below min
     mx = -np.inf
     peak_pos = 0
     mx_pos = np.nan
@@ -495,7 +499,7 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     delta = nsig*bstd
     gamma = 3*np.mean(mfz[mfz<delta])
 
-    # find peaks and add them to peaklist
+    ## find peaks and add them to peaklist
     for i in range(len(mfz)):
         if (f[i] >= start_f)*(f[i] <= stop_f):
             cp = mfz[i]
@@ -515,28 +519,42 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
                     lookformax = True
 
     peaklist = sorted(peaklist)
-    print('peaklist', peaklist)
+    print('Position of identified peaks (index)', peaklist)
 
+    ## Create a plot 
     def peak_figure():
+        plt.figure()
         fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
-        axarr[0].plot(f, 20*np.log10(abs(np.array(z)))) # plot the unaltered transmission
+
+        ## Set plot title
         axarr[0].set_title('Transmission with Resonance Identification')
-        axarr[0].set_ylabel("|$S_{21}$| [dB]")
+
+        ## Plot the unaltered transmission on top panel
+        axarr[0].plot(f, 20*np.log10(abs(np.array(z))))
+
+        ## Plot the bottom panel
         axarr[1].plot(f, mfz/bstd)
-        axarr[1].set_ylabel("|filtered z| [#std]")
+        
+        ## Make the labels
         axarr[1].set_xlabel("Frequency [GHz]")
+
+        axarr[0].set_ylabel("|$S_{21}$| [dB]")
+        axarr[1].set_ylabel("|filtered z| [#std]")
+
+        ## Draw some lines
         axarr[1].axhline(y=nsig, color="red", label="nsig = "+str(nsig))
         axarr[1].axhline(y=gamma/bstd, color="green")
         axarr[1].axvline(x=start_f, color="gray")
         axarr[1].axvline(x=stop_f, color="gray")
+
+        ## Draw a point
         axarr[1].plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
         axarr[1].plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
         plt.legend()
+        return fig
 
     # Plot the transmission and peaks
-    plt.figure()
-    peak_figure()
-    plt.show()
+    fig = peak_figure()
 
     # Save to pdf if pdf_rewrite == True
     if pdf_rewrite == True:
@@ -634,7 +652,7 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     if pdf_rewrite == True:
         Res_pdf.close()
 
-    return fr_list, Qr_list, Qc_list, Qi_list
+    return fr_list, Qr_list, Qc_list, Qi_list, fig
 
 if __name__ == '__main__':
     sweep_fit_from_file("191206YY180726p2.h5", nsig=1, fwindow=5e-4, h5_rewrite=True, pdf_rewrite=True, start_f=3.13, stop_f=3.18)
