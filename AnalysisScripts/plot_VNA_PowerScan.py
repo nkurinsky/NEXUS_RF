@@ -13,18 +13,31 @@ from   glob import glob
 import PyMKID_USRP_functions as puf
 import fitres
 
+## Set up matplotlib options for plots
+plt.rcParams['axes.grid'] = True
+plt.rcParams.update({'font.size': 12})
+#plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
+dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
 ## Path to VNA data
 dataPath = '/data/PowerSweeps/VNA/'
 
 ## Series identifier
-day    = '20211204'
-time   = '153907'
+day    = '20220126'
+time   = '180408'
 series = day + '_' + time
 srPath = dataPath + day + '/' + series + '/'
 
 ## File string format
 fn_prefix = "Psweep_P"
 fn_suffix = "_" + series + ".txt"
+
+## Create a place to store processed output
+out_path = '/data/ProcessedOutputs/out_' + series
+if not os.path.exists(out_path):
+    os.makedirs(out_path)
+print("Storing output at",out_path)
 
 ## Find and sort the relevant directories in the series
 print("Searching for files in:", srPath)
@@ -50,7 +63,7 @@ def read_cmt_vna(fname):
 
 
 
-plt.rcParams.update({'font.size': 15})
+#plt.rcParams.update({'font.size': 15})
 norm = plt.Normalize(vmin=80,vmax=250)
 fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
 for fname in vna_files:
@@ -88,14 +101,13 @@ plt.figure()
 plt.plot(power_list,Qr_list)
 plt.xlabel('power (dBm)')
 plt.ylabel('resonator Q')
-plt.show()
 
-# plt.title(('MKID Frequency Sweep at ' +power+' dBm'), fontdict = {'fontsize': 18})
-# plt.figure(2)
-# plt.xlabel('f [MHz]', fontdict = {'fontsize': 18})
-# plt.ylabel('S21 [dB]', fontdict = {'fontsize': 18})
-# cbar=plt.colorbar(cm.ScalarMappable(cmap=cm.jet, norm=norm),shrink=0.8)
-# cbar.set_label('Temperature [mK]', size=16)
-# #plt.legend(loc='center left',bbox_to_anchor=(1.,0.5))
-# plt.tight_layout()
-# plt.show()
+plt.title(('MKID Frequency Sweep at ' +("%.1f" % power)+' dBm'), fontdict = {'fontsize': 18})
+plt.figure()
+plt.xlabel('f [MHz]', fontdict = {'fontsize': 18})
+plt.ylabel('S21 [dB]', fontdict = {'fontsize': 18})
+cbar=plt.colorbar(cm.ScalarMappable(cmap=cm.jet, norm=norm),shrink=0.8)
+cbar.set_label('Temperature [mK]', size=16)
+plt.legend(loc='center left',bbox_to_anchor=(1.,0.5))
+plt.tight_layout()
+plt.show()
