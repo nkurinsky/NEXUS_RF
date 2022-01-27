@@ -61,9 +61,9 @@ class VNAMeas:
 			d_start_T = f.create_dataset("start_T", data=self.start_T)
 			d_final_T = f.create_dataset("final_T", data=self.final_T)
 
-			d_frequencies = f.create_dataset("frequencies", data=self.frequencies)
-			d_S21realvals = f.create_dataset("S21realvals", data=self.S21realvals)
-			d_S21imagvals = f.create_dataset("S21imagvals", data=self.S21imagvals)
+			d_frequencies = f.create_dataset("frequencies", data=self.frequencies.astype(float))
+			d_S21realvals = f.create_dataset("S21realvals", data=self.S21realvals.astype(float))
+			d_S21imagvals = f.create_dataset("S21imagvals", data=self.S21imagvals.astype(float))
 
 			f.close()
 
