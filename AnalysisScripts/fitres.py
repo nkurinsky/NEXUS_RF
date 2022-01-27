@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import h5py
 from functools import partial
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.gridspec import GridSpec
 
 def removecable(f, z, tau, f1):
     """
@@ -526,32 +527,42 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
 
     # ## Create a plot 
     # def peak_figure():
-    fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
+    fig = plt.figure(figsize=(9,7))
+
+    # Define the grid
+    gs = GridSpec(2, 1, width_ratios=[1], height_ratios=[1, 1])
+    gs.update(wspace=0.33, hspace=0.30) 
+
+    # Define the plot array
+    ax0 = fig.add_subplot(gs[0])
+    ax1 = fig.add_subplot(gs[1])
+
+    # fig, axarr = plt.subplots(nrows=2, sharex=True, num=1)
 
     ## Set plot title
-    axarr[0].set_title('Transmission with Resonance Identification')
+    ax0.set_title('Transmission with Resonance Identification')
 
     ## Plot the unaltered transmission on top panel
-    axarr[0].plot(f, 20*np.log10(abs(np.array(z))))
+    ax0.plot(f, 20*np.log10(abs(np.array(z))))
 
     ## Plot the bottom panel
-    axarr[1].plot(f, mfz/bstd)
+    ax1.plot(f, mfz/bstd)
     
     ## Make the labels
-    axarr[1].set_xlabel("Frequency [GHz]")
+    ax1.set_xlabel("Frequency [GHz]")
 
-    axarr[0].set_ylabel("|$S_{21}$| [dB]")
-    axarr[1].set_ylabel("|filtered z| [#std]")
+    ax0.set_ylabel("|$S_{21}$| [dB]")
+    ax1.set_ylabel("|filtered z| [#std]")
 
     ## Draw some lines
-    axarr[1].axhline(y=nsig, color="red", label="nsig = "+str(nsig))
-    axarr[1].axhline(y=gamma/bstd, color="green")
-    axarr[1].axvline(x=start_f, color="gray")
-    axarr[1].axvline(x=stop_f, color="gray")
+    ax1.axhline(y=nsig, color="red", label="nsig = "+str(nsig))
+    ax1.axhline(y=gamma/bstd, color="green")
+    ax1.axvline(x=start_f, color="gray")
+    ax1.axvline(x=stop_f, color="gray")
 
     ## Draw a point
-    axarr[1].plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
-    axarr[1].plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
+    ax1.plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
+    ax1.plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
     plt.legend()
     # return fig
 
