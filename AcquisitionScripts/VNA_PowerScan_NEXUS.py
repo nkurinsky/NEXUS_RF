@@ -7,7 +7,8 @@ import datetime
 sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
 from VNAfunctions import *  #using the VNA to do a power sweep
-# from NEXUSFunctions import * #control NEXUS fridge
+from NEXUSFunctions import * #control NEXUS fridge
+from VNAMeas import VNAMeas
 
 dataPath = '/data/PowerSweeps/VNA'  #VNA subfolder of TempSweeps
 if not os.path.exists(dataPath):
@@ -25,10 +26,9 @@ if not os.path.exists(seriesPath):
 print ("Scan stored as series "+series+" in path "+sweepPath)
 
 
-## Initialize the NEXUS fridge
-# nf = NEXUSFridge(server_ip="192.168.0.34",server_port=11034)
-
-#powers = [-55, -50, -45, -40, -35, -30, -25, -20]
+# Initialize the NEXUS temperature servers
+nf = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
+# nf = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
@@ -47,9 +47,8 @@ n_avs = 10
 sleepTime = 5
 holdTime  = 60
 
-## Diagnostic text
-# print("Current Fridge Setpoint    (mK): ", nf.getSP())
-# print("Current Fridge Temperature (mK): ", nf.getTemp())
+# Diagnostic text
+print("Current Fridge Temperature (mK): ", nf.getTemp())
 
 print("Power Scan Settings")
 print("   Start Power (dB):", P_min)
@@ -70,21 +69,39 @@ n_samps = 5e4
 ## Start the power loop
 for power in powers:
   print("Current Power (dBm):", str(round(power)))
-  
-  ## Create a filename for this acquisition
+
+  ## Create a filename for this sweep
   output_filename = seriesPath +"/Psweep_P"+str(power)+"_"+series
+
+  ## Create a class to contain the sweep result
+  sweep = VNAMeas(dateStr, series)
+  sweep.power   = power
+  sweep.n_avgs  = n_avs
+  sweep.n_samps = n_samps
+  sweep.f_min   = freqmin
+  sweep.f_max   = freqmax
+
+  ## Grab and save the fridge temperature before starting sweep
+  sweep.start_T = float(nf.getTemp())
 
   ## Set the VNA stimulus power and take a frequency sweep
   v.setPower(power)
   freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs)
-  # freqs, S21_real, S21_imag = v.takeSweep(4.24212e9, 4.24262e9, 5e4, n_avs)
+
+  ## Grab and save the fridge temperature after sweep
+  sweep.final_T = float(nf.getTemp())
+
+  ## Save the result to our class instance
+  sweep.frequencies = n.array(freqs)
+  sweep.S21realvals = n.array(S21_real)
+  sweep.S21imagvals = n.array(S21_imag)
+
+  ## Write our class to a file
+  print("Storing data at:", sweep.save_hdf5(output_filename))
 
   ## Store the data in our file name
   v.storeData(freqs, S21_real, S21_imag, output_filename)
 
 ## Diagnostic text
-# print("Current Fridge Setpoint    (mK): ", nf.getSP())
-# print("Current Fridge Temperature (mK): ", nf.getTemp())
-
-## 
+print("Current Fridge Temperature (mK): ", nf.getTemp())
 print("Power scan complete.")
