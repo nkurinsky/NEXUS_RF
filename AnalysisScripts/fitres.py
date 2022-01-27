@@ -471,6 +471,9 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     nfreq = 1/(2*(abs(f[-1]-f[0])/(len(f)-1)))
 
     ## The frequency corresponding to the expected window size [s]
+    evfreq = 1/(2*fwindow) 
+
+    ## Butter some bread?
     b, a = sig.butter(2, evfreq/nfreq, btype='highpass')
 
     ## The magnitude of filtered z, The filtfilt part calls a deprication warning for unknown reasons
