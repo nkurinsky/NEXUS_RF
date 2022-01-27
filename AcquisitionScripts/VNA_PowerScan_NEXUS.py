@@ -26,8 +26,8 @@ if not os.path.exists(seriesPath):
 print ("Scan stored as series "+series+" in path "+sweepPath)
 
 # Initialize the NEXUS temperature servers
-nf = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
-# nf = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
+nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
+nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
@@ -43,7 +43,8 @@ print("Scanning over powers (dB):", powers)
 n_avs = 10
 
 # Diagnostic text
-print("Current Fridge Temperature (mK): ", nf.getTemp())
+print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
+print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
 
 print("Power Scan Settings")
 print("   Start Power (dB):", P_min)
@@ -75,19 +76,19 @@ for power in powers:
   sweep.f_max   = freqmax
 
   ## Grab and save the fridge temperature before starting sweep
-  sweep.start_T = float(nf.getTemp())
+  sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
 
   ## Set the VNA stimulus power and take a frequency sweep
   v.setPower(power)
   freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs)
 
   ## Grab and save the fridge temperature after sweep
-  sweep.final_T = float(nf.getTemp())
+  sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
 
   ## Save the result to our class instance
-  sweep.frequencies = n.array(freqs)
-  sweep.S21realvals = n.array(S21_real)
-  sweep.S21imagvals = n.array(S21_imag)
+  sweep.frequencies = np.array(freqs)
+  sweep.S21realvals = np.array(S21_real)
+  sweep.S21imagvals = np.array(S21_imag)
 
   ## Write our class to a file
   print("Storing data at:", sweep.save_hdf5(output_filename))
@@ -96,5 +97,6 @@ for power in powers:
   v.storeData(freqs, S21_real, S21_imag, output_filename)
 
 ## Diagnostic text
-print("Current Fridge Temperature (mK): ", nf.getTemp())
+print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
+print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
 print("Power scan complete.")
