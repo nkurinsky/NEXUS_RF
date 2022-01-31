@@ -231,7 +231,7 @@ def fitphase(f, z, f0g, Qg):
 
     return fresult[0][0],fresult[0][1],fresult[0][2]
 
-def roughfit(f, z, fr_0):
+def roughfit(f, z, fr_0, plot=False):
 
     edge_data_f = np.hstack((f[:int(len(f)/100)],f[-int(len(f)/100):]))
     edge_data_z = np.hstack((z[:int(len(f)/100)],z[-int(len(f)/100):]))
@@ -241,7 +241,7 @@ def roughfit(f, z, fr_0):
     tau_fit = np.polyfit(edge_data_f-f[id_f0],np.angle(edge_data_z/z[id_f0]),1)
     tau_1 = tau_fit[0]/(-2*np.pi)
 
-    if False:
+    if plot:
         plt.plot(edge_data_f-f[id_f0],np.angle(edge_data_z/z[id_f0]),'.')
         plt.plot(edge_data_f-f[id_f0],tau_fit[0]*(edge_data_f-f[id_f0])+tau_fit[1])
         plt.show()
@@ -252,7 +252,7 @@ def roughfit(f, z, fr_0):
     # remove cable term
     z1 = removecable(f, z, tau_1+1j*Imtau_1, fr_0)
 
-    if False:
+    if plot:
         #print tau_1
         plt.figure(1)
         plt.axvline(x=0, color='gray')
@@ -281,7 +281,7 @@ def roughfit(f, z, fr_0):
     z1b = z1*np.exp(-1j*np.angle(zc, deg=False))
     z2 = (zc-z1)*np.exp(-1j*np.angle(zc, deg=False))
 
-    if False:
+    if plot:
         plt.figure(2)
         plt.axvline(x=0, color='gray')
         plt.axhline(y=0, color='gray')
@@ -302,7 +302,7 @@ def roughfit(f, z, fr_0):
 
     Qc = abs(z_off)*Q/(2*r)
 
-    if False:
+    if plot:
         z_rough = z_off*np.exp(-2j*np.pi*(f-f0)*(tau_1+1j*Imtau_1))*(1-((Q/Qc)*np.exp(1j*phi))/(1+2j*Q*((f-f0)/f0)))
         plt.figure(1)
         plt.plot(z.real,z.imag)
@@ -315,7 +315,16 @@ def roughfit(f, z, fr_0):
         plt.plot(f,z_rough.imag)
         plt.show()
 
-    return f0, Q, phi, z_off, Qc, tau_1, Imtau_1
+    ## Create a dictionary for the output
+    result = {  "f0"    : f0, 
+                "Q"     : Q,
+                "phi"   : phi,
+                "zOff"  : z_off,
+                "Qc"    : Qc,
+                "tau1"  : tau_1,
+                "Imtau1": Imtau_1}
+
+    return result
 
 def resfunc3(f, fr, Qr, Qc_hat_mag, a, phi, tau):
     """A semi-obvious form of Gao's S21 function. e^(2j*pi*fr*tau) is incorporated into a."""
@@ -333,7 +342,7 @@ def resfunc8(f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau):
     imag_S21[f_proj<0] = 0
     return real_S21 + imag_S21
 
-def finefit(f, z, fr_0):
+def finefit(f, z, fr_0, plot=False):
     """
     finefit fits f and z to the resonator model described in Jiansong's thesis
 
@@ -347,7 +356,20 @@ def finefit(f, z, fr_0):
     """
 
     # find starting parameters using a rough fit
-    fr_1, Qr_1, phi_1, a_1, Qc_hat_mag_1, tau_1, Imtau_1 = roughfit(f, z, fr_0)
+    # fr_1, Qr_1, phi_1, a_1, Qc_hat_mag_1, tau_1, Imtau_1 = roughfit(f, z, fr_0)
+    rough_res = roughfit(f, z, fr_0, plot=False)
+
+    ## Unpack the result
+    fr_1    = rough_res["f0"]
+    Qr_1    = rough_res["Q"]
+    phi_1   = rough_res["phi"]
+    a_1     = rough_res["zOff"]
+    Qc_hat_mag_1 = rough_res["Qc"]
+    tau_1   = rough_res["tau1"]
+    Imtau_1 = rough_res["Imtau1"]
+
+    ## Create array of initial guesses for params
+    pGuess = [fr_1, Qr_1, Qc_hat_mag_1, a_1.real, a_1.imag, phi_1, tau_1, Imtau_1]
 
     # trim data?
     #if False:
@@ -359,9 +381,9 @@ def finefit(f, z, fr_0):
     # combine x and y data so the fit can go over both simultaneously
     xdata = np.concatenate([-f, f])
     ydata = np.concatenate([z.real, z.imag])
-    final_fit_plotting = False
+    
 
-    if final_fit_plotting:
+    if plot:
         plt.figure(1)
         plt.plot(abs(xdata[:len(z)]),20*np.log10(abs(ydata[:len(z)]+1j*ydata[len(z):])),'.')
         plt.plot(abs(xdata[:len(z)]),20*np.log10(abs(resfunc8(xdata[:len(z)],fr_1, Qr_1, Qc_hat_mag_1, a_1.real, a_1.imag, phi_1, tau_1, Imtau_1)+1j*resfunc8(xdata[len(z):],fr_1, Qr_1, Qc_hat_mag_1, a_1.real, a_1.imag, phi_1, tau_1, Imtau_1))),label='roughfit')
@@ -375,9 +397,10 @@ def finefit(f, z, fr_0):
         plt.plot(z.real,z.imag,'.')
         plt.plot(resfunc3(f,fr_1,Qr_1,Qc_hat_mag_1,a_1,phi_1,tau_1).real,resfunc3(f,fr_1,Qr_1,Qc_hat_mag_1,a_1,phi_1,tau_1).imag,label='roughfit')
 
-    fparams, fcov = opt.curve_fit(resfunc8, xdata, ydata, p0=[fr_1, Qr_1, Qc_hat_mag_1, a_1.real, a_1.imag, phi_1, tau_1, Imtau_1], bounds=([min(f), 0, 0, -np.inf, -np.inf,-1*np.pi, -np.inf, -np.inf], [max(f), np.inf, np.inf, np.inf, np.inf, np.pi, np.inf, np.inf]))
+    fopt, fcov = opt.curve_fit(resfunc8, xdata, ydata, p0=pGuess, bounds=([min(f), 0, 0, -np.inf, -np.inf,-1*np.pi, -np.inf, -np.inf], [max(f), np.inf, np.inf, np.inf, np.inf, np.pi, np.inf, np.inf]))
+    ferr = np.sqrt(np.diag(fcov))
 
-    if final_fit_plotting:
+    if plot:
         plt.figure(1)
         plt.plot(abs(xdata[:len(z)]), 20*np.log10(abs(resfunc8(xdata[:len(z)],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7])+1j*resfunc8(xdata[len(z):],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7]))),label='finefit')
         plt.plot(fparams[0], 20*np.log10(abs(resfunc8(-1.*fparams[0],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7])+1j*resfunc8(fparams[0],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7]))),'o',label='finefit fr')
@@ -391,16 +414,33 @@ def finefit(f, z, fr_0):
         plt.legend()
         plt.show()
 
-    fr_fine = fparams[0]
-    Qr_fine = fparams[1]
-    Qc_hat_mag_fine = fparams[2]
-    a_fine = fparams[3]+1j*fparams[4]
-    phi_fine = fparams[5]
-    tau_fine = fparams[6] + 1j*fparams[7]
+    ## Create a dictionary of the result params
+    fine_pars = { "f0"    : fopt[0], 
+                  "Qr"    : fopt[1],
+                  "phi"   : fopt[5],
+                  "zOff"  : fopt[3]+1j*fopt[4],
+                  "QcHat" : fopt[2],
+                  "tau"   : fopt[6]+1j*fopt[7],
+                  "Qc"    : fopt[2]/np.cos(fopt[5])}
 
-    Qc_fine =  Qc_hat_mag_fine/np.cos(phi_fine)
+    fine_errs = { "f0"    : ferr[0], 
+                  "Qr"    : ferr[1],
+                  "phi"   : ferr[5],
+                  "zOff"  : ferr[3]+1j*ferr[4],
+                  "QcHat" : ferr[2],
+                  "tau"   : ferr[6]+1j*ferr[7],
+                  "Qc"    : ferr[2]/np.cos(ferr[5])}
 
-    return fr_fine, Qr_fine, Qc_hat_mag_fine, a_fine, phi_fine, tau_fine, Qc_fine
+    # fr_fine = fparams[0]
+    # Qr_fine = fparams[1]
+    # Qc_hat_mag_fine = fparams[2]
+    # a_fine = fparams[3]+1j*fparams[4]
+    # phi_fine = fparams[5]
+    # tau_fine = fparams[6] + 1j*fparams[7]
+
+    # Qc_fine =  Qc_hat_mag_fine/np.cos(phi_fine)
+
+    return fine_pars, fine_errs
 
 
 def sweep_fit_from_file(fname, nsig=3, fwindow=5e-4, chan="S21", h5_rewrite=False, pdf_rewrite=False, additions=[], start_f=None, stop_f=None):
@@ -580,14 +620,14 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
         plt.close()
 
     # initialize the parameter lists
-    fr_list = np.zeros(len(peaklist))
-    Qr_list = np.zeros(len(peaklist))
+    fr_list  = np.zeros(len(peaklist))
+    Qr_list  = np.zeros(len(peaklist))
     Qc_hat_mag_list = np.zeros(len(peaklist))
-    Qc_list = np.zeros(len(peaklist))
-    Qi_list = np.zeros(len(peaklist))
-    a_list = np.array([0.+0j]*len(peaklist))
+    Qc_list  = np.zeros(len(peaklist))
+    Qi_list  = np.zeros(len(peaklist))
+    a_list   = np.zeros(len(peaklist), dtype='complex')
     phi_list = np.zeros(len(peaklist))
-    tau_list = np.array([0.+0j]*len(peaklist))
+    tau_list = np.zeros(len(peaklist), dtype='complex')
 
     # define the windows around each peak. and then use finefit to find the parameters
     for i in range(len(peaklist)):
@@ -597,8 +637,16 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
         z_curr = z[curr_pts]
 
         try:
-            fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = finefit(f_curr, z_curr, f[peaklist[i]])
-            Qi_list[i] = (Qr_list[i]*Qc_list[i])/(Qc_list[i]-Qr_list[i])
+            # fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = finefit(f_curr, z_curr, f[peaklist[i]])
+            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]])
+            fr_list[i]  = fine_pars["f0"]
+            Qr_list[i]  = fine_pars["Qr"]
+            Qc_hat_mag_list[i] = fine_pars["QcHat"]
+            a_list[i]   = fine_pars["zOff"]
+            phi_list[i] = fine_pars["phi"]
+            tau_list[i] = fine_pars["tau"] 
+            Qc_list[i]  = fine_pars["Qc"]
+            Qi_list[i]  = (Qr_list[i]*Qc_list[i])/(Qc_list[i]-Qr_list[i])
         except Exception as issue:
             print('      failure')
             print(issue)
