@@ -40,14 +40,6 @@ class VNA:
         datavals = datavals.rstrip("\n")
         return datavals
 
-#    def _waitCmd(self):
-#        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#        s.connect(self.server_address)
-#        s.sendall("*OPC?\n".encode())
-#        opComplete = s.recv(8)
-#
-#        return
-
     def setPower(self, power):
         self._sendCmd("SOURce:POWer "+str(power)+"\n")
         print("SOURce:POWer "+str(power))
@@ -56,16 +48,18 @@ class VNA:
     def getPower(self):
         power=0
         power=self._sendCmd("SOURce:POWer?"+"\n")
-        print("power is "+str(power)+" dBm")
+        print("Power is "+str(power)+" dBm")
         return power
 
     def singleTrigAndWait(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(self.server_address)
+        print("Starting frequency sweep and waiting for complete. . .")
         s.sendall("TRIG:SING\n".encode())
         s.sendall("DISP:WIND:TRAC:Y:AUTO\n".encode())
         s.sendall("*OPC?\n".encode())
         opComplete = s.recv(8)
+        print("Done. . . ", "("+str(opComplete)+")")
         s.close()
         return
 
@@ -147,25 +141,6 @@ class VNA:
 
         f.close()
         return freqs, real, imag
-
-    def readData_old(self, fname):
-        freqs = []
-        real = []
-        f = open(fname, "r")
-
-        #remove header
-        buffer = f.readline()
-
-        line = f.readline()
-        while len(line)>2:
-            line = line.rstrip("\n")
-            data = line.split(",")
-            freqs.append(float(data[0])/1e6)
-            real.append(float(data[1]))
-            line = f.readline()
-
-        f.close()
-        return freqs, real
 
     def comp2mag(self, real, imag):
         mags = []
