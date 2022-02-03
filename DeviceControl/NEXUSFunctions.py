@@ -103,5 +103,10 @@ class NEXUSTemps:
         return vStr[4:]
 
     def getTemp(self):
-        return float(self._getVar(2)) ## mK
+        try:
+            ans = float(self._getVar(2)) ## mK
+        except socket.timeout:
+            print("Timeout on", self.server_address[0])
+            ans = -99.99
+        return ans
 
