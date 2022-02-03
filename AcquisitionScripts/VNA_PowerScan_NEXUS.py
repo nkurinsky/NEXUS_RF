@@ -4,12 +4,12 @@ import numpy as np
 import datetime
 import argparse
 
-# ## Point to the backend function scripts
-# sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
+## Point to the backend function scripts
+sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
-# from VNAfunctions import *  #using the VNA to do a power sweep
-# from NEXUSFunctions import * #control NEXUS fridge
-# from VNAMeas import * #vna measurement class
+from VNAfunctions import *  #using the VNA to do a power sweep
+from NEXUSFunctions import * #control NEXUS fridge
+from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
