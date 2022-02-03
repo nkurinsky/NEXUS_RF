@@ -3,12 +3,12 @@ from time import sleep
 import numpy as np
 import datetime
 
-# ## Point to the backend function scripts
-# sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
+## Point to the backend function scripts
+sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
-# from VNAfunctions import *  #using the VNA to do a power sweep
-# from NEXUSFunctions import * #control NEXUS fridge
-# from VNAMeas import * #vna measurement class
+from VNAfunctions import *  #using the VNA to do a power sweep
+from NEXUSFunctions import * #control NEXUS fridge
+from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
@@ -189,18 +189,18 @@ def run_scan():
     return 0
 
 if __name__ == "__main__":
-    # # Initialize the NEXUS temperature servers
-    # nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
-    # nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
+    ## Initialize the NEXUS temperature servers
+    nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
+    nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
 
-    # ## Initialize the VNA
-    # v = VNA()
+    ## Initialize the VNA
+    v = VNA()
 
     ## Parse command line arguments to set parameters
     parse_arguments()
 
-    # ## Create the output directories
-    # create_dirs()
+    ## Create the output directories
+    create_dirs()
 
-    # ## Run the power scan
-    # run_scan()
+    ## Run the power scan
+    run_scan()
