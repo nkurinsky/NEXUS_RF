@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # How many power scans to perform
-n_scans=10
+n_scans=1
 
 # Power range
 pmin=-50.0
@@ -20,7 +20,7 @@ counter=1
 while [ $counter -le $n_scans ]
 do
 	echo "Scan" $counter
-	python VNA_PowerScan_NEXUS.py -P0 $pmin -P1 $pmax -Ps $pstep \
-		-F0 $fmin -F1 $fmax -Ns $ns -Na $na
+	python VNA_PowerScan_NEXUS.py --P0 $pmin --P1 $pmax --Ps $pstep \
+		--F0 $fmin --F1 $fmax --Fn $ns --Na $na
 	((counter++))
 done
