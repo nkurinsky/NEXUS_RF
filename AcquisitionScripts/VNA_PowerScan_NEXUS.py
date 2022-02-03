@@ -3,12 +3,12 @@ from time import sleep
 import numpy as np
 import datetime
 
-## Point to the backend function scripts
-sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
+# ## Point to the backend function scripts
+# sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
-from VNAfunctions import *  #using the VNA to do a power sweep
-from NEXUSFunctions import * #control NEXUS fridge
-from VNAMeas import * #vna measurement class
+# from VNAfunctions import *  #using the VNA to do a power sweep
+# from NEXUSFunctions import * #control NEXUS fridge
+# from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
@@ -33,12 +33,88 @@ sweepPath = dataPath + '/' + dateStr
 series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
 seriesPath = sweepPath + '/' + series 
 
-# Initialize the NEXUS temperature servers
-nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
-nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
+def parse_arguments():
+    ## Count the number of arguments provided to python interpreter
+    ## First argument is always script name
+    arg_len = len(sys.argv) - 1
+    arg_arr = sys.argv[1:]
 
-## Initialize the VNA
-v = VNA()
+    ## If none, do nothing else
+    if arg_len==0:
+        return 0
+
+    ## Otherwise, read them
+    for i in np.arange(arg_len-1):
+
+        if not arg_arr[i][0]=="-":
+            continue
+
+        if arg_arr[i] == "-P0":
+            try:
+                print("Setting P_min to",arg_arr[i+1],"dBm")
+                P_min = float(arg_arr[i+1])
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for P_min")
+            continue
+
+        if arg_arr[i] == "-P1":
+            try:
+                print("Setting P_max to",arg_arr[i+1],"dBm")
+                P_max = float(arg_arr[i+1])
+                if (P_max > -10):
+                    print(P_max, "dBm is too large, setting P_max to -10")
+                    P_max = -10.0
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for P_max, using default.")
+            continue
+
+        if arg_arr[i] == "-Ps":
+            try:
+                print("Setting P_step to",arg_arr[i+1],"dBm")
+                P_step = float(arg_arr[i+1])
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for P_step, using default.")
+            continue
+
+        if arg_arr[i] == "-F0":
+            try:
+                print("Setting freqmin to",arg_arr[i+1],"Hz")
+                freqmin = float(arg_arr[i+1])
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for freqmin, using default.")
+            continue
+
+        if arg_arr[i] == "-F1":
+            try:
+                print("Setting freqmax to",arg_arr[i+1],"Hz")
+                freqmax = float(arg_arr[i+1])
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for freqmax, using default.")
+            continue
+
+        if arg_arr[i] == "-Ns":
+            try:
+                print("Setting n_samps to",arg_arr[i+1])
+                n_samps = int(arg_arr[i+1])
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for n_samps, using default.")
+            continue
+
+        if arg_arr[i] == "-Na":
+            try:
+                print("Setting n_avs to",arg_arr[i+1])
+                n_avs = int(arg_arr[i+1])
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for n_avs, using default.")
+            continue
+
+        if arg_arr[i] == "-d":
+            try:
+                print("Setting dataPath to",arg_arr[i+1])
+                dataPath = arg_arr[i+1]
+            except:
+                print("\"",arg_arr[i+1],"\" is not a valid value for n_avs, using default.")
+            continue
 
 def create_dirs():
     if not os.path.exists(dataPath):
@@ -113,5 +189,18 @@ def run_scan():
     return 0
 
 if __name__ == "__main__":
-    create_dirs()
-    run_scan()
+    # # Initialize the NEXUS temperature servers
+    # nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
+    # nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
+
+    # ## Initialize the VNA
+    # v = VNA()
+
+    ## Parse command line arguments to set parameters
+    parse_arguments()
+
+    # ## Create the output directories
+    # create_dirs()
+
+    # ## Run the power scan
+    # run_scan()
