@@ -2,13 +2,14 @@ import sys, os
 from time import sleep
 import numpy as np
 import datetime
+import argparse
 
-## Point to the backend function scripts
-sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
+# ## Point to the backend function scripts
+# sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
 
-from VNAfunctions import *  #using the VNA to do a power sweep
-from NEXUSFunctions import * #control NEXUS fridge
-from VNAMeas import * #vna measurement class
+# from VNAfunctions import *  #using the VNA to do a power sweep
+# from NEXUSFunctions import * #control NEXUS fridge
+# from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45.0
@@ -33,88 +34,42 @@ sweepPath = dataPath + '/' + dateStr
 series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
 seriesPath = sweepPath + '/' + series 
 
-def parse_arguments():
-    ## Count the number of arguments provided to python interpreter
-    ## First argument is always script name
-    arg_len = len(sys.argv) - 1
-    arg_arr = sys.argv[1:]
+def parse_args():
+    # Instantiate the parser
+    parser = argparse.ArgumentParser(description='Optional app description')
 
-    ## If none, do nothing else
-    if arg_len==0:
-        return 0
+    # Power scan optional arguments
+    parser.add_argument('--P0', type=float,
+                        help='Minimum power for scan [dBm]')
+    parser.add_argument('--P1', type=float,
+                        help='Maximum power for scan [dBm] (must be below -10)')
+    parser.add_argument('--Ps', type=float,
+                        help='Power step for scan [dBm]')
 
-    ## Otherwise, read them
-    for i in np.arange(arg_len-1):
+    # Frequency sweep optional arguments
+    parser.add_argument('--F0', type=float,
+                        help='Minimum frequency for sweep [Hz]')
+    parser.add_argument('--F1', type=float,
+                        help='Maximum frequency for scan [Hz] (must be above minimum frequency)')
+    parser.add_argument('--Fn', type=int,
+                        help='Number of samples to take in frequency range')
+    parser.add_argument('--Na', type=int,
+                        help='Number of averages to take at each power')
 
-        if not arg_arr[i][0]=="-":
-            continue
+    # Data path optional arguments
+    parser.add_argument('--d', type=str,
+                        help='Top-level directory for storing VNA data')
 
-        if arg_arr[i] == "-P0":
-            try:
-                print("Setting P_min to",arg_arr[i+1],"dBm")
-                P_min = float(arg_arr[i+1])
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for P_min")
-            continue
+    # Now read the arguments
+    args = parser.parse_args()
 
-        if arg_arr[i] == "-P1":
-            try:
-                print("Setting P_max to",arg_arr[i+1],"dBm")
-                P_max = float(arg_arr[i+1])
-                if (P_max > -10):
-                    print(P_max, "dBm is too large, setting P_max to -10")
-                    P_max = -10.0
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for P_max, using default.")
-            continue
+    # Do some conditional checks
+    if (args.P1 is not None):
+        if (args.P1 > -10):
+            print(args.P1, "dBm is too large, setting P_max to -10")
+            args.P1 = -10.0
 
-        if arg_arr[i] == "-Ps":
-            try:
-                print("Setting P_step to",arg_arr[i+1],"dBm")
-                P_step = float(arg_arr[i+1])
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for P_step, using default.")
-            continue
-
-        if arg_arr[i] == "-F0":
-            try:
-                print("Setting freqmin to",arg_arr[i+1],"Hz")
-                freqmin = float(arg_arr[i+1])
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for freqmin, using default.")
-            continue
-
-        if arg_arr[i] == "-F1":
-            try:
-                print("Setting freqmax to",arg_arr[i+1],"Hz")
-                freqmax = float(arg_arr[i+1])
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for freqmax, using default.")
-            continue
-
-        if arg_arr[i] == "-Ns":
-            try:
-                print("Setting n_samps to",arg_arr[i+1])
-                n_samps = int(arg_arr[i+1])
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for n_samps, using default.")
-            continue
-
-        if arg_arr[i] == "-Na":
-            try:
-                print("Setting n_avs to",arg_arr[i+1])
-                n_avs = int(arg_arr[i+1])
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for n_avs, using default.")
-            continue
-
-        if arg_arr[i] == "-d":
-            try:
-                print("Setting dataPath to",arg_arr[i+1])
-                dataPath = arg_arr[i+1]
-            except:
-                print("\"",arg_arr[i+1],"\" is not a valid value for n_avs, using default.")
-            continue
+    return args
 
 def create_dirs():
     if not os.path.exists(dataPath):
@@ -138,7 +93,7 @@ def run_scan():
     print("-   Start Power (dB):", P_min)
     print("-     End Power (dB):", P_max)
     print("-    Power Step (dB):", P_step)
-    print("- N Points Avgeraged:", n_avs)
+    print("- N Sweeps Avgeraged:", n_avs)
 
     ## Get an array of all the powers to sweep at
     powers = np.arange(start = P_min,
@@ -197,7 +152,23 @@ if __name__ == "__main__":
     v = VNA()
 
     ## Parse command line arguments to set parameters
-    parse_arguments()
+    args = parse_args()
+
+    ## Parameters of the power sweep (in dB)
+    P_min  = args.P0 if args.P0 is not None else P_min
+    P_max  = args.P1 if args.P1 is not None else P_max
+    P_step = args.Ps if args.Ps is not None else P_step
+
+    ## Set the VNA's frequency parameters
+    freqmin = args.F0 if args.F0 is not None else freqmin
+    freqmax = args.F1 if args.F1 is not None else freqmax
+    n_samps = args.Fn if args.Fn is not None else n_samps
+
+    ## How many readings to take at each step of the sweep
+    n_avs   = args.Na if args.Na is not None else n_avs
+
+    ## Where to save the output data (hdf5 files)
+    dataPath = args.d if args.d is not None else dataPath
 
     ## Create the output directories
     create_dirs()
