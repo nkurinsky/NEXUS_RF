@@ -117,7 +117,7 @@ class NEXUSTemps:
 
     def getResistance(self):
         try:
-            ans = float(self._getVar(3)) ## Ohm?
+            ans = float(self._getVar(3).split(";")[1]) ## Ohm?
         except socket.timeout:
             print("Timeout on", self.server_address[0])
             ans = -99.99
