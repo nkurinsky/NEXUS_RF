@@ -43,7 +43,7 @@ class VNA:
 #    def _waitCmd(self):
 #        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #        s.connect(self.server_address)
-#        s.sendall("*OPC?\n")
+#        s.sendall("*OPC?\n".encode())
 #        opComplete = s.recv(8)
 #
 #        return
@@ -58,6 +58,16 @@ class VNA:
         power=self._sendCmd("SOURce:POWer?"+"\n")
         print("power is "+str(power)+" dBm")
         return power
+
+    def singleTrigAndWait(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(self.server_address)
+        s.sendall("TRIG:SING\n".encode())
+        s.sendall("DISP:WIND:TRAC:Y:AUTO\n".encode())
+        s.sendall("*OPC?\n".encode())
+        opComplete = s.recv(8)
+        s.close()
+        return
 
     def takeSweep(self, f_min, f_max, n_step, n_avs, waittime=8.5, ifb=10e3):
         #Set sweep params
@@ -74,14 +84,15 @@ class VNA:
         self._sendCmd("SENS:AVER ON\n")
         self._sendCmd("SENS:AVER:COUN "+str(n_avs)+"\n")
 
-        #trigger sweep
-        self._sendCmd("TRIG:SING\n")
-        print('now waiting ' + str(waittime*n_avs))
-        sleep(waittime*n_avs)
-        #probably should implement an actual *OPC? query here but that appears to be broken on Python 3?
-        #self._waitCmd()
-        #Autoscale GUI Display
-        self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
+        # #trigger sweep
+        # self._sendCmd("TRIG:SING\n")
+        # print('now waiting ' + str(waittime*n_avs))
+        # sleep(waittime*n_avs)
+        # #probably should implement an actual *OPC? query here but that appears to be broken on Python 3?
+        # #self._waitCmd()
+        # #Autoscale GUI Display
+        # self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
+        self.singleTrigAndWait()
 
         data = self._getData("CALC:TRAC:DATA:FDAT?\n")
         fs = self._getData("SENS:FREQ:DATA?\n")
