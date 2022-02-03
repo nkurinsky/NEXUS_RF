@@ -117,14 +117,16 @@ def run_scan():
       sweep.f_max   = freqmax
 
       ## Grab and save the fridge temperature before starting sweep
-      sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
+      # sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
+      sweep.start_T = np.array([nf1.getResistance(), nf2.getResistance()])
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
       freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs)
 
       ## Grab and save the fridge temperature after sweep
-      sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
+      # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
+      sweep.final_T = np.array([nf1.getResistance(), nf2.getResistance()])
 
       ## Save the result to our class instance
       sweep.frequencies = np.array(freqs)
