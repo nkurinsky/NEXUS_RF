@@ -102,9 +102,22 @@ class NEXUSTemps:
         vStr = v[0]
         return vStr[4:]
 
+    def showAllVars(self):
+        vnames = self._getAllVars()
+        for i in range(len(vnames)):
+            print(vnames[i], ":", self._getVar(i))    
+
     def getTemp(self):
         try:
             ans = float(self._getVar(2)) ## mK
+        except socket.timeout:
+            print("Timeout on", self.server_address[0])
+            ans = -99.99
+        return ans
+
+    def getResistance(self):
+        try:
+            ans = float(self._getVar(3)) ## Ohm?
         except socket.timeout:
             print("Timeout on", self.server_address[0])
             ans = -99.99
