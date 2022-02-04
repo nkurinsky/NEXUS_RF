@@ -22,7 +22,7 @@ do
 	day=(echo $day_path) | grep -E -o '([0-9])+'
 	for series in $day_path/*
 	do
-		sers="$series | grep -E -o '([0-9])+\_([0-9])+'"
+		sers=(echo $series) | grep -E -o '([0-9])+\_([0-9])+'
 		time="${series: -6}"
 		# echo $time
 		if [ "$day" -ge "$day_min" ]; then
