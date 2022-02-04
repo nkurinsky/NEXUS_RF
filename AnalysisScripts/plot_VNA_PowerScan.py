@@ -126,7 +126,7 @@ if __name__ == "__main__":
     show_plots = args.show if args.show is not None else show_plots
 
     ## Define all the lists in which we'll store fit parameters
-    fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
+    fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list = []
     
     ## Create somewhere for the output
     create_dirs()
