@@ -25,8 +25,8 @@ do
 		echo $series | grep -E -o '([0-9])+\_([0-9])+'
 		time="${series: -6}"
 		echo time
-		if [ "$day" -ge "$day_min" ]
-			if [ "$day" -le "$day_min" ]
+		if [ "$day" -ge "$day_min" ]; then
+			if [ "$day" -le "$day_min" ]; then
 				echo GOOD
 			fi
 		fi
