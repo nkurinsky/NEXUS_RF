@@ -9,9 +9,14 @@ tme_max=000000
 
 day=$day_min
 
-counter=1
-while [ $day -le $day_max ]
+# counter=1
+# while [ $day -le $day_max ]
+# do
+# 	echo "Day" /data/PowerSweeps/VNA/$day
+# 	((day++))
+# done
+
+for day in /data/PowerSweeps/VNA/
 do
-	echo "Day" /data/PowerSweeps/VNA/$day
-	((day++))
+	echo $day
 done
