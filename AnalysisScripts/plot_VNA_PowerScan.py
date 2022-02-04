@@ -23,6 +23,9 @@ plt.rcParams.update({'font.size': 12})
 plt.rc('font', family='serif')
 dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
+## Flag to display plots
+show_plots = False
+
 ## Series identifier
 day    = '20220127'
 time   = '160519'
@@ -49,6 +52,10 @@ def parse_args():
     # Data path optional arguments
     parser.add_argument('-p', type=str,
                         help='Top-level directory for saved VNA data')
+
+    # Optional show plots switch
+    parser.add_argument('--show', action='store_true',
+                    help='If specified, plots are displayed in addition to being saved.')
 
     # Now read the arguments
     args = parser.parse_args()
@@ -116,6 +123,8 @@ if __name__ == "__main__":
     series   = args.s if args.s is not None else day + '_' + time
     dataPath = args.p if args.p is not None else dataPath
 
+    show_plots = args.show if args.show is not None else show_plots
+
     ## Define all the lists in which we'll store fit parameters
     fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
     
@@ -151,4 +160,5 @@ if __name__ == "__main__":
     plt.ylabel(r'Resonator Quality Factor $Q$')
     fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
 
-    plt.show()
+    if (show_plots):
+        plt.show()
