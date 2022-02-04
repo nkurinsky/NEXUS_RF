@@ -125,6 +125,9 @@ if __name__ == "__main__":
 
     show_plots = args.show if args.show is not None else show_plots
 
+    ## Create a place to store processed output
+    out_path = '/data/ProcessedOutputs/out_' + series
+
     ## Define all the lists in which we'll store fit parameters
     fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list = []
     
