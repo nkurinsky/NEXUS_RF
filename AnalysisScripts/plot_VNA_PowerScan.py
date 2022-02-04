@@ -140,7 +140,7 @@ if __name__ == "__main__":
     fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
 
     fig = plt.figure()
-    plt.plot(power_list,(np.max(fr_list)-fr_list)/fr_list)
+    plt.plot(power_list,(np.mean(fr_list)-fr_list)/fr_list)
     plt.xlabel('Applied RF Power [dBm]')
     plt.ylabel(r'$\Delta f/f$')
     fig.savefig(os.path.join(out_path,"df_vs_P.png"), format='png')
