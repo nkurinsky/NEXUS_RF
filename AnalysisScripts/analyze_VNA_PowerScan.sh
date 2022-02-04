@@ -18,16 +18,20 @@ day=$day_min
 
 for day_path in /data/PowerSweeps/VNA/*
 do
-	echo $day_path
+	# echo $day_path
 	day=(echo $day_path) | grep -E -o '([0-9])+'
 	for series in $day_path/*
 	do
-		echo $series | grep -E -o '([0-9])+\_([0-9])+'
+		sers="$series | grep -E -o '([0-9])+\_([0-9])+'"
 		time="${series: -6}"
-		echo $time
+		# echo $time
 		if [ "$day" -ge "$day_min" ]; then
 			if [ "$day" -le "$day_min" ]; then
-				echo GOOD
+				if [ "$time" -ge "$tme_min" ]; then
+					if [ "$time" -le "$tme_max" ]; then
+						echo sers
+					fi
+				fi
 			fi
 		fi
 	done
