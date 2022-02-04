@@ -1,6 +1,7 @@
 from __future__ import division
 import sys,os
 import time
+import argparse
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,55 +23,67 @@ plt.rcParams.update({'font.size': 12})
 plt.rc('font', family='serif')
 dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-## Path to VNA data
-dataPath = '/data/PowerSweeps/VNA/'
-
 ## Series identifier
 day    = '20220127'
 time   = '160519'
 series = day + '_' + time
-srPath = dataPath + day + '/' + series + '/'
 
-## File string format
-fn_prefix = "Psweep_P"
-fn_suffix = "_" + series + ".h5"
+## Path to VNA data
+dataPath = '/data/PowerSweeps/VNA/'
 
 ## Create a place to store processed output
 out_path = '/data/ProcessedOutputs/out_' + series
-if not os.path.exists(out_path):
-    os.makedirs(out_path)
-print("Storing output at",out_path)
 
-## Find and sort the relevant directories in the series
-print("Searching for files in:", srPath)
-print(" with prefix:", fn_prefix)
-print(" and  suffix:", fn_suffix)
-vna_files = glob(srPath+fn_prefix+'*'+fn_suffix)
-vna_files.sort(key=os.path.getmtime)
-print("Using files:")
-for fname in vna_files:
-    print("-",fname)
+def parse_args():
+    # Instantiate the parser
+    parser = argparse.ArgumentParser(description='Plot and Fit the data acquired in a VNA power scan')
 
-def read_cmt_vna(fname):
-    df = pd.read_csv(fname)
-    f  = df['freq (Hz)'].to_numpy()
-    S21_real = df[' S21 Real'].to_numpy()
-    S21_imag = df[' S21 Imag'].to_numpy()
-    return f, S21_real, S21_imag
+    # Power scan optional arguments
+    parser.add_argument('-d', type=str,
+                        help='Date of data acquisition [YYYYMMDD]')
+    parser.add_argument('-t', type=str,
+                        help='Time of data acquisition [hhmmss]')
+    parser.add_argument('-s', type=str,
+                        help='A specific series identifier (typically [YYYYMMDD_hhmmss]). This supercedes any supplied Date or Time')
+    
+    # Data path optional arguments
+    parser.add_argument('-p', type=str,
+                        help='Top-level directory for saved VNA data')
 
-#plt.figure(1)
-#plt.gca().set_aspect('equal', adjustable='box')
-#plt.axvline(x=0, color='gray')
-#plt.axhline(y=0, color='gray')
+    # Now read the arguments
+    args = parser.parse_args()
 
+    return args
 
+def create_dirs():
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+    print("Storing output at",out_path)
+    return 0
 
-#plt.rcParams.update({'font.size': 15})
-norm = plt.Normalize(vmin=80,vmax=250)
-fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
-for fname in vna_files:
+def get_input_files(series_str):
+
+    ## Define the series path from the series
+    srPath = dataPath + series_str.split("_")[0] + '/' + series_str + '/'
+
+    ## File string format
+    fn_prefix = "Psweep_P"
+    fn_suffix = "_" + series_str + ".h5"
+
+    ## Find and sort the relevant directories in the series
+    print("Searching for files in:", srPath)
+    print(" with prefix:", fn_prefix)
+    print(" and  suffix:", fn_suffix)
+    vna_file_list = glob(srPath+fn_prefix+'*'+fn_suffix)
+    vna_file_list.sort(key=os.path.getmtime)
+    print("Using files:")
+    for fname in vna_file_list:
+        print("-",fname)
+    return vna_file_list
+
+def fit_single_file(file_name):
     ## Open the h5 file for this power and extract the class
-    sweep = decode_hdf5(fname)
+    sweep = decode_hdf5(file_name)
     sweep.show()
 
     ## Extract the RF power from the h5 file
@@ -84,35 +97,58 @@ for fname in vna_files:
     ## Fit this data file
     fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
 
-    ## Store the fit results
-    fr_list.append(fr[0]); Qr_list.append(Qr[0])
-    Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
-
     ## Save the figure
     plt.gcf()
     plt.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
     fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
-    #power = -14 + 20*np.log10(amplitude)
 
-    # temp = fname.split('_')[1][1:]
-    # color = cm.jet(norm(float(temp)))
-    #
-    # plt.figure(2,figsize=(8,6))
-    # plt.plot(raw_f,20*np.log10(abs(raw_VNA)),label=temp+' mK',color=color)
+    ## Return the fit parameters
+    return fr, Qr, Qc, Qi
 
-    #plt.figure(1)
-    #plt.plot(raw_VNA[::10].real,raw_VNA[::10].imag)
+if __name__ == "__main__":
 
-fig = plt.figure()
-plt.plot(power_list,fr_list)
-plt.xlabel('power (dBm)')
-plt.ylabel('resonator frequency')
-fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
+    ## Parse command line arguments to set parameters
+    args = parse_args()
 
-fig = plt.figure()
-plt.plot(power_list,Qr_list)
-plt.xlabel('power (dBm)')
-plt.ylabel('resonator Q')
-fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
+    ## Read in the arguments
+    day      = args.d if args.d is not None else day
+    time     = args.t if args.t is not None else time
+    series   = args.s if args.s is not None else day + '_' + time
+    dataPath = args.p if args.p is not None else dataPath
 
-plt.show()
+    ## Define all the lists in which we'll store fit parameters
+    fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list =[]
+    
+    ## Create somewhere for the output
+    create_dirs()
+
+    ## Get all the files for a specified series
+    vna_files = get_input_files(series)
+
+    for fname in vna_files:
+        ## Fit this data file
+        fr, Qr, Qc, Qi = fit_single_file(fname)
+
+        ## Store the fit results
+        fr_list.append(fr[0]); Qr_list.append(Qr[0])
+        Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
+
+    fig = plt.figure()
+    plt.plot(power_list,fr_list)
+    plt.xlabel('Applied RF Power [dBm]')
+    plt.ylabel(r'Resonator frequency $f$ [Hz]')
+    fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
+
+    fig = plt.figure()
+    plt.plot(power_list,(np.max(fr_list)-fr_list)/fr_list)
+    plt.xlabel('Applied RF Power [dBm]')
+    plt.ylabel(r'$\Delta f/f$')
+    fig.savefig(os.path.join(out_path,"df_vs_P.png"), format='png')
+
+    fig = plt.figure()
+    plt.plot(power_list,Qr_list)
+    plt.xlabel('Applied RF Power [dBm]')
+    plt.ylabel(r'Resonator Quality Factor $Q$')
+    fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
+
+    plt.show()
