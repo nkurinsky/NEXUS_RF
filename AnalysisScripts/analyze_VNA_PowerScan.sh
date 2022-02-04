@@ -18,5 +18,5 @@ day=$day_min
 
 for day in /data/PowerSweeps/VNA/*
 do
-	echo $day | grep '^\[0-9]+'
+	echo $day | grep -E -o '^\[0-9]+$'
 done
