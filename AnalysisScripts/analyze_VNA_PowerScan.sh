@@ -18,7 +18,7 @@ day=$day_min
 
 for day_path in /data/PowerSweeps/VNA/*
 do
-	# echo $day_path
+	echo $day_path
 	day=(echo $day_path) | grep -E -o '([0-9])+'
 	echo $day
 	# for series in $day_path/*
