@@ -27,7 +27,7 @@ do
 		time="${series: -6}"
 		# echo $sers
 		if [ "$day" -ge "$day_min" ]; then
-			if [ "$day" -le "$day_min" ]; then
+			if [ "$day" -le "$day_max" ]; then
 				echo $sers
 				# if [ "$time" -ge "$tme_min" ]; then
 				# 	if [ "$time" -le "$tme_max" ]; then
