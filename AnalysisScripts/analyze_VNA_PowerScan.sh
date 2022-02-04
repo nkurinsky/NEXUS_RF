@@ -16,7 +16,7 @@ day=$day_min
 # 	((day++))
 # done
 
-for day in /data/PowerSweeps/VNA/
+for day in /data/PowerSweeps/VNA/*
 do
 	echo $day
 done
