@@ -30,12 +30,14 @@ do
 		if [ "$day" = "$day_min" ]; then
 			if [ "$time" -ge "$tme_min" ]; then
 				python plot_VNA_PowerScan.py -s $sers
+				continue
 			fi
 		fi
 
 		if [ "$day" = "$day_max" ]; then
 			if [ "$time" -le "$tme_max" ]; then
 				python plot_VNA_PowerScan.py -s $sers
+				continue
 			fi
 		fi
 
@@ -43,6 +45,7 @@ do
 		if [ "$day" -gt "$day_min" ]; then
 			if [ "$day" -lt "$day_max" ]; then
 				python plot_VNA_PowerScan.py -s $sers
+				continue
 			fi
 		fi
 	done
