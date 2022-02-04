@@ -588,8 +588,8 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
     ## Make the labels
     ax1.set_xlabel("Frequency [GHz]")
 
-    ax0.set_ylabel("|$S_{21}$| [dB]")
-    ax1.set_ylabel("|filtered z| [#std]")
+    ax0.set_ylabel(r"|$S_{21}$| [dB]")
+    ax1.set_ylabel(r"|filtered z| [$\sigma$]")
 
     ## Set the x-tick markers to be smaller
     plt.setp(ax0.get_xticklabels(), fontsize=10)
