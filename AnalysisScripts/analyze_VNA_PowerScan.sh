@@ -29,6 +29,7 @@ do
 		if [ "$day" -ge "$day_min" ]; then
 			if [ "$day" -le "$day_max" ]; then
 				echo $sers
+				echo $time
 				# if [ "$time" -ge "$tme_min" ]; then
 				# 	if [ "$time" -le "$tme_max" ]; then
 				# 		echo sers
