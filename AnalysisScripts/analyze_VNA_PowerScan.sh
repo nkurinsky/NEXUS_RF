@@ -21,6 +21,6 @@ do
 	echo $day_path
 	for series in $day_path/*
 	do
-		echo $series | grep -E -o '^\d{8}\_\d{6}'
+		echo $series | grep -E -o '\d{8}\_\d{6}'
 	done
 done
