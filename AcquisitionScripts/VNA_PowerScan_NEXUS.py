@@ -36,7 +36,7 @@ seriesPath = sweepPath + '/' + series
 
 def parse_args():
     # Instantiate the parser
-    parser = argparse.ArgumentParser(description='Optional app description')
+    parser = argparse.ArgumentParser(description='Script to take a frequency sweep with the CMT VNA at a set of specified RF powers')
 
     # Power scan optional arguments
     parser.add_argument('--P0', type=float,
