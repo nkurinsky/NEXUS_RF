@@ -16,10 +16,10 @@ day=$day_min
 # 	((day++))
 # done
 
-for day in /data/PowerSweeps/VNA/*
+for day_path in /data/PowerSweeps/VNA/*
 do
-	echo $day
-	for series in /data/PowerSweeps/VNA/$day/*
+	echo $day_path
+	for series in $day_path/*
 	do
 		echo $series
 	done
