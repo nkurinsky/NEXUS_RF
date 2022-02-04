@@ -20,20 +20,21 @@ for day_path in /data/PowerSweeps/VNA/*
 do
 	# echo $day_path
 	day=(echo $day_path) | grep -E -o '([0-9])+'
-	for series in $day_path/*
-	do
-		sers=(echo $series) | grep -E -o '([0-9])+\_([0-9])+'
-		time="${series: -6}"
-		echo $sers
-		# if [ "$day" -ge "$day_min" ]; then
-		# 	if [ "$day" -le "$day_min" ]; then
-		# 		if [ "$time" -ge "$tme_min" ]; then
-		# 			if [ "$time" -le "$tme_max" ]; then
-		# 				echo sers
-		# 			fi
-		# 		fi
-		# 	fi
-		# fi
-	done
+	echo $day
+	# for series in $day_path/*
+	# do
+	# 	sers=(echo $series) | grep -E -o '([0-9])+\_([0-9])+'
+	# 	time="${series: -6}"
+	# 	echo $sers
+	# 	# if [ "$day" -ge "$day_min" ]; then
+	# 	# 	if [ "$day" -le "$day_min" ]; then
+	# 	# 		if [ "$time" -ge "$tme_min" ]; then
+	# 	# 			if [ "$time" -le "$tme_max" ]; then
+	# 	# 				echo sers
+	# 	# 			fi
+	# 	# 		fi
+	# 	# 	fi
+	# 	# fi
+	# done
 done
 
