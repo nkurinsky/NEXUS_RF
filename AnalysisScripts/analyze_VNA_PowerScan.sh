@@ -1,20 +1,13 @@
 #!/bin/bash
 
 ## Define the range of scans you want to process
-day_min=20220131
+day_min=20220201
 tme_min=000000
 
-day_max=20220131
+day_max=20220203
 tme_max=235959
 
 day=$day_min
-
-# counter=1
-# while [ $day -le $day_max ]
-# do
-# 	echo "Day" /data/PowerSweeps/VNA/$day
-# 	((day++))
-# done
 
 for day_path in /data/PowerSweeps/VNA/*
 do
