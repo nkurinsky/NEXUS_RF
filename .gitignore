@@ -1,4 +1,9 @@
 *.pyc
+*.h5
+*.hdf5
+*.csv
+*.pdf
+*.png
 AcquisitionScripts/__pycache__/*
 AnalysisScripts/__pycache__/*
 DeviceControl/__pycache__/*
