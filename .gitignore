@@ -4,3 +4,4 @@ AnalysisScripts/__pycache__/*
 DeviceControl/__pycache__/*
 DeviceControl/*/__pycache__/*
 DeviceControl/RF_Switch/__pycache__/*
+DeviceControl/RF_Switch/__pycache__/comms_driver.cpython-38.pyc
