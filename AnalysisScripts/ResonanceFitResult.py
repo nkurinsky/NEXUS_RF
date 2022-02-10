@@ -129,6 +129,7 @@ class SeriesFitResult:
 			self.file_fits[i].show_fit_results()
 
 	def save_to_file(self, filename):
+		print("Pickling fit results in:",filename)
 		filehandler = open(filename,"wb")
 		pickle.dump(self,filehandler)
 		filehandler.close()
