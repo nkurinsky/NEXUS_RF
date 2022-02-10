@@ -82,7 +82,7 @@ class SingleFileResult:
 
 	def resize_peak_fits(self, n_peaks):
 		self.n_pks = n_peaks
-		self.peak_fits = np.zeros(len(self.n_pks), dtype=object)
+		self.peak_fits = np.zeros(self.n_pks, dtype=object)
 
 	def show_metadata(self):
 		print("In file:     ", self.in_fname)
