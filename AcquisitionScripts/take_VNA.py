@@ -10,7 +10,9 @@ except ImportError:
     except ImportError:
         print("Cannot find the pyUSRP package")
 
-# sys.path.append('PyMKID')
+## Point to the backend function scripts
+sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
+
 import PyMKID_USRP_functions as puf
 import PyMKID_USRP_import_functions as puf2
 
