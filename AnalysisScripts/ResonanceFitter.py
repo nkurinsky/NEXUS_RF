@@ -9,6 +9,8 @@ from functools import partial
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.gridspec import GridSpec
 
+from ResonanceFitResult import *
+
 def removecable(f, z, tau, f1):
     """
     returns:
@@ -231,7 +233,7 @@ def fitphase(f, z, f0g, Qg):
 
     return fresult[0][0],fresult[0][1],fresult[0][2]
 
-def roughfit(f, z, fr_0, plot=False):
+def roughfit(f, z, fr_0, fit_res_obj, plot=False):
 
     edge_data_f = np.hstack((f[:int(len(f)/100)],f[-int(len(f)/100):]))
     edge_data_z = np.hstack((z[:int(len(f)/100)],z[-int(len(f)/100):]))
@@ -267,6 +269,12 @@ def roughfit(f, z, fr_0, plot=False):
 
     # estimate f0 (pretty good), Q (very rough)
     f0_est, Qr_est, id_f0, id_BW = estpara(f,z1,fr_0)
+
+    ## Save the estimates to our class instance
+    fit_res_obj.f0_est = f0_est
+    fit_res_obj.Qr_est = Qr_est
+    fit_res_obj.id_f0  = id_f0
+    fit_res_obj.id_BW  = id_BW
 
     # fit circle using trimmed data points
     id1 = max(id_f0-int(0.5*id_BW), 0)
@@ -324,6 +332,15 @@ def roughfit(f, z, fr_0, plot=False):
                 "tau1"  : tau_1,
                 "Imtau1": Imtau_1}
 
+    ## Write the rough fit result to the fit result class instance
+    fit_res_obj.rough_result["f0"]     = result["f0"]
+    fit_res_obj.rough_result["Q"]      = result["Q"]
+    fit_res_obj.rough_result["phi"]    = result["phi"]
+    fit_res_obj.rough_result["zOff"]   = result["zOff"]
+    fit_res_obj.rough_result["Qc"]     = result["Qc"]
+    fit_res_obj.rough_result["tau1"]   = result["tau1"]
+    fit_res_obj.rough_result["Imtau1"] = result["Imtau1"]
+
     return result
 
 def resfunc3(f, fr, Qr, Qc_hat_mag, a, phi, tau):
@@ -342,7 +359,7 @@ def resfunc8(f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau):
     imag_S21[f_proj<0] = 0
     return real_S21 + imag_S21
 
-def finefit(f, z, fr_0, plot=False):
+def finefit(f, z, fr_0, fit_res_obj, plot=False):
     """
     finefit fits f and z to the resonator model described in Jiansong's thesis
 
@@ -357,7 +374,7 @@ def finefit(f, z, fr_0, plot=False):
 
     # find starting parameters using a rough fit
     # fr_1, Qr_1, phi_1, a_1, Qc_hat_mag_1, tau_1, Imtau_1 = roughfit(f, z, fr_0)
-    rough_res = roughfit(f, z, fr_0, plot=False)
+    rough_res = roughfit(f, z, fr_0, fit_res_obj,  plot=False)
 
     ## Unpack the result
     fr_1    = rough_res["f0"]
@@ -370,6 +387,7 @@ def finefit(f, z, fr_0, plot=False):
 
     ## Create array of initial guesses for params
     pGuess = [fr_1, Qr_1, Qc_hat_mag_1, a_1.real, a_1.imag, phi_1, tau_1, Imtau_1]
+    fit_res_obj.fine_pguess = pGuess
 
     # trim data?
     #if False:
@@ -422,6 +440,7 @@ def finefit(f, z, fr_0, plot=False):
                   "QcHat" : fopt[2],
                   "tau"   : fopt[6]+1j*fopt[7],
                   "Qc"    : fopt[2]/np.cos(fopt[5])}
+    fit_res_obj.fine_result = fine_pars
 
     fine_errs = { "f0"    : ferr[0], 
                   "Qr"    : ferr[1],
@@ -430,6 +449,7 @@ def finefit(f, z, fr_0, plot=False):
                   "QcHat" : ferr[2],
                   "tau"   : ferr[6]+1j*ferr[7],
                   "Qc"    : ferr[2]/np.cos(ferr[5])}
+    fit_res_obj.fine_errors = fine_errs
 
     # fr_fine = fparams[0]
     # Qr_fine = fparams[1]
@@ -441,7 +461,6 @@ def finefit(f, z, fr_0, plot=False):
     # Qc_fine =  Qc_hat_mag_fine/np.cos(phi_fine)
 
     return fine_pars, fine_errs
-
 
 def sweep_fit_from_file(fname, nsig=3, fwindow=5e-4, chan="S21", h5_rewrite=False, pdf_rewrite=False, additions=[], start_f=None, stop_f=None):
     """
@@ -631,6 +650,14 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
 
     # define the windows around each peak. and then use finefit to find the parameters
     for i in range(len(peaklist)):
+
+        ## Create an instance of a single peak fit result
+        this_r = SinglePeakResult(i)
+        this_r.f_ctr    = f[peaklist[i]]
+        this_r.mfz_ctr  = mfz[peaklist[i]]
+        this_r.pk_added = i < len(additions)
+
+
         print('Resonance #{}'.format(str(i)))
         curr_pts = (f >= (f[peaklist[i]]-2*fwindow)) & (f <= (f[peaklist[i]]+2*fwindow))
         f_curr = f[curr_pts]
@@ -638,7 +665,7 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
 
         try:
             # fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = finefit(f_curr, z_curr, f[peaklist[i]])
-            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]])
+            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]], this_r)
             fr_list[i]  = fine_pars["f0"]
             Qr_list[i]  = fine_pars["Qr"]
             Qc_hat_mag_list[i] = fine_pars["QcHat"]
@@ -652,6 +679,11 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
             print(issue)
             fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = [f[peaklist[i]],1e4,1e5,1,0,0,1e5]
             Qi_list[i] = 0
+
+        ## Now that the subroutines have populated class attributes, let's look at them
+        this_r.show_par_ests()
+        this_r.show_rough_result()
+        this_r.show_fine_result()
 
         fit_discrete = resfunc3(f_curr, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i])
         SSE = sum((z_curr.real-fit_discrete.real)**2+(z_curr.imag-fit_discrete.imag)**2)
