@@ -502,7 +502,7 @@ def sweep_fit_from_file(fname, nsig=3, fwindow=5e-4, chan="S21", h5_rewrite=Fals
             fyle["{}/Qc_list".format(chan)] = Qc_list
             fyle["{}/Qi_list".format(chan)] = Qi_list
 
-def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filename='test', start_f=None, stop_f=None):
+def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filename='test', start_f=None, stop_f=None):
     """
     sweep_fit fits data to the resonator model described in Jiansong's thesis
 
@@ -583,6 +583,7 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
 
     peaklist = sorted(peaklist)
     print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
+    file_fit_obj.resize_peak_fits(len(peaklist))
 
     ## Create a plot 
     fig = plt.figure(figsize=(9,7))
@@ -684,6 +685,8 @@ def sweep_fit(f, z, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filen
         this_r.show_par_ests()
         this_r.show_rough_result()
         this_r.show_fine_result()
+
+        file_fit_obj.peak_fits[i] = this_r
 
         fit_discrete = resfunc3(f_curr, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i])
         SSE = sum((z_curr.real-fit_discrete.real)**2+(z_curr.imag-fit_discrete.imag)**2)
