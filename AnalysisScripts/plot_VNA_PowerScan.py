@@ -163,6 +163,9 @@ if __name__ == "__main__":
         fr_list.append(fr[0]); Qr_list.append(Qr[0])
         Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
 
+    ## Store the fit results
+    result.save_to_file(os.path.join(out_path,"Psweep_FitResults.pkl"))
+
     fig = plt.figure()
     plt.plot(power_list,fr_list)
     plt.xlabel('Applied RF Power [dBm]')

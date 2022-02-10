@@ -1,5 +1,5 @@
 import numpy as np
-import h5py
+import pickle
 
 class SinglePeakResult:
 
@@ -127,3 +127,8 @@ class SeriesFitResult:
 		for i in range(self.n_files):
 			self.file_fits[i].show_metadata()
 			self.file_fits[i].show_fit_results()
+
+	def save_to_file(self, filename):
+		filehandler = open(filename,"wb")
+		pickle.dump(self,filehandler)
+		filehandler.close()
