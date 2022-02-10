@@ -75,7 +75,7 @@ def parse_args():
 
     # Do some conditional checks
     if((args.f1 - args.f0) > 1e7):
-        print("Frequency range (",args.f0,",",args.f1") too large")
+        print("Frequency range (",args.f0,",",args.f1,") too large")
         exit(1)
 
     if(numpy.any(args.freq > 6e9)):
