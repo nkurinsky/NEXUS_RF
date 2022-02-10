@@ -125,9 +125,9 @@ def runVNA(tx_gain, rx_gain, iter, rate, freq, front_end, f0, f1, lapse, points,
                 tx_gain=tx_gain, 
                 rx_gain=rx_gain, 
                 compensate = True, 
-                duration = delay_duration,
+                duration = None,#delay_duration,
                 output_filename=outfname, 
-                subfolder=seriesPath)
+                subfolder=None)#seriesPath)
             print("Done.")
 
             print("Analyzing line delay file...")
