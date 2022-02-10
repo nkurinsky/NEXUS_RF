@@ -10,7 +10,20 @@ series = day + '_' + time
 out_path = '/data/ProcessedOutputs/out_' + series
 
 file = open(os.path.join(out_path,"Psweep_FitResults.pkl"),'rb')
-object_file = pickle.load(file)
+obj = pickle.load(file)
 file.close()
 
-object_file.show_series_result()
+##
+print("Date:   ", obj.date)
+print("Series: ", obj.series)
+print("# files:", obj.n_files)
+
+print("Fr (Hz):", obj.fit_fr)
+print("Qr (Hz):", obj.fit_Qr)
+print("Qi (Hz):", obj.fit_Qi)
+print("Qc (Hz):", obj.fit_Qc)
+
+## 
+for i in range(obj.n_files):
+	obj.file_fits[i].show_metadata()
+	obj.file_fits[i].show_fit_results()
