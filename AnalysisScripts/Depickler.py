@@ -18,10 +18,10 @@ print("Date:   ", obj.date)
 print("Series: ", obj.series)
 print("# files:", obj.n_files)
 
-print("Fr (Hz):", obj.fit_fr)
-print("Qr (Hz):", obj.fit_Qr)
-print("Qi (Hz):", obj.fit_Qi)
-print("Qc (Hz):", obj.fit_Qc)
+print("Fr (GHz):", obj.fit_fr)
+print("Qr      :", obj.fit_Qr)
+print("Qi      :", obj.fit_Qi)
+print("Qc      :", obj.fit_Qc)
 
 ## 
 for i in range(obj.n_files):
