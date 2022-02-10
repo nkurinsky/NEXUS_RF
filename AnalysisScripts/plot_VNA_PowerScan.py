@@ -11,7 +11,7 @@ import pandas as pd
 from   glob import glob
 
 import PyMKID_USRP_functions as puf
-import ResonanceFitter
+import ResonanceFitter as fitres
 
 sys.path.append('/home/nexus-admin/NEXUS_RF/AcquisitionScripts')
 from VNAMeas import *
