@@ -125,8 +125,8 @@ def runVNA(tx_gain, rx_gain, iter, rate, freq, front_end, f0, f1, lapse, points,
                 tx_gain=tx_gain, 
                 rx_gain=rx_gain, 
                 compensate = True, 
-                duration = None,#delay_duration,
-                output_filename=outfname, 
+                duration = delay_duration,
+                output_filename=None,#outfname, 
                 subfolder=None)#seriesPath)
             print("Done.")
 
