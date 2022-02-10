@@ -5,13 +5,13 @@ try:
     import pyUSRP as u
 except ImportError:
     try:
-        sys.path.append('../../Devices/GPU_SDR')
+        sys.path.append('../DeviceControl/GPU_SDR')
         import pyUSRP as u
     except ImportError:
         print("Cannot find the pyUSRP package")
 
 ## Point to the backend function scripts
-sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
+sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/AnalysisScripts")
 
 import PyMKID_USRP_functions as puf
 import PyMKID_USRP_import_functions as puf2
