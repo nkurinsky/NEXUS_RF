@@ -109,7 +109,7 @@ def create_dirs():
     return 0
 
 ## Function to run a VNA sweep
-def runVNA(tx_gain, rx_gain, iter, rate, freq, front_end, f0, f1, lapse, points, ntones, delay_duration, delay_over):
+def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points, ntones, delay_duration, delay_over):
 
     try:
         delay = u.LINE_DELAY[str(int(rate/1e6))]
@@ -164,11 +164,11 @@ def runVNA(tx_gain, rx_gain, iter, rate, freq, front_end, f0, f1, lapse, points,
         RF        = freq, 
         Front_end = front_end,
         Device    = None, 
-        Iterations= iter, 
-        verbose   = False,)
-        # subfolder = None,
-        # output_filename = None, 
-        # Multitone_compensation = ntones)
+        Iterations= _iter, 
+        verbose   = False,
+        subfolder = None,
+        output_filename = None, 
+        Multitone_compensation = ntones)
     print("Done.")
 
     return vna_filename, delay
@@ -233,7 +233,7 @@ if __name__ == "__main__":
             vna_file, delay = runVNA(
                 tx_gain = g,
                 rx_gain = g,
-                iter = int(args.iter),
+                _iter = int(args.iter),
                 rate = args.rate*1e6,        ## Passed in Samps/sec
                 freq = f*1e6,                ## Passed in Hz
                 front_end = args.frontend,
