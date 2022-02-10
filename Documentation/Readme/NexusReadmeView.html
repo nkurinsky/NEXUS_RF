@@ -172,7 +172,7 @@ Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
 192.168.0.0     0.0.0.0         255.255.255.0   U     102    0        0 eno1
 192.168.40.0    0.0.0.0         255.255.255.0   U     103    0        0 enp179s0f0
 192.168.70.0    0.0.0.0         255.255.255.0   U     0      0        0 enp179s0f1</code></pre>
-<p>Routes can be created using commands such as <code>sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0</code>. It is unclear if these routes persist on a machine reboot. Note that the first entry is the “default” route, which is using the GbE connection to the USRP - this is not desired. To remove this route use the command</p>
+<p>Routes can be created using commands such as <code>sudo /sbin/route add -net 192.168.40.0 netmask 255.255.255.0 dev enp179s0f0</code>. These routes persist on a machine reboot. Note that the first entry is the “default” route, which is using the GbE connection to the USRP - this is not desired. To remove this route use the command</p>
 <pre><code>sudo /sbin/route del -net 0.0.0.0 gw 192.168.40.1 netmask 0.0.0.0 dev enp179s0f0</code></pre>
 <p>When you run the `sudo /sbin/route -n" command with the USB LAN connection enabled, you should have an entry like</p>
 <pre><code>Kernel IP routing table
@@ -239,12 +239,13 @@ Device Address:
 sudo sysctl -w net.core.rmem_max=24862979</code></pre>
 <p>To change the firmware on the USRP, use the following command:</p>
 <pre><code> uhd_image_loader --args=&quot;addr=192.168.40.2,fpga=XG,type=x300&quot;</code></pre>
-<p>then power-cycle the USRP using the LAN-controlled power strip.</p>
-<p>Next, a USRP server session must be started, which requires Python 2. To start a server session, navigate to the relevant directory:</p>
+<p>then power-cycle the USRP using the LAN-controlled power strip, or hardware power button.</p>
+<p>Next, a USRP server session must be started. To start a server session, navigate to the relevant directory:</p>
 <pre><code>cd /home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/</code></pre>
 <p>and issue the command</p>
-<pre><code>sudo ./server</code></pre>
-<p>Presumably, the code in <code>/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/</code> can be compiled using the <code>Makefile</code> to create the server executable.</p>
+<pre><code>sudo taskset -c 0,1,2,3,4,5,6,7 ./server</code></pre>
+<p>The code in <code>/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/</code> can be compiled using the <code>Makefile</code> to create the server executable:</p>
+<pre><code>make -j</code></pre>
 <p>You should start a new terminal before doing this since that terminal will be occupied by the server process. Once a server session has been established, scripts that control the USRP can be run. Note that all the scripts need to be run using <code>python2.7</code>. Scripts to acquire data with the USRP can be found at <code>NEXUS_RF/DeviceControl/GPU_SDR/scripts/</code>.</p>
 <h2 id="biasing-the-kid-amplifiers">Biasing the KID Amplifiers</h2>
 <p>The KID amplifiers, both the warm amp and the HEMTs, are connected to the rear Keysight power supply, at IP address 192.168.0.40. To control this device, open a web broswer and type the IP address into the address bar, then log in and go to the “Device Control” tab. You should see a rendering of the device screen and hardware buttons.</p>

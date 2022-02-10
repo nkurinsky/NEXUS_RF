@@ -177,18 +177,22 @@ To change the firmware on the USRP, use the following command:
 ```
  uhd_image_loader --args="addr=192.168.40.2,fpga=XG,type=x300"
 ```
-then power-cycle the USRP using the LAN-controlled power strip.
+then power-cycle the USRP using the LAN-controlled power strip, or hardware power button.
 
 
-Next, a USRP server session must be started, which requires Python 2. To start a server session, navigate to the relevant directory:
+Next, a USRP server session must be started. To start a server session, navigate to the relevant directory:
 ```
 cd /home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/
 ```
 and issue the command
 ```
-sudo ./server
+sudo taskset -c 0,1,2,3,4,5,6,7 ./server
 ```
-Presumably, the code in `/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/` can be compiled using the `Makefile` to create the server executable. 
+The code in `/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/` can be compiled using the `Makefile` to create the server executable:
+```
+make -j
+```
+ 
 
 You should start a new terminal before doing this since that terminal will be occupied by the server process. Once a server session has been established, scripts that control the USRP can be run. Note that all the scripts need to be run using `python2.7`. Scripts to acquire data with the USRP can be found at `NEXUS_RF/DeviceControl/GPU_SDR/scripts/`.
 
