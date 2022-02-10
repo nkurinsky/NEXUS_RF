@@ -1,7 +1,7 @@
 import numpy as np
 import h5py
 
-class SinglePeakResult():
+class SinglePeakResult:
 
 	pk_idx   = 0 		## For a given file, each peak found has a unique id
 	pk_added = False	## Was the peak location added manually
@@ -47,7 +47,7 @@ class SinglePeakResult():
 		return None
 
 	def show_par_ests(self):
-		print("Parameter estimates for peak", self.pk_idx)
+		print("Parameter estimates for peak", self.pk_idx, "(Added? "+str(self.pk_added)+")")
 		print("f0_est", self.f0_est)
 		print("Qr_est", self.Qr_est)
 		print("id_f0" , self.id_f0)
@@ -63,28 +63,65 @@ class SinglePeakResult():
 		for key in self.fine_result.keys():
 			print(key , ":" , self.fine_result[key] , "+/-" , self.fine_errors[key] )
 
+class SingleFileResult:
 
-class ResonanceFitResult:
+	## Class attributes
+	in_fname = "Psweep_P-00.0_20220101_000000.h5"
+
+	power   = 0.0					## [FLOAT] (dBM) RF stimulus power
+	n_pks   = 1						## [INT] How many peaks were found in this file
+
+	start_T = np.array([])			## [array of FLOAT] (mK) Temperature at start of the f sweep
+	final_T = np.array([])			## [array of FLOAT] (mK) Temperature at end of the f sweep
+
+	peak_fits = np.zeros(1, dtype=object)
+
+	def __init__(self, file_name):
+		self.in_fname   = file_name.split('/')[-1]
+		return None
+
+	def resize_peak_fits(self, n_peaks):
+		self.n_pks = n_peaks
+		self.peak_fits = np.zeros(len(self.n_pks), dtype=object)
+
+	def show_metadata(self):
+		print("In file:     ", self.in_fname)
+		print("Power [dBm]: ", self.power)
+		print("# of peaks:  ", self.n_pks)
+		print("Start T [mK]:", self.start_T)
+		print("Final T [mK]:", self.final_T)
+
+	def show_fit_results(self):
+		for i in range(self.n_pks):
+			self.peak_fits[i].show_fine_result()
+
+class SeriesFitResult:
 
 	## Class attributes
 	date    = "20220101"			## [STRING] YYYYMMDD
 	series  = "20220101_000000"		## [STRING] YYYYMMDD_HHMMSS
 
-	power   = 0.0					## [FLOAT] (dBM) RF stimulus power
-	n_avgs  = 1						## [INT] How many sweeps to take at a given power
-	n_samps = 5e4					## [FLOAT] How many samples to take evenly spaced in freq range
+	n_files = 1						## [INT] How many files are in this series
 
-	f_min   = 4.24205e9				## [FLOAT] (Hz) minimum frequency of sweep range
-	f_max   = 4.24225e9				## [FLOAT] (Hz) minimum frequency of sweep range
+	fit_fr  = np.array([])			## [array of FLOAT] (Hz) Central frequency 
+	fit_Qr  = np.array([])			## [array of FLOAT] Quality factor
+	fit_Qi  = np.array([])			## [array of FLOAT] Quality factor
+	fit_Qc  = np.array([])			## [array of FLOAT] Quality factor
 
-	start_T = np.array([])			## [array of FLOAT] (mK) Temperature at start of the f sweep
-	final_T = np.array([])			## [array of FLOAT] (mK) Temperature at end of the f sweep
+	file_fits = np.zeros(1, dtype=object)
 
-	frequencies = np.array([])
-	S21realvals = np.array([])
-	S21imagvals = np.array([])
-
-	def __init__(self, date_str, series):
-		self.date   = date_str
+	def __init__(self, date, series):
+		self.date   = date
 		self.series = series
 		return None
+
+	def resize_file_fits(self, n_files):
+		self.n_files   = n_files
+		self.file_fits = np.zeros(len(self.n_files), dtype=object)
+		self.fit_f     = np.zeros(len(self.n_files))
+		self.fit_Q     = np.zeros(len(self.n_files))
+
+	def show_series_result(self):
+		for i in range(self.n_files):
+			self.file_fits[i].show_metadata()
+			self.file_fits[i].show_fit_results()
