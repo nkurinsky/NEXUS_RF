@@ -6,7 +6,7 @@ import matplotlib as mpl
 ##    mpl.use('Agg')
 import numpy as np
 import h5py
-import fitres as fitres
+import ResonanceFitter as fitres
 import matplotlib.pyplot as plt
 import glob
 # import PyMKID_resolution_functions as prf
