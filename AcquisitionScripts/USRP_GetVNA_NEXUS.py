@@ -32,7 +32,7 @@ delay_over='null'
 filename=None
 
 ## Where to save the output data (hdf5 files)
-dataPath = '/data/USRP_VNA_Sweeps/'  #VNA subfolder of TempSweeps
+dataPath = '/data/USRP_VNA_Sweeps'  #VNA subfolder of TempSweeps
 
 ## Sub directory definitions
 dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     N_power = 10**(((-1*args.power)-14)/20)
 
     print(np.round(-14-20*np.log10(N_power),2), 'dBm of power')
-    print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amounut')
+    print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
 
     ## Print the settings we'll be using
     print('===== VNA Settings =====')
