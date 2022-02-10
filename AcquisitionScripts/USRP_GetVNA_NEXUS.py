@@ -166,8 +166,8 @@ def runVNA(tx_gain, rx_gain, iter, rate, freq, front_end, f0, f1, lapse, points,
         Device    = None, 
         Iterations= iter, 
         verbose   = False,
-        subfolder = None,
-        output_filename = None, 
+        # subfolder = None,
+        # output_filename = None, 
         Multitone_compensation = ntones)
     print("Done.")
 
