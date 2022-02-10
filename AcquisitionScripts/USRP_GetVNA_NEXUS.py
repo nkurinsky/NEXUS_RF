@@ -75,21 +75,24 @@ def parse_args():
     args = parser.parse_args()
 
     # Do some conditional checks
-    if((args.f1 - args.f0) > 1e7):
-        print("Frequency range (",args.f0,",",args.f1,") too large")
-        exit(1)
+    if(args.f0 is not None and args.f1 is not None):
+        if((args.f1 - args.f0) > 1e7):
+            print("Frequency range (",args.f0,",",args.f1,") too large")
+            exit(1)
 
-    if(np.any(args.freq > 6e9)):
-        print("Invalid LO Frequency:",args.freq)
-        exit(1)
+    if(args.freq is not None):
+        if(np.any(args.freq > 6e9)):
+            print("Invalid LO Frequency:",args.freq)
+            exit(1)
 
-    if(args.power < -70):
-        print("Power",args.power,"too Low! Range is -70 to 0 dBm")
-        exit(1)
+    if(args.power is not None):
+        if(args.power < -70):
+            print("Power",args.power,"too Low! Range is -70 to 0 dBm")
+            exit(1)
 
-    elif(args.power > 0):
-        print("Power",args.power,"too High! Range is -70 to 0 dBm")
-        exit(1)
+        elif(args.power > 0):
+            print("Power",args.power,"too High! Range is -70 to 0 dBm")
+            exit(1)
 
     return args
 
