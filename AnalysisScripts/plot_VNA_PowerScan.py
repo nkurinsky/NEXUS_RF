@@ -147,7 +147,7 @@ if __name__ == "__main__":
     vna_files = get_input_files(series)
 
     ## Create a class instance containing the fit results for this series
-    result = SeriesFitResult(day,series)
+    result = fitres.SeriesFitResult(day,series)
     result.resize_file_fits(len(vna_files))
 
     for i in np.arange(len(vna_files)):
