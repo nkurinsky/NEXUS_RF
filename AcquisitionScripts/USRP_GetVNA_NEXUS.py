@@ -79,7 +79,7 @@ def parse_args():
         print("Frequency range (",args.f0,",",args.f1,") too large")
         exit(1)
 
-    if(numpy.any(args.freq > 6e9)):
+    if(np.any(args.freq > 6e9)):
         print("Invalid LO Frequency:",args.freq)
         exit(1)
 
