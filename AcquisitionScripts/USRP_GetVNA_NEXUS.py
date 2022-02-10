@@ -122,8 +122,8 @@ def runVNA(tx_gain, rx_gain, iter, rate, freq, front_end, f0, f1, lapse, points,
             outfname = "USRP_Delay_"+series
 
             filename = u.measure_line_delay(rate, freq, front_end, USRP_num=0, 
-                tx_gain=gain, 
-                rx_gain=0, 
+                tx_gain=tx_gain, 
+                rx_gain=rx_gain, 
                 compensate = True, 
                 duration = delay_duration,
                 output_filename=outfname, 
