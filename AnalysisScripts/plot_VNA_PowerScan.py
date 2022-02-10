@@ -101,8 +101,17 @@ def fit_single_file(file_name):
     f = sweep.frequencies / 1.0e9
     z = sweep.S21realvals + 1j*sweep.S21imagvals
 
+    ## Create an instance of a file fit result class
+    this_f_r = fitres.SingleFileResult(file_name)
+    this_f_r.power = sweep.power
+    this_f_r.start_T = sweep.start_T
+    this_f_r.final_T = sweep.final_T
+
     ## Fit this data file
-    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,start_f=f[0],stop_f=f[-1])
+    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
+
+    ## Show the results of the fit
+    this_f_r.show_fit_results()
 
     ## Save the figure
     plt.gcf()
@@ -110,7 +119,7 @@ def fit_single_file(file_name):
     fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
 
     ## Return the fit parameters
-    return fr, Qr, Qc, Qi
+    return fr, Qr, Qc, Qi, this_f_r
 
 if __name__ == "__main__":
 
@@ -137,9 +146,18 @@ if __name__ == "__main__":
     ## Get all the files for a specified series
     vna_files = get_input_files(series)
 
-    for fname in vna_files:
+    ## Create a class instance containing the fit results for this series
+    result = SeriesFitResult(day,series)
+    result.resize_file_fits(len(vna_files))
+
+    for i in np.arange(len(vna_files)):
         ## Fit this data file
-        fr, Qr, Qc, Qi = fit_single_file(fname)
+        fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i], result)
+        result.file_fits[i] = result 
+        result.fit_fr[i] = fr
+        result.fit_Qr[i] = Qr
+        result.fit_Qi[i] = Qc
+        result.fit_Qc[i] = Qi
 
         ## Store the fit results
         fr_list.append(fr[0]); Qr_list.append(Qr[0])
