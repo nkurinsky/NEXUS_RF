@@ -55,12 +55,12 @@ class SinglePeakResult():
 
 	def show_rough_result(self):
 		print("Rough Fit result for peak", self.pk_idx)
-		for key in rough_result.keys():
+		for key in self.rough_result.keys():
 			print(key , ":" , self.rough_result[key] )
 
 	def show_fine_result(self):
 		print("Fine Fit result for peak",self.pk_idx)
-		for key in fine_result.keys():
+		for key in self.fine_result.keys():
 			print(key , ":" , self.fine_result[key] , "+/-" , self.fine_errors[key] )
 
 
