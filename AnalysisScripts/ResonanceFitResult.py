@@ -117,9 +117,9 @@ class SeriesFitResult:
 
 	def resize_file_fits(self, n_files):
 		self.n_files   = n_files
-		self.file_fits = np.zeros(len(self.n_files), dtype=object)
-		self.fit_f     = np.zeros(len(self.n_files))
-		self.fit_Q     = np.zeros(len(self.n_files))
+		self.file_fits = np.zeros(self.n_files, dtype=object)
+		self.fit_f     = np.zeros(self.n_files)
+		self.fit_Q     = np.zeros(self.n_files)
 
 	def show_series_result(self):
 		for i in range(self.n_files):
