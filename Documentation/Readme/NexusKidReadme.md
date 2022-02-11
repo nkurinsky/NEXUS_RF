@@ -188,6 +188,13 @@ and issue the command
 ```
 sudo taskset -c 0,1,2,3,4,5,6,7 ./server
 ```
+After a system reboot, the memory buffers will need to be resized. The GPU_SDR server will tell you this is the case when it spits out "The send buffer could not be resized sufficiently" warnings. Run the following commands to remedy this:
+```
+sudo sysctl -w net.core.wmem_max=24862979
+sudo sysctl -w net.core.rmem_max=24862979
+```
+
+
 The code in `/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/` can be compiled using the `Makefile` to create the server executable:
 ```
 make -j

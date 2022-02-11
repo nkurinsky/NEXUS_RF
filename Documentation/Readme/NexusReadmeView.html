@@ -244,6 +244,9 @@ sudo sysctl -w net.core.rmem_max=24862979</code></pre>
 <pre><code>cd /home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/</code></pre>
 <p>and issue the command</p>
 <pre><code>sudo taskset -c 0,1,2,3,4,5,6,7 ./server</code></pre>
+<p>After a system reboot, the memory buffers will need to be resized. The GPU_SDR server will tell you this is the case when it spits out “The send buffer could not be resized sufficiently” warnings. Run the following commands to remedy this:</p>
+<pre><code>sudo sysctl -w net.core.wmem_max=24862979
+sudo sysctl -w net.core.rmem_max=24862979</code></pre>
 <p>The code in <code>/home/nexus-admin/NEXUS_RF/DeviceControl/GPU_SDR/</code> can be compiled using the <code>Makefile</code> to create the server executable:</p>
 <pre><code>make -j</code></pre>
 <p>You should start a new terminal before doing this since that terminal will be occupied by the server process. Once a server session has been established, scripts that control the USRP can be run. Note that all the scripts need to be run using <code>python2.7</code>. Scripts to acquire data with the USRP can be found at <code>NEXUS_RF/DeviceControl/GPU_SDR/scripts/</code>.</p>
