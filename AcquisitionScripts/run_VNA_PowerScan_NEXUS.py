@@ -5,7 +5,7 @@ n_scans=1
 
 # Power range
 pmin=-50.0
-pmax=-20.0
+pmax=-15.0
 pstep=1.0
 
 # Frequency range
