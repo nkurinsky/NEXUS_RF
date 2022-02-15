@@ -12,9 +12,9 @@ from NEXUSFunctions import * #control NEXUS fridge
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
-P_min  = -45.0
+P_min  = -55.0
 P_max  = -20.0
-P_step =   5.0
+P_step =   1.0
 
 ## Set the VNA's frequency parameters
 freqmin = 4.24205e9 # 4.24212e9   ## Hz
