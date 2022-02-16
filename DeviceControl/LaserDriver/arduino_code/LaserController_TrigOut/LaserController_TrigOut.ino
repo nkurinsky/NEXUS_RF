@@ -19,6 +19,7 @@ unsigned long long freq = 0.05*MHz; // default = 0.05 MHz, 1 us p.w.
 
 // Communication variables
 String a;
+double f_temp, r_temp;
 
 // Control and timing parameters
 double burst_rate  = 250.0;  // Default to 250 Hz
@@ -95,9 +96,35 @@ void read_serial()
 {
   // Get the buffer contents
   a = Serial.readStringUntil('\n');
+  int alen = a.length();
 
-  // Standard IDENTITY query
-  if (a == "*IDN?") Serial.println("Laser pulser");
+  // Reply to queries
+  if (a.substring(alen-2,alen-1) == "?")
+  {
+    // Standard IDENTITY query
+    if (a == "*IDN?") Serial.println("Laser pulser");
+
+    // Get set pulse width
+    if (a.substring(0,1) == "F") 
+    {
+      Serial.print(f_temp, 2);
+      Serial.println(" MHz");
+    }
+
+    // Get set burst rate
+    if (a.substring(0,1) == "B") 
+    {
+      Serial.print(burst_rate, 2);
+      Serial.println(" Hz");
+    }
+
+    // Get set resistance
+    if (a.substring(0,1) == "B") 
+    {
+      Serial.println(r_temp, 0);
+    }
+    
+  }
 
   // LED control commands
   else if (a == "*LED1")
@@ -109,6 +136,18 @@ void read_serial()
   {
     digitalWrite(ledPin, LOW);
     Serial.println("LED:0");
+  }
+
+  // Laser user enable switch
+  else if (a == "ON")
+  { 
+    Serial.println("Enabling laser output");
+    user_allow = true;
+  }
+  else if (a == "OFF")
+  {
+    Serial.println("Disabling laser output");
+    user_allow = false;
   }
 
   // Detect the command by the first charactor of the string
@@ -123,16 +162,6 @@ void read_serial()
   // RXXX\n   -- XXX from 000 to 127.
   //             This sets the resistance thus the laser power.
   //             Default is 127.
-  if (a == "ON")
-  { 
-    Serial.println("Enabling laser output");
-    user_allow = true;
-  }
-  else if (a == "OFF")
-  {
-    Serial.println("Disabling laser output");
-    user_allow = false;
-  }
   else
   {
     // Set the frequency of the clock
@@ -140,7 +169,7 @@ void read_serial()
     if (a.substring(0, 1) == "F")
     {
       Serial.println("Setting pulse frequency (width) to: "+a.substring(1, 6)+" MHz");
-      double f_temp = a.substring(1, 6).toDouble();
+      f_temp = a.substring(1, 6).toDouble();
       unsigned long long f = MHz * f_temp;
       initialize_si5351(f);
     }
@@ -164,7 +193,8 @@ void read_serial()
     else if (a.substring(0, 1) == "R")
     {
       Serial.println("Setting R to: "+a.substring(1, 4));
-      update_pot(a.substring(1, 4).toInt());
+      r_temp = a.substring(1, 4).toInt();
+      update_pot(r_temp);
     }
   }
 }
