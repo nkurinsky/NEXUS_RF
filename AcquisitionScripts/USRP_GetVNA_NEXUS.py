@@ -11,7 +11,7 @@ except ImportError:
     except ImportError:
         print("Cannot find the pyUSRP package")
 
-import PyMKID_USRP_import_functions as puf2
+# import PyMKID_USRP_import_functions as puf2
 
 ## Default VNA sweep options 
 power  = -50.0      ## in dBm
@@ -154,21 +154,40 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
     outfname = "USRP_VNA_"+series
 
     print("Starting single VNA run...")
-    vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
-        measure_t = lapse, 
-        n_points  = points, 
-        tx_gain   = tx_gain,
-        rx_gain   = rx_gain, 
-        Rate      = rate, 
-        decimation= True, 
-        RF        = freq, 
-        Front_end = front_end,
-        Device    = None, 
-        Iterations= _iter, 
-        verbose   = False,
-        subfolder = seriesPath,
-        output_filename = outfname, 
-        Multitone_compensation = ntones)
+
+    print("VNA arguments:")
+    print("-    start_f", f0)
+    print("-     last_f", f1)
+    print("-  measure_t", lapse)
+    print("-   n_points", points)
+    print("-    tx_gain", tx_gain)
+    print("-    rx_gain", rx_gain)
+    print("-       Rate", rate)
+    print("- decimation", True)
+    print("-         RF", freq)
+    print("-  Front_end", front_end)
+    print("-     Device", None)
+    print("- Iterations", _iter)
+    print("-    verbose", False)
+    print("-  subfolder", seriesPath)
+    print("- output_filename", outfname)
+    print("- Multitone_compensation", ntones)
+
+    # vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
+    #     measure_t = lapse, 
+    #     n_points  = points, 
+    #     tx_gain   = tx_gain,
+    #     rx_gain   = rx_gain, 
+    #     Rate      = rate, 
+    #     decimation= True, 
+    #     RF        = freq, 
+    #     Front_end = front_end,
+    #     Device    = None, 
+    #     Iterations= _iter, 
+    #     verbose   = False,
+    #     subfolder = seriesPath,
+    #     output_filename = outfname, 
+    #     Multitone_compensation = ntones)
     print("Done.")
 
     return vna_filename, delay
