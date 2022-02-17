@@ -26,9 +26,13 @@ def noise_run(rate,freq,front_end,tones,lapse,decimation,tx_gain,rx_gain,vna,mod
             u.print_error("Cannot find the trigger \'%s\'. Is it implemented in the USRP_triggers module?"%trigger)
             return ""
 
-    noise_filename = u.Get_noise(tones, measure_t = lapse, rate = rate, decimation = decimation, amplitudes = amplitudes,
+    # noise_filename = u.Get_noise(tones, measure_t = lapse, rate = rate, decimation = decimation, amplitudes = amplitudes,
+    #                           RF = freq, output_filename = None, Front_end = front_end,Device = None, delay = delay*1e-9,
+    #                           pf_average = pf, tx_gain = tx_gain, rx_gain = rx_gain, mode = mode, trigger = trigger, subfolder = subfolder)
+    noise_filename = u.get_tones_noise(tones, measure_t = lapse, rate = rate, decimation = decimation, amplitudes = amplitudes,
                               RF = freq, output_filename = None, Front_end = front_end,Device = None, delay = delay*1e-9,
                               pf_average = pf, tx_gain = tx_gain, rx_gain = rx_gain, mode = mode, trigger = trigger, subfolder = subfolder)
+    
     if vna is not None:
         u.copy_resonator_group(vna, noise_filename)
 
