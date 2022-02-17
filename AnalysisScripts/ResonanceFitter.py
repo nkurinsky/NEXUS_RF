@@ -233,7 +233,7 @@ def fitphase(f, z, f0g, Qg):
 
     return fresult[0][0],fresult[0][1],fresult[0][2]
 
-def roughfit(f, z, fr_0, fit_res_obj, plot=False):
+def roughfit(f, z, fr_0, fit_res_obj=None, plot=False):
 
     edge_data_f = np.hstack((f[:int(len(f)/100)],f[-int(len(f)/100):]))
     edge_data_z = np.hstack((z[:int(len(f)/100)],z[-int(len(f)/100):]))
@@ -271,10 +271,11 @@ def roughfit(f, z, fr_0, fit_res_obj, plot=False):
     f0_est, Qr_est, id_f0, id_BW = estpara(f,z1,fr_0)
 
     ## Save the estimates to our class instance
-    fit_res_obj.f0_est = f0_est
-    fit_res_obj.Qr_est = Qr_est
-    fit_res_obj.id_f0  = id_f0
-    fit_res_obj.id_BW  = id_BW
+    if (fit_res_obj is not None):
+        fit_res_obj.f0_est = f0_est
+        fit_res_obj.Qr_est = Qr_est
+        fit_res_obj.id_f0  = id_f0
+        fit_res_obj.id_BW  = id_BW
 
     # fit circle using trimmed data points
     id1 = max(id_f0-int(0.5*id_BW), 0)
@@ -333,13 +334,14 @@ def roughfit(f, z, fr_0, fit_res_obj, plot=False):
                 "Imtau1": Imtau_1}
 
     ## Write the rough fit result to the fit result class instance
-    fit_res_obj.rough_result["f0"]     = result["f0"]
-    fit_res_obj.rough_result["Q"]      = result["Q"]
-    fit_res_obj.rough_result["phi"]    = result["phi"]
-    fit_res_obj.rough_result["zOff"]   = result["zOff"]
-    fit_res_obj.rough_result["Qc"]     = result["Qc"]
-    fit_res_obj.rough_result["tau1"]   = result["tau1"]
-    fit_res_obj.rough_result["Imtau1"] = result["Imtau1"]
+    if (fit_res_obj is not None):
+        fit_res_obj.rough_result["f0"]     = result["f0"]
+        fit_res_obj.rough_result["Q"]      = result["Q"]
+        fit_res_obj.rough_result["phi"]    = result["phi"]
+        fit_res_obj.rough_result["zOff"]   = result["zOff"]
+        fit_res_obj.rough_result["Qc"]     = result["Qc"]
+        fit_res_obj.rough_result["tau1"]   = result["tau1"]
+        fit_res_obj.rough_result["Imtau1"] = result["Imtau1"]
 
     return result
 
@@ -359,7 +361,7 @@ def resfunc8(f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau):
     imag_S21[f_proj<0] = 0
     return real_S21 + imag_S21
 
-def finefit(f, z, fr_0, fit_res_obj, plot=False):
+def finefit(f, z, fr_0, fit_res_obj=None, plot=False):
     """
     finefit fits f and z to the resonator model described in Jiansong's thesis
 
@@ -387,7 +389,8 @@ def finefit(f, z, fr_0, fit_res_obj, plot=False):
 
     ## Create array of initial guesses for params
     pGuess = [fr_1, Qr_1, Qc_hat_mag_1, a_1.real, a_1.imag, phi_1, tau_1, Imtau_1]
-    fit_res_obj.fine_pguess = pGuess
+    if (fit_res_obj is not None):
+        fit_res_obj.fine_pguess = pGuess
 
     # trim data?
     #if False:
@@ -440,8 +443,6 @@ def finefit(f, z, fr_0, fit_res_obj, plot=False):
                   "QcHat" : fopt[2],
                   "tau"   : fopt[6]+1j*fopt[7],
                   "Qc"    : fopt[2]/np.cos(fopt[5])}
-    fit_res_obj.fine_result = fine_pars
-
     fine_errs = { "f0"    : ferr[0], 
                   "Qr"    : ferr[1],
                   "phi"   : ferr[5],
@@ -449,7 +450,10 @@ def finefit(f, z, fr_0, fit_res_obj, plot=False):
                   "QcHat" : ferr[2],
                   "tau"   : ferr[6]+1j*ferr[7],
                   "Qc"    : ferr[2]/np.cos(ferr[5])}
-    fit_res_obj.fine_errors = fine_errs
+
+    if (fit_res_obj is not None):
+        fit_res_obj.fine_result = fine_pars
+        fit_res_obj.fine_errors = fine_errs
 
     # fr_fine = fparams[0]
     # Qr_fine = fparams[1]
