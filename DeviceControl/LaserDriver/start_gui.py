@@ -2,9 +2,9 @@
 # start_gui.py
 
 try:
-    import tkinter as tk
+    from tkinter import *
 except ImportError:
-    import Tkinter as tk
+    from TKinter import *
 
 from laser_driver import *
 
@@ -12,7 +12,7 @@ from laser_driver import *
 driver = LaserDriver()
 
 ## Geometry of the GUI
-win_size_x  = 500
+win_size_x  = 460
 win_size_y  = 200
 
 but_size_x  =  12
@@ -49,19 +49,26 @@ btn_roll_call=Button(win, text="Roll Call",
     state   = "disabled", )
 btn_roll_call.grid(row=1, column=0)
 
-## Details of the "--" button
+## Details of the "LED ON" button
 btn_led_on=Button(win, text="LED On", 
     width   = but_size_x,
     height  = but_size_y,
     state   = "disabled", )
 btn_led_on.grid(row=2, column=0)
 
-## Details of the "--" button
+## Details of the "LED OFF" button
 btn_led_off=Button(win, text="LED Off", 
     width   = but_size_x,
     height  = but_size_y,
     state   = "disabled", )
 btn_led_off.grid(row=3, column=0)
+
+## Details of the "LED OFF" button
+btn_disconnect=Button(win, text="Disconnect", 
+    width   = but_size_x,
+    height  = but_size_y,
+    state   = "disabled", )
+btn_disconnect.grid(row=4, column=0)
 
 ## Details of the "Update PW" button
 btn_update_pw=Button(win, text="Update", 
@@ -117,6 +124,7 @@ def cfg_serial():
     driver.configure_serial()
     
     btn_roll_call["state"]  = "normal"
+    btn_disconnect["state"] = "normal"
 
     return
 btn_cfg_serial["command"] = cfg_serial
@@ -125,9 +133,9 @@ def roll_call():
     btn_roll_call["state"] = "disabled"
 
     id_str.set( driver.get_identity() )
-    pw_str.set( driver.get_pw() )
-    bf_str.set( driver.get_bf() )
-    lr_str.set( driver.get_lr() )
+    pw_str.set( driver.get_pulsewidth() )
+    bf_str.set( driver.get_burstfreq() )
+    lr_str.set( driver.get_laserpower() )
 
     btn_led_on["state"]    = "normal"
     btn_led_off["state"]   = "normal"
@@ -154,6 +162,11 @@ def led_off():
     btn_led_on["state"]  = "normal"
     return
 btn_led_off['command'] = led_off
+
+def disconnect():
+    driver.close()
+    return
+btn_disconnect['command'] = disconnect
 
 def update_pw():
     driver.set_pw( pw_str.get() )

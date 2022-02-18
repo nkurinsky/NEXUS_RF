@@ -130,7 +130,7 @@ class LaserDriver():
 		return
 
 	def get_pw(self):
-		self._sendCmd("*F?")
+		self._sendCmd("F?")
 		time.sleep(0.05)
 		pw_MHz = float(self._getReply())
 		return string(freq_to_pw(pw_MHz))
@@ -160,7 +160,7 @@ class LaserDriver():
 		return
 
 	def get_bf(self):
-		self._sendCmd("*B?")
+		self._sendCmd("B?")
 		time.sleep(0.05)
 		return self._getReply()
 
@@ -189,7 +189,7 @@ class LaserDriver():
 		return
 
 	def get_lr(self):
-		self._sendCmd("*R?")
+		self._sendCmd("R?")
 		time.sleep(0.05)
 		return self._getReply()
 
