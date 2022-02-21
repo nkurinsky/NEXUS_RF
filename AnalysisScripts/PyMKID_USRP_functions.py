@@ -137,7 +137,6 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
     Qrs = np.zeros(len(pickedres))
     for MKIDnum in range(len(pickedres)):
         window_f = (pickedres[MKIDnum] + 10*pickedres[MKIDnum]/3e5)
-        print(VNA_f, window_f)
         window_index = np.argmin(abs(VNA_f-window_f))
         MKID_index = np.argmin(abs(VNA_f-pickedres[MKIDnum]))
         index_range = window_index-MKID_index
