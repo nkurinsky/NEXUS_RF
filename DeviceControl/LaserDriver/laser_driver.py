@@ -132,8 +132,12 @@ class LaserDriver():
 	def get_pw(self):
 		self._sendCmd("F?")
 		time.sleep(0.05)
-		pw_MHz = float(self._getReply())
-		return string(freq_to_pw(pw_MHz))
+		try:
+			pw_MHz = float(self._getReply())
+			return string(freq_to_pw(pw_MHz))
+		except Exception as e:
+			print("ERROR:",str(e))
+			return -1
 
 	def set_bf(self, bf_Hz="250.0"):
 		try:
