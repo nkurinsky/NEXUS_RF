@@ -137,6 +137,7 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
     Qrs = np.zeros(len(pickedres))
     for MKIDnum in range(len(pickedres)):
         window_f = (pickedres[MKIDnum] + 10*pickedres[MKIDnum]/3e5)
+        print(VNA_f, window_f)
         window_index = np.argmin(abs(VNA_f-window_f))
         MKID_index = np.argmin(abs(VNA_f-pickedres[MKIDnum]))
         index_range = window_index-MKID_index
@@ -184,7 +185,7 @@ def clean_noi(file):
     return cleaned_data, sampling_rate
 
 def read_vna(filename, decimation=1,verbose=False):
-    Dt_tm = filename.split('.')[0].split('_')[2] + '_' + filename.split('.')[0].split('_')[3]
+    #Dt_tm = filename.split('.')[0].split('_')[2] + '_' + filename.split('.')[0].split('_')[3]
 
     with h5py.File(filename, "r") as fyle:
         raw_VNA = get_raw(fyle)
@@ -198,7 +199,7 @@ def read_vna(filename, decimation=1,verbose=False):
     eff_rate = rate/decimation
 
     if verbose:
-        print( "\n\nData taken "+str(Dt_tm))
+        #print( "\n\nData taken "+str(Dt_tm))
         print( "Reported LO is "+str(LO*1e-6)+" MHz")
         print( "Reported rate is %f MHz"%(rate/1e6))
         print( "Entered decimation is %d"%(decimation))
