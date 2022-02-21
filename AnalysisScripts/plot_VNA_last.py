@@ -7,7 +7,7 @@ import time
 import PyMKID_USRP_functions as puf
 from glob import glob
 
-vna_files = glob('USRP_VNA*.h5')
+vna_files = glob('../AcquisitionScripts/USRP_VNA*.h5')
 vna_files.sort(key=os.path.getmtime)
 
 plt.figure(1)
