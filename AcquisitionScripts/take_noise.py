@@ -39,21 +39,21 @@ if not u.Connect():
     u.print_error("Cannot find the GPU server!")
     
 ## Set some noise scan parameters
-rate    = 200e6
+rate    = 100e6
 tx_gain = 0
 rx_gain = 17.5
-LO      = 4.2e9
-res     = 4.244905
-tracking_tones = np.array([4.235e9,4.255e9])
+LO      = 4.25e9 ## Nice round numbers, don't go finer than 50 MHz
+res     = 4.242170 ## In GHz
+tracking_tones = np.array([]) # np.array([4.235e9,4.255e9])
 
 ## Set the stimulus powers to loop over
-powers = np.arange(start = -70,
-                  stop  = - 5,
+powers = np.arange(start = -50,
+                  stop  = -40,
                   step  =   5)
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
-cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
+cal_deltas = [0 ]#np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
 
 # powers = [-70.-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15,-10]
@@ -90,9 +90,9 @@ for i in np.arange(n_pwrs):
                                    rate           = rate    ,
                                    freq           = LO      ,
                                    front_end      = 'A'     ,
-                                   f0             = 43e6    ,
-                                   f1             = 48e6    ,
-                                   lapse          = 20      ,
+                                   f0             = -10e6   ,
+                                   f1             = -5e6    ,
+                                   lapse          = 10      ,
                                    points         = 1e5     ,
                                    ntones         = N_power ,
                                    delay_duration = 0.1     ,
@@ -100,10 +100,11 @@ for i in np.arange(n_pwrs):
 
     ## Fit the data acquired in this noise scan
     fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_file + '.h5',[res],show=False)
-
+    
     ## Extract the important parameters from fit
     f = fs[0]*1e9
     q = qs[0]
+    print(f,q)
 
     ## Create some output objects
     ## Each entry is a single number
@@ -126,7 +127,7 @@ for i in np.arange(n_pwrs):
             relative_tones[k] = float(readout_tones[k]) - LO
 
         ## Another parameter for the noise run
-        duration = 50
+        duration = 10
 
         ## Do a noise run with the USRP
         noise_file = puf2.noise_run(rate       = rate       ,
@@ -134,7 +135,7 @@ for i in np.arange(n_pwrs):
                                     front_end  = "A"        ,
                                     tones      = relative_tones,
                                     lapse      = duration   ,
-                                    decimation = 40         ,
+                                    decimation = 100         ,
                                     tx_gain    = tx_gain    ,
                                     rx_gain    = rx_gain    ,
                                     vna        = None       ,
