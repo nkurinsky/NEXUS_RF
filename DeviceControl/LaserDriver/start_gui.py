@@ -133,9 +133,9 @@ def roll_call():
     btn_roll_call["state"] = "disabled"
 
     id_str.set( driver.get_identity() )
-    pw_str.set( driver.get_pulsewidth() )
-    bf_str.set( driver.get_burstfreq() )
-    lr_str.set( driver.get_laserpower() )
+    pw_str.set( driver.get_pw() )
+    bf_str.set( driver.get_bf() )
+    lr_str.set( driver.get_lr() )
 
     btn_led_on["state"]    = "normal"
     btn_led_off["state"]   = "normal"
