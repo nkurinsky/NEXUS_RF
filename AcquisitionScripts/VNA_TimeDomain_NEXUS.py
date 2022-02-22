@@ -14,7 +14,7 @@ from VNAMeas import * #vna measurement class
 ## Parameters of the time domain acquisition
 P_ctr  = -40.0      ## RF stimulus power [dBm]
 f_res  = 4.24217e9  ## Resonator central frequency [Hz]
-laspe  = 100        ## Duration of acquisition [sec]
+lapse  = 100        ## Duration of acquisition [sec]
 srate  = 100        ## Sampling rate [Msps]
 
 ## Inherited parameters
@@ -39,7 +39,7 @@ def parse_args():
                         help='LO frequency [Hz]')
     parser.add_argument('--power', '-p', type=float, default=P_ctr,
                         help='Minimum power for scan [dBm]')
-    parser.add_argument('--time' , '-t', type=float, default=laspe,
+    parser.add_argument('--time' , '-t', type=float, default=lapse,
                         help='Duration of the scan [seconds]')
     parser.add_argument('--rate' , '-r', type=float, default=srate,
                         help='Sampling frequency [Msps]')
@@ -78,7 +78,7 @@ def run_scan():
     print("--Time Domain Settings-------")
     print("-      RF Power (dB):", P_ctr)
     print("-   Resonator F (Hz):", f_res)
-    print("-     Duration (sec):", laspe)
+    print("-     Duration (sec):", lapse)
     print("- Sample rate (Msps):", srate)
     print("-       IF Bandwidth:", bdwt)
     print("-           N points:", npts)
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     ## Parameters of the power sweep (in dB)
     P_ctr  = args.power if args.power is not None else P_ctr
     f_res  = args.freq  if args.freq  is not None else f_res
-    laspe  = args.time  if args.time  is not None else laspe
+    lapse  = args.time  if args.time  is not None else lapse
     srate  = args.rate  if args.rate  is not None else srate
 
     ## Recalculate inherited params
