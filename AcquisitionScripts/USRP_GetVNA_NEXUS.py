@@ -39,8 +39,12 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Test the basic VNA functionality.')
 
-    parser.add_argument('--power', '-P', type=float, default = power, 
+    parser.add_argument('--power' , '-P' , type=float, default = power, 
         help='RF power applied in dBm. (default '+str(power)+' dBm)')
+    parser.add_argument('--txgain', '-tx', type=float, default = tx_gain, 
+        help='Tx gain factor (default '+str(tx_gain)+')')
+    parser.add_argument('--rxgain', '-rx', type=float, default = rx_gain, 
+        help='Rx gain factor (default '+str(rx_gain)+')')
     # parser.add_argument('--freq'    , '-f'    , nargs='+' , 
     #     help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(freq)+' MHz)')
     # parser.add_argument('--rate'    , '-r'    , type=float, default = rate, 
@@ -224,25 +228,25 @@ if __name__ == "__main__":
     #     f1 = args.f1
 
     ## Calculate some powers
-    N_power = np.power(10.,(((-1*power)-14)/20.))
+    N_power = np.power(10.,(((-1*args.power)-14)/20.))
     pwr_clc = np.round(-14-20.*np.log10(N_power),2)
 
     print(pwr_clc, 'dBm of power')
     print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
 
-    # ## Print the settings we'll be using
-    # print('===== VNA Settings =====')
+    ## Print the settings we'll be using
+    print('===== VNA Settings =====')
     # print('    LO [MHz]: ',frequencies)
     # print('    f0 [MHz]: ',args.f0)
     # print('    f1 [MHz]: ',args.f1)
-    # print(' power [dBm]: ',args.power)
+    print(' power [dBm]: ',args.power)
     # print(' tx+rx gains: ',gains)
     # print('     npoints: ',args.points)
 
     # Data acquisition
     vna_file, delay = runVNA(
-        tx_gain = tx_gain,
-        rx_gain = rx_gain,
+        tx_gain = args.tx_gain,
+        rx_gain = args.rx_gain,
         _iter = 1, # int(args.iter),
         rate = rate, # args.rate*1e6,       ## Passed in Samps/sec
         freq = LO,                          ## Passed in Hz
