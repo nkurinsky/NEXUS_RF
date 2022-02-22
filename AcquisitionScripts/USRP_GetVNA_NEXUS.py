@@ -245,8 +245,8 @@ if __name__ == "__main__":
 
     # Data acquisition
     vna_file, delay = runVNA(
-        tx_gain = args.tx_gain,
-        rx_gain = args.rx_gain,
+        tx_gain = args.txgain,
+        rx_gain = args.rxgain,
         _iter = 1, # int(args.iter),
         rate = rate, # args.rate*1e6,       ## Passed in Samps/sec
         freq = LO,                          ## Passed in Hz
