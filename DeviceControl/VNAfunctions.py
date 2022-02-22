@@ -78,8 +78,8 @@ class VNA:
         self._sendCmd("SENS:AVER ON\n")
         self._sendCmd("SENS:AVER:COUN "+str(n_avs)+"\n")
 
-        # #Autoscale GUI Display
-        # self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
+        #Autoscale GUI Display
+        self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
         self.singleTrigAndWait()
 
         data = self._getData("CALC:TRAC:DATA:FDAT?\n")
@@ -112,6 +112,9 @@ class VNA:
         self._sendCmd("CALC:PAR:DEF S21\n")
         self._sendCmd("TRIG:SOUR BUS\n")
         self._sendCmd("SENS:BWID "+str(ifb)+"\n")
+
+        #Autoscale GUI Display
+        self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
 
         ## Start the time domain trace, wait for lapse to occur
         self.singleTrigAndWait()
