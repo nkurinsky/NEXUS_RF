@@ -45,7 +45,7 @@ def parse_args():
                         help='Sampling frequency [Msps]')
 
     # Data path optional arguments
-    parser.add_argument('--directory', '-d', type=str, default=sweepPath
+    parser.add_argument('--directory', '-d', type=str, default=sweepPath,
                         help='Top-level directory for storing VNA data')
 
     # Now read the arguments
