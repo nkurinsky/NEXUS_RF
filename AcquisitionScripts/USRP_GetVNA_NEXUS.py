@@ -109,7 +109,7 @@ def parse_args():
             exit(1)
 
     if(args.LOfrq is not None):
-        if(np.any(args.LOfrq > 6e9)):
+        if(np.any(np.array(args.LOfrq) > 6e9)):
             print("Invalid LO Frequency:",args.freq," is too High! Exiting...")
             exit(1)
 
