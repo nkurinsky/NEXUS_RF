@@ -20,8 +20,10 @@ tx_gain = 0
 rx_gain = 17.5
 LO      = 4.250e9   ## [Hz] Nice round numbers, don't go finer than 50 MHz
 # res     = 4.242170  ## [GHz] resonator peak
-f0      = -10e6 ## [Hz], relative to LO
-f1      = -5e6  ## [Hz], relative to LO
+f0      = -10e6     ## [Hz], relative to LO
+f1      = -5e6      ## [Hz], relative to LO
+points  =  1e5
+lapse   = 10        ## [Sec]
                        
 ## File handling options
 filename=None
@@ -48,51 +50,39 @@ def parse_args():
         help='Rx gain factor (default '+str(rx_gain)+')')
     parser.add_argument('--rate'  , '-R' , type=float, default = rate/1e6, 
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
+    parser.add_argument('--points', '-p' , type=int  , default=points, 
+        help='Number of points used in the scan (default '+str(points)+' points)')
+    parser.add_argument('--time'  , '-T' , type=float, default=lapse, 
+        help='Duration of the scan in seconds per iteration (default '+str(lapse)+' seconds)')
+    
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
     
     parser.add_argument('--LOfrq' , '-f' , nargs='+' , default=[LO/1e6],
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
-    
     parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
         help='Baseband start frequrency in MHz relative to LO (default '+str(f0/1e6)+' MHz)')
     parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
         help='Baseband end frequrency in MHz relative to LO (default '+str(f1/1e6)+' MHz)')
-    # parser.add_argument('--points'  , '-p'    , type=float, default=points, 
-    #     help='Number of points used in the scan (default '+str(points)+' points)')
-    # parser.add_argument('--time'    , '-t'    , type=float, default=lapse, 
-    #     help='Duration of the scan in seconds per iteration (default '+str(lapse)+' seconds)')
     
-    # parser.add_argument('--gain'    , '-g'    , nargs='+' , 
-    #     help='set the transmission gain. Multiple gains will result in multiple scans (per frequency) (default 0 dB)')
-
     # ## Line delay arguments
     # parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
     #     help='Duration of the delay measurement (default '+str(delay_duration)+' seconds)')
-    # parser.add_argument('--delay_over'    , '-do', type=float, 
+    # parser.add_argument('--delay_over'    , '-do', type=float, default=None,
     #     help='Manually set line delay in nanoseconds. Skip the line delay measure.')
 
     args = parser.parse_args()
 
     # Do some conditional checks
-    # if(args.f0 is not None and args.f1 is not None):
-    #     if((args.f1 - args.f0) > 1e7):
-    #         print("Frequency range (",args.f0,",",args.f1,") too large")
-    #         exit(1)
-
-    # if(args.freq is not None):
-    #     if(np.any(args.freq > 6e9)):
-    #         print("Invalid LO Frequency:",args.freq)
-    #         exit(1)
 
     if (args.power is not None):
         if(args.power < -70):
-            print("Power",args.power,"too Low! Range is -70 to 0 dBm")
+            print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
             exit(1)
 
         elif(args.power > 0):
-            print("Power",args.power,"too High! Range is -70 to 0 dBm")
+            print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
             exit(1)
 
     if (args.rate is not None):
@@ -112,6 +102,26 @@ def parse_args():
         args.f0 = args.f0*1e6 ## Store it as Hz not MHz
     if (args.f1 is not None):
         args.f1 = args.f1*1e6 ## Store it as Hz not MHz
+
+    if(args.f0 is not None and args.f1 is not None):
+        if((args.f1 - args.f0) > 1e7):
+            print("Frequency range (",args.f0,",",args.f1,") too large! Exiting...")
+            exit(1)
+
+    if(args.LOfrq is not None):
+        if(np.any(args.LOfrq > 6e9)):
+            print("Invalid LO Frequency:",args.freq," is too High! Exiting...")
+            exit(1)
+
+    if np.abs(args.f0)>args.rate/2:
+        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f0/1e6,args.rate/1e6))
+        args.f0 = args.rate/2 * (np.abs(args.f0)/args.f0)
+        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f0/1e6))
+
+    if np.abs(args.f1)>args.rate/2:
+        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1,args.rate))
+        args.f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
+        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1))
 
     return args
 
@@ -215,16 +225,6 @@ if __name__ == "__main__":
     ## Parse command line arguments to set parameters
     args = parse_args()
 
-    # if args.freq is None:
-    #     frequencies = [freq,]
-    # else:
-    #     frequencies = [float(a) for a in args.freq]
-
-    # if args.gain is None:
-    #     gains = [0,]
-    # else:
-    #     gains = [int(float(a)) for a in args.gain]
-
     ## Create the output directories
     create_dirs()
     os.chdir(seriesPath)
@@ -233,20 +233,6 @@ if __name__ == "__main__":
     if not u.Connect():
         u.print_error("Cannot find the GPU server!")
         exit(1)
-
-    # if np.abs(args.f0)>args.rate/2:
-    #     u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f0,args.rate))
-    #     f0 = args.rate/2 * (np.abs(args.f0)/args.f0)
-    #     u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(f0))
-    # else:
-    #     f0 = args.f0
-
-    # if np.abs(args.f1)>args.rate/2:
-    #     u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1,args.rate))
-    #     f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
-    #     u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(f1))
-    # else:
-    #     f1 = args.f1
 
     ## Calculate some powers
     N_power = np.power(10.,(((-1*args.power)-14)/20.))
@@ -277,13 +263,10 @@ if __name__ == "__main__":
             front_end = "A",
             f0      = args.f0,          ## Passed in Hz, relative to LO
             f1      = args.f1,          ## Passed in Hz, relative to LO
-            lapse = 10, # args.time,    ## Passed in seconds
-            points = 1e5, # args.points,
-            ntones = N_power,
+            lapse   = args.time,        ## Passed in seconds
+            points  = args.points,
+            ntones  = N_power,
             delay_duration = 0.1, # args.delay_duration,
             delay_over = None) #args.delay_over)
-    # for g in gains:
-    #     
-            
 
     u.Disconnect()
