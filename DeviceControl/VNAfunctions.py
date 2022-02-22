@@ -99,6 +99,12 @@ class VNA:
         return freqs, S21_real, S21_imag
 
     def timeDomain(self, f0, npts, ifb=10e3):
+        ## Show the time details
+        print("Taking time domain trace with:")
+        print("- Central F [Hz]:", f0)
+        print("-  Number points:", npts)
+        print("-  Sampling rate:", ifb)
+
         ## Set the frequency parameters
         self._sendCmd("SENS:FREQ:STAR "+str(f0)+"\n")
         self._sendCmd("SENS:FREQ:STOP "+str(f0)+"\n")
