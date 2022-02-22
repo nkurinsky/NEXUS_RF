@@ -262,7 +262,8 @@ if __name__ == "__main__":
     print('    f1 [MHz]: ',args.f1/1e6)
     print(' power [dBm]: ',args.power)
     print(' rate [Msps]: ',args.rate/1e6)
-    # print(' tx+rx gains: ',gains)
+    print('     Tx gain: ',args.txgain)
+    print('     Rx gain: ',args.txgain)
     # print('     npoints: ',args.points)
 
     # Data acquisition
