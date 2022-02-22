@@ -20,7 +20,6 @@ tx_gain = 0
 rx_gain = 17.5
 LO      = 4.250e9   ## [GHz] Nice round numbers, don't go finer than 50 MHz
 res     = 4.242170  ## [GHz] resonator peak
-tracking_tones = np.array([]) # np.array([4.235e9,4.255e9])
                        
 ## File handling options
 filename=None
@@ -45,6 +44,9 @@ def parse_args():
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain', '-rx', type=float, default = rx_gain, 
         help='Rx gain factor (default '+str(rx_gain)+')')
+    parser.add_argument('--rate'  , '-R' , type=float, default = rate/1e6, 
+        help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
+    
     # parser.add_argument('--freq'    , '-f'    , nargs='+' , 
     #     help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(freq)+' MHz)')
     # parser.add_argument('--rate'    , '-r'    , type=float, default = rate, 
@@ -83,7 +85,7 @@ def parse_args():
     #         print("Invalid LO Frequency:",args.freq)
     #         exit(1)
 
-    if(args.power is not None):
+    if (args.power is not None):
         if(args.power < -70):
             print("Power",args.power,"too Low! Range is -70 to 0 dBm")
             exit(1)
@@ -91,6 +93,12 @@ def parse_args():
         elif(args.power > 0):
             print("Power",args.power,"too High! Range is -70 to 0 dBm")
             exit(1)
+
+    if (args.rate is not None):
+        args.rate = args.rate * 1e6 ## Store it as sps not Msps
+        if (args.rate > rate):
+            print("Rate",args.rate,"is too High! Optimal performance is at",rate,"samples per second")
+            args.rate = rate
 
     return args
 
@@ -240,6 +248,7 @@ if __name__ == "__main__":
     # print('    f0 [MHz]: ',args.f0)
     # print('    f1 [MHz]: ',args.f1)
     print(' power [dBm]: ',args.power)
+    print(' rate [Msps]: ',args.rate/1e6)
     # print(' tx+rx gains: ',gains)
     # print('     npoints: ',args.points)
 
@@ -248,7 +257,7 @@ if __name__ == "__main__":
         tx_gain = args.txgain,
         rx_gain = args.rxgain,
         _iter = 1, # int(args.iter),
-        rate = rate, # args.rate*1e6,       ## Passed in Samps/sec
+        rate = args.rate,                   ## Passed in Samps/sec
         freq = LO,                          ## Passed in Hz
         front_end = "A",
         f0 = -10e6, # f0*1e6,               ## Passed in Hz, relative to LO
