@@ -129,7 +129,7 @@ class VNA:
         elapsed = 0
 
         ## Take a single time domain trace
-        while (elpased < lapse):
+        while (elapsed < lapse):
             bgn = time.time()
             self.singleTrigAndWait()
             elapsed += (time.time() - bgn)
