@@ -13,7 +13,8 @@ except ImportError:
 
 # import PyMKID_USRP_import_functions as puf2
 
-## Set some noise scan parameters
+## Set some VNA parameters
+power   = -40.0     ## [dBm]
 rate    = 100e6     ## samples per second
 tx_gain = 0
 rx_gain = 17.5
@@ -38,45 +39,45 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Test the basic VNA functionality.')
 
-    parser.add_argument('--power'   , '-P'    , type=float, default = power, 
+    parser.add_argument('--power', '-P', type=float, default = power, 
         help='RF power applied in dBm. (default '+str(power)+' dBm)')
-    parser.add_argument('--freq'    , '-f'    , nargs='+' , 
-        help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(freq)+' MHz)')
-    parser.add_argument('--rate'    , '-r'    , type=float, default = rate, 
-        help='Sampling frequency in Msps (default '+str(rate)+' Msps)')
-    parser.add_argument('--frontend', '-rf'   , type=str  , default="A", 
-        help='front-end character: A or B (default A)')
-    parser.add_argument('--f0'      , '-f0'   , type=float, default=f0, 
-        help='Baseband start frequrency in MHz (default '+str(f0)+' MHz)')
-    parser.add_argument('--f1'      , '-f1'   , type=float, default=f1, 
-        help='Baseband end frequrency in MHz (default '+str(f1)+' MHz)')
-    parser.add_argument('--points'  , '-p'    , type=float, default=points, 
-        help='Number of points used in the scan (default '+str(points)+' points)')
-    parser.add_argument('--time'    , '-t'    , type=float, default=lapse, 
-        help='Duration of the scan in seconds per iteration (default '+str(lapse)+' seconds)')
-    parser.add_argument('--iter'    , '-i'    , type=float, default=1, 
-        help='How many iterations to perform (default 1)')
-    parser.add_argument('--gain'    , '-g'    , nargs='+' , 
-        help='set the transmission gain. Multiple gains will result in multiple scans (per frequency) (default 0 dB)')
+    # parser.add_argument('--freq'    , '-f'    , nargs='+' , 
+    #     help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(freq)+' MHz)')
+    # parser.add_argument('--rate'    , '-r'    , type=float, default = rate, 
+    #     help='Sampling frequency in Msps (default '+str(rate)+' Msps)')
+    # parser.add_argument('--frontend', '-rf'   , type=str  , default="A", 
+    #     help='front-end character: A or B (default A)')
+    # parser.add_argument('--f0'      , '-f0'   , type=float, default=f0, 
+    #     help='Baseband start frequrency in MHz (default '+str(f0)+' MHz)')
+    # parser.add_argument('--f1'      , '-f1'   , type=float, default=f1, 
+    #     help='Baseband end frequrency in MHz (default '+str(f1)+' MHz)')
+    # parser.add_argument('--points'  , '-p'    , type=float, default=points, 
+    #     help='Number of points used in the scan (default '+str(points)+' points)')
+    # parser.add_argument('--time'    , '-t'    , type=float, default=lapse, 
+    #     help='Duration of the scan in seconds per iteration (default '+str(lapse)+' seconds)')
+    # parser.add_argument('--iter'    , '-i'    , type=float, default=1, 
+    #     help='How many iterations to perform (default 1)')
+    # parser.add_argument('--gain'    , '-g'    , nargs='+' , 
+    #     help='set the transmission gain. Multiple gains will result in multiple scans (per frequency) (default 0 dB)')
 
-    ## Line delay arguments
-    parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
-        help='Duration of the delay measurement (default '+str(delay_duration)+' seconds)')
-    parser.add_argument('--delay_over'    , '-do', type=float, 
-        help='Manually set line delay in nanoseconds. Skip the line delay measure.')
+    # ## Line delay arguments
+    # parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
+    #     help='Duration of the delay measurement (default '+str(delay_duration)+' seconds)')
+    # parser.add_argument('--delay_over'    , '-do', type=float, 
+    #     help='Manually set line delay in nanoseconds. Skip the line delay measure.')
 
     args = parser.parse_args()
 
     # Do some conditional checks
-    if(args.f0 is not None and args.f1 is not None):
-        if((args.f1 - args.f0) > 1e7):
-            print("Frequency range (",args.f0,",",args.f1,") too large")
-            exit(1)
+    # if(args.f0 is not None and args.f1 is not None):
+    #     if((args.f1 - args.f0) > 1e7):
+    #         print("Frequency range (",args.f0,",",args.f1,") too large")
+    #         exit(1)
 
-    if(args.freq is not None):
-        if(np.any(args.freq > 6e9)):
-            print("Invalid LO Frequency:",args.freq)
-            exit(1)
+    # if(args.freq is not None):
+    #     if(np.any(args.freq > 6e9)):
+    #         print("Invalid LO Frequency:",args.freq)
+    #         exit(1)
 
     if(args.power is not None):
         if(args.power < -70):
@@ -186,8 +187,8 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
 ## Main function when called from command line
 if __name__ == "__main__":
 
-    # ## Parse command line arguments to set parameters
-    # args = parse_args()
+    ## Parse command line arguments to set parameters
+    args = parse_args()
 
     # if args.freq is None:
     #     frequencies = [freq,]
@@ -223,7 +224,6 @@ if __name__ == "__main__":
     #     f1 = args.f1
 
     ## Calculate some powers
-    power = -40.0
     N_power = np.power(10.,(((-1*power)-14)/20.))
     pwr_clc = np.round(-14-20.*np.log10(N_power),2)
 
@@ -244,12 +244,12 @@ if __name__ == "__main__":
         tx_gain = tx_gain,
         rx_gain = rx_gain,
         _iter = 1, # int(args.iter),
-        rate = rate, # args.rate*1e6,        ## Passed in Samps/sec
-        freq = LO,                ## Passed in Hz
+        rate = rate, # args.rate*1e6,       ## Passed in Samps/sec
+        freq = LO,                          ## Passed in Hz
         front_end = "A",
-        f0 = -10e6, # f0*1e6,                 ## Passed in Hz
-        f1 = -5e6, # f1*1e6,                 ## Passed in Hz
-        lapse = 10, # args.time,
+        f0 = -10e6, # f0*1e6,               ## Passed in Hz, relative to LO
+        f1 = -5e6, # f1*1e6,                ## Passed in Hz, relative to LO
+        lapse = 10, # args.time,            ## Passed in seconds
         points = 1e5, # args.points,
         ntones = N_power,
         delay_duration = 0.1, # args.delay_duration,
