@@ -84,7 +84,7 @@ def run_scan():
     print("-           N points:", npts)
 
     ## Create a filename for this sweep
-    output_filename = seriesPath +"/TimeSer_P"+str(P_ctr)+"_"+series
+    output_filename = sweepPath +"/TimeSer_P"+str(P_ctr)+"_"+series
 
     ## Grab and save the fridge temperature before starting sweep
     # sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
