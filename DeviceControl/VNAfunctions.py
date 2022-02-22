@@ -78,12 +78,6 @@ class VNA:
         self._sendCmd("SENS:AVER ON\n")
         self._sendCmd("SENS:AVER:COUN "+str(n_avs)+"\n")
 
-        # #trigger sweep
-        # self._sendCmd("TRIG:SING\n")
-        # print('now waiting ' + str(waittime*n_avs))
-        # sleep(waittime*n_avs)
-        # #probably should implement an actual *OPC? query here but that appears to be broken on Python 3?
-        # #self._waitCmd()
         # #Autoscale GUI Display
         # self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
         self.singleTrigAndWait()
@@ -103,6 +97,30 @@ class VNA:
         #print(freqs)
         #print(S21)
         return freqs, S21_real, S21_imag
+
+    def timeDomain(self, f0, npts, ifb=10e3):
+        ## Set the frequency parameters
+        self._sendCmd("SENS:FREQ:STAR "+str(f0)+"\n")
+        self._sendCmd("SENS:FREQ:STOP "+str(f0)+"\n")
+        self._sendCmd("SENS:SWE:POIN "+str(npts)+"\n")
+        self._sendCmd("CALC:PAR:DEF S21\n")
+        self._sendCmd("TRIG:SOUR BUS\n")
+        self._sendCmd("SENS:BWID "+str(ifb)+"\n")
+
+        ## Start the time domain trace, wait for lapse to occur
+        self.singleTrigAndWait()
+
+        ## Pull the data 
+        data = self._getData("CALC:TRAC:DATA:FDAT?\n")
+        time = self._getData("SENS:FREQ:DATA?\n")
+
+        S21  = str(data).split(',')
+        time = str(time).split(",")
+        
+        S21_real = S21[::2]
+        S21_imag = S21[1::2]
+
+        return time, S21_real, S21_imag
 
     def storeData(self, freqs, S21_real, S21_imag, filename):
         fullname = filename+'.txt'
