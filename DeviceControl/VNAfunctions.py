@@ -123,10 +123,14 @@ class VNA:
         self._sendCmd("DISP:SPL 6\n") ## top panel, 2 bottom quadrants
 
         self._sendCmd("CALC1:PAR:DEF S21\n")
+        self._sendCmd("CALC1:SEL:FORM MLOG\n")
         self._sendCmd("DISP:WIND1:TRAC:Y:AUTO\n")
 
         self._sendCmd("CALC2:PAR:DEF S21\n")
         self._sendCmd("CALC2:SEL:FORM POLar\n")
+
+        self._sendCmd("CALC3:PAR:DEF S21\n")
+        self._sendCmd("CALC3:SEL:FORM PHASE\n")
 
         data = ""
         tpts = ""
