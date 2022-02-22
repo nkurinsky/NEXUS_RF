@@ -225,7 +225,8 @@ if __name__ == "__main__":
     #     f1 = args.f1
 
     ## Calculate some powers
-    N_power = np.power(10.,(((-1*args.power)-14)/20.))
+    power = -40.0
+    N_power = np.power(10.,(((-1*power)-14)/20.))
     pwr_clc = np.round(-14-20.*np.log10(N_power),2)
 
     print(pwr_clc, 'dBm of power')
