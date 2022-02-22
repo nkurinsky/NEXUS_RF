@@ -46,13 +46,13 @@ def parse_args():
         help='Rx gain factor (default '+str(rx_gain)+')')
     parser.add_argument('--rate'  , '-R' , type=float, default = rate/1e6, 
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
+
+    parser.add_argument('--iter'  , '-i' , type=int, default=1, 
+        help='How many iterations to perform (default 1)')
     
-    # parser.add_argument('--freq'    , '-f'    , nargs='+' , 
-    #     help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(freq)+' MHz)')
-    # parser.add_argument('--rate'    , '-r'    , type=float, default = rate, 
-    #     help='Sampling frequency in Msps (default '+str(rate)+' Msps)')
-    # parser.add_argument('--frontend', '-rf'   , type=str  , default="A", 
-    #     help='front-end character: A or B (default A)')
+    parser.add_argument('--LOfrq' , '-f' , nargs='+' , default=[LO/1e6]
+        help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(freq)+' MHz)')
+    
     # parser.add_argument('--f0'      , '-f0'   , type=float, default=f0, 
     #     help='Baseband start frequrency in MHz (default '+str(f0)+' MHz)')
     # parser.add_argument('--f1'      , '-f1'   , type=float, default=f1, 
@@ -61,8 +61,7 @@ def parse_args():
     #     help='Number of points used in the scan (default '+str(points)+' points)')
     # parser.add_argument('--time'    , '-t'    , type=float, default=lapse, 
     #     help='Duration of the scan in seconds per iteration (default '+str(lapse)+' seconds)')
-    # parser.add_argument('--iter'    , '-i'    , type=float, default=1, 
-    #     help='How many iterations to perform (default 1)')
+    
     # parser.add_argument('--gain'    , '-g'    , nargs='+' , 
     #     help='set the transmission gain. Multiple gains will result in multiple scans (per frequency) (default 0 dB)')
 
@@ -99,6 +98,13 @@ def parse_args():
         if (args.rate > rate):
             print("Rate",args.rate,"is too High! Optimal performance is at",rate,"samples per second")
             args.rate = rate
+
+    if (args.iter is not None):
+        if (args.iter < 0):
+            args.iter = 1
+
+    if (args.LOfrq is not None):
+        args.LOfrq = [f*1e6 for f in args.LOfrq] ## Store it as Hz not MHz
 
     return args
 
@@ -244,7 +250,7 @@ if __name__ == "__main__":
 
     ## Print the settings we'll be using
     print('===== VNA Settings =====')
-    # print('    LO [MHz]: ',frequencies)
+    print('    LO [MHz]: ',args.LOfrq)
     # print('    f0 [MHz]: ',args.f0)
     # print('    f1 [MHz]: ',args.f1)
     print(' power [dBm]: ',args.power)
@@ -256,9 +262,9 @@ if __name__ == "__main__":
     vna_file, delay = runVNA(
         tx_gain = args.txgain,
         rx_gain = args.rxgain,
-        _iter = 1, # int(args.iter),
-        rate = args.rate,                   ## Passed in Samps/sec
-        freq = LO,                          ## Passed in Hz
+        _iter   = args.iter,
+        rate    = args.rate,                ## Passed in Samps/sec
+        freq    = LO, #args.LOfrq,               ## Passed in Hz
         front_end = "A",
         f0 = -10e6, # f0*1e6,               ## Passed in Hz, relative to LO
         f1 = -5e6, # f1*1e6,                ## Passed in Hz, relative to LO
@@ -268,7 +274,7 @@ if __name__ == "__main__":
         delay_duration = 0.1, # args.delay_duration,
         delay_over = None) #args.delay_over)
     # for g in gains:
-    #     for f in frequencies:
+    #     for f in args.LOfrq:
             
 
     u.Disconnect()
