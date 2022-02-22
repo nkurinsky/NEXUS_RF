@@ -1,6 +1,6 @@
 import socket
 import select
-from time import sleep
+import time
 import math
 
 class VNA:
@@ -98,38 +98,55 @@ class VNA:
         #print(S21)
         return freqs, S21_real, S21_imag
 
-    def timeDomain(self, f0, npts, ifb=10e3):
+    def timeDomain(self, lapse, f0, npts, ifb=10e3):
         ## Show the time details
         print("Taking time domain trace with:")
         print("- Central F [Hz]:", f0)
         print("-  Number points:", npts)
         print("-  Sampling rate:", ifb)
+        print("-   Duration [s]:", lapse)
 
         ## Set the frequency parameters
         self._sendCmd("SENS:FREQ:STAR "+str(f0)+"\n")
         self._sendCmd("SENS:FREQ:STOP "+str(f0)+"\n")
         self._sendCmd("SENS:SWE:POIN "+str(int(npts))+"\n")
-        self._sendCmd("CALC:PAR:DEF S21\n")
-        self._sendCmd("TRIG:SOUR BUS\n")
         self._sendCmd("SENS:BWID "+str(ifb)+"\n")
 
-        #Autoscale GUI Display
-        self._sendCmd("DISP:WIND:TRAC:Y:AUTO\n")
+        self._sendCmd("CALC:PAR:DEF S21\n")
+        self._sendCmd("TRIG:SOUR BUS\n")
 
-        ## Start the time domain trace, wait for lapse to occur
-        self.singleTrigAndWait()
+        #Set up GUI display window
+        self._sendCmd("DISP:SPL 6\n") ## top panel, 2 bottom quadrants
 
-        ## Pull the data 
-        data = self._getData("CALC:TRAC:DATA:FDAT?\n")
-        time = self._getData("SENS:FREQ:DATA?\n")
+        self._sendCmd("CALC1:PAR:DEF S21\n")
+        self._sendCmd("DISP:WIND1:TRAC:Y:AUTO\n")
+
+        self._sendCmd("CALC2:PAR:DEF S21\n")
+        self._sendCmd("CALC2:SEL:FORM POLar\n")
+
+        data = ""
+        tpts = ""
+        elapsed = 0
+
+        ## Take a single time domain trace
+        while (elpased < lapse):
+            bgn = time.time()
+            self.singleTrigAndWait()
+            elapsed += (time.time() - bgn)
+            print("Live-time elapsed:",elapsed,"seconds")
+
+            ## Pull the data 
+            data += self._getData("CALC:TRAC:DATA:FDAT?\n")
+            tpts += self._getData("SENS:FREQ:DATA?\n")
+        print("Total live-time elapsed:",elapsed,"seconds")
 
         S21  = str(data).split(',')
-        time = str(time).split(",")
+        tpts = str(tpts).split(",")
         
         S21_real = S21[::2]
         S21_imag = S21[1::2]
 
-        return time, S21_real, S21_imag
+        return tpts, S21_real, S21_imag
 
     def storeData(self, freqs, S21_real, S21_imag, filename):
         fullname = filename+'.txt'

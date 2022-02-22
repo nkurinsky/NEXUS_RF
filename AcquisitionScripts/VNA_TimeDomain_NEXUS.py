@@ -16,10 +16,10 @@ P_ctr  = -40.0      ## RF stimulus power [dBm]
 f_res  = 4.24217e9  ## Resonator central frequency [Hz]
 lapse  = 100        ## Duration of acquisition [sec]
 srate  = 100        ## Sampling rate [ksps]
+npts   = 200000     ## Number of samples per trace
 
 ## Inherited parameters
 bdwt   = srate * 1e3   ## IF Bandwith [sampling rate Hz]
-npts   = bdwt * lapse ## N points to take
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/VNATimeDomain/'
@@ -43,8 +43,8 @@ def parse_args():
                         help='Duration of the scan [seconds]')
     parser.add_argument('--rate' , '-r', type=float, default=srate,
                         help='Sampling frequency [ksps]')
-    parser.add_argument('--npts' , '-N', type=int  , default=200001,
-                        help='Number of points to acquire, supercedes \'lapse\' if provided')
+    parser.add_argument('--npts' , '-N', type=int  , default=npts,
+                        help='Number of points to acquire per single trace')
 
     # Data path optional arguments
     parser.add_argument('--directory', '-d', type=str, default=sweepPath,
@@ -63,6 +63,11 @@ def parse_args():
         if (args.rate > 100.):
             print(args.rate, "ksps is too large, setting rate to 100 ksps")
             args.rate = 100.0
+
+    if (args.npts is not None):
+        if (args.npts > 200001):
+            print(npts, "is too many samples, maxing out at 200001 samples (adjust time argument)")
+            args.npts = 200001
 
     return args
 
@@ -99,7 +104,7 @@ def run_scan():
 
     ## Set the VNA stimulus power and take a frequency sweep
     v.setPower(P_ctr)
-    times, S21_real, S21_imag = v.timeDomain(f_res, npts, ifb=bdwt)
+    times, S21_real, S21_imag = v.timeDomain(f_res, lapse, npts, ifb=bdwt)
 
     ## Grab and save the fridge temperature after sweep
     # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
@@ -138,13 +143,11 @@ if __name__ == "__main__":
     f_res  = args.freq  if args.freq  is not None else f_res
     lapse  = args.time  if args.time  is not None else lapse
     srate  = args.rate  if args.rate  is not None else srate
+    npts   = args.npts  if args.npts  is not None else npts
 
     ## Recalculate inherited params
     bdwt   = srate * 1e3   ## IF Bandwith [sampling rate Hz]
-    npts   = args.npts if args.npts is not None else bdwt*lapse ## N points to take
-    if (npts > 200001):
-        print(npts, "is too many samples, maxing out at 200001 samples (adjust time argument)")
-
+    
     ## Where to save the output data (hdf5 files)
     sweepPath = args.directory if args.directory is not None else sweepPath
 
