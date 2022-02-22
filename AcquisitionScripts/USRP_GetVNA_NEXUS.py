@@ -139,8 +139,6 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
             u.load_delay_from_file(filename)
             print("Done.")
 
-    return 1,2
-
     if ntones ==1:
         ntones = None
 
