@@ -52,7 +52,7 @@ def parse_args():
     args = parser.parse_args()
 
     # Do some conditional checks
-    if (args.P1 is not None):
+    if (args.power is not None):
         if (args.power > -10):
             print(args.P1, "dBm is too large, setting power to -10 dBm")
             args.power = -10.0
