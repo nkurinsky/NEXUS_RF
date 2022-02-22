@@ -267,7 +267,7 @@ if __name__ == "__main__":
     # print('     npoints: ',args.points)
 
     # Data acquisition
-    for fi in args.LOfrq:
+    for fi in len(args.LOfrq):
         vna_file, delay = runVNA(
             tx_gain = args.txgain,
             rx_gain = args.rxgain,
