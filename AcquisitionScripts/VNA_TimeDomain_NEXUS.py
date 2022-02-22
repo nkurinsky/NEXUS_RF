@@ -15,10 +15,10 @@ from VNAMeas import * #vna measurement class
 P_ctr  = -40.0      ## RF stimulus power [dBm]
 f_res  = 4.24217e9  ## Resonator central frequency [Hz]
 lapse  = 100        ## Duration of acquisition [sec]
-srate  = 100        ## Sampling rate [Msps]
+srate  = 100        ## Sampling rate [ksps]
 
 ## Inherited parameters
-bdwt   = srate * 1e6   ## IF Bandwith [sampling rate Hz]
+bdwt   = srate * 1e3   ## IF Bandwith [sampling rate Hz]
 npts   = bdwt * lapse ## N points to take
 
 ## Where to save the output data (hdf5 files)
@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('--time' , '-t', type=float, default=lapse,
                         help='Duration of the scan [seconds]')
     parser.add_argument('--rate' , '-r', type=float, default=srate,
-                        help='Sampling frequency [Msps]')
+                        help='Sampling frequency [ksps]')
 
     # Data path optional arguments
     parser.add_argument('--directory', '-d', type=str, default=sweepPath,
@@ -56,6 +56,11 @@ def parse_args():
         if (args.power > -10):
             print(args.P1, "dBm is too large, setting power to -10 dBm")
             args.power = -10.0
+
+    if (args.rate is not None):
+        if (args.rate > 100.):
+            print(args.rate, "ksps is too large, setting rate to 100 ksps")
+            args.rate = 100.0
 
     return args
 
@@ -107,7 +112,7 @@ def run_scan():
     # print("Storing data at:", sweep.save_hdf5(output_filename))
 
     ## Store the data in our file name (csv)
-    v.storeData(freqs, S21_real, S21_imag, output_filename)
+    v.storeData(times, S21_real, S21_imag, output_filename)
 
     ## Diagnostic text
     print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
@@ -133,7 +138,7 @@ if __name__ == "__main__":
     srate  = args.rate  if args.rate  is not None else srate
 
     ## Recalculate inherited params
-    bdwt   = srate * 1e6   ## IF Bandwith [sampling rate Hz]
+    bdwt   = srate * 1e3   ## IF Bandwith [sampling rate Hz]
     npts   = bdwt  * lapse ## N points to take
 
     ## Where to save the output data (hdf5 files)
