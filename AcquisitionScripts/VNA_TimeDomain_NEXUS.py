@@ -104,7 +104,7 @@ def run_scan():
 
     ## Set the VNA stimulus power and take a frequency sweep
     v.setPower(P_ctr)
-    times, S21_real, S21_imag = v.timeDomain(f_res, lapse, npts, ifb=bdwt)
+    times, S21_real, S21_imag = v.timeDomain(lapse, f_res, npts, ifb=bdwt)
 
     ## Grab and save the fridge temperature after sweep
     # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
