@@ -18,8 +18,10 @@ power   = -40.0     ## [dBm]
 rate    = 100e6     ## samples per second
 tx_gain = 0
 rx_gain = 17.5
-LO      = 4.250e9   ## [GHz] Nice round numbers, don't go finer than 50 MHz
-res     = 4.242170  ## [GHz] resonator peak
+LO      = 4.250e9   ## [Hz] Nice round numbers, don't go finer than 50 MHz
+# res     = 4.242170  ## [GHz] resonator peak
+f0      = -10e6 ## [Hz], relative to LO
+f1      = -5e6  ## [Hz], relative to LO
                        
 ## File handling options
 filename=None
@@ -53,10 +55,10 @@ def parse_args():
     parser.add_argument('--LOfrq' , '-f' , nargs='+' , default=[LO/1e6],
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
     
-    # parser.add_argument('--f0'      , '-f0'   , type=float, default=f0, 
-    #     help='Baseband start frequrency in MHz (default '+str(f0)+' MHz)')
-    # parser.add_argument('--f1'      , '-f1'   , type=float, default=f1, 
-    #     help='Baseband end frequrency in MHz (default '+str(f1)+' MHz)')
+    parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
+        help='Baseband start frequrency in MHz relative to LO (default '+str(f0/1e6)+' MHz)')
+    parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
+        help='Baseband end frequrency in MHz relative to LO (default '+str(f1/1e6)+' MHz)')
     # parser.add_argument('--points'  , '-p'    , type=float, default=points, 
     #     help='Number of points used in the scan (default '+str(points)+' points)')
     # parser.add_argument('--time'    , '-t'    , type=float, default=lapse, 
@@ -103,8 +105,13 @@ def parse_args():
         if (args.iter < 0):
             args.iter = 1
 
+    ## MHz frequencies to Hz
     if (args.LOfrq is not None):
         args.LOfrq = [f*1e6 for f in args.LOfrq] ## Store it as Hz not MHz
+    if (args.f0 is not None):
+        args.f0 = args.f0*1e6 ## Store it as Hz not MHz
+    if (args.f1 is not None):
+        args.f1 = args.f1*1e6 ## Store it as Hz not MHz
 
     return args
 
@@ -251,30 +258,31 @@ if __name__ == "__main__":
     ## Print the settings we'll be using
     print('===== VNA Settings =====')
     print('    LO [MHz]: ',args.LOfrq)
-    # print('    f0 [MHz]: ',args.f0)
-    # print('    f1 [MHz]: ',args.f1)
+    print('    f0 [MHz]: ',args.f0/1e6)
+    print('    f1 [MHz]: ',args.f1/1e6)
     print(' power [dBm]: ',args.power)
     print(' rate [Msps]: ',args.rate/1e6)
     # print(' tx+rx gains: ',gains)
     # print('     npoints: ',args.points)
 
     # Data acquisition
-    vna_file, delay = runVNA(
-        tx_gain = args.txgain,
-        rx_gain = args.rxgain,
-        _iter   = args.iter,
-        rate    = args.rate,                ## Passed in Samps/sec
-        freq    = LO, #args.LOfrq,               ## Passed in Hz
-        front_end = "A",
-        f0 = -10e6, # f0*1e6,               ## Passed in Hz, relative to LO
-        f1 = -5e6, # f1*1e6,                ## Passed in Hz, relative to LO
-        lapse = 10, # args.time,            ## Passed in seconds
-        points = 1e5, # args.points,
-        ntones = N_power,
-        delay_duration = 0.1, # args.delay_duration,
-        delay_over = None) #args.delay_over)
+    for fi in args.LOfrq:
+        vna_file, delay = runVNA(
+            tx_gain = args.txgain,
+            rx_gain = args.rxgain,
+            _iter   = args.iter,
+            rate    = args.rate,        ## Passed in Samps/sec
+            freq    = args.LOfrq[fi],   ## Passed in Hz
+            front_end = "A",
+            f0      = args.f0,          ## Passed in Hz, relative to LO
+            f1      = args.f1,          ## Passed in Hz, relative to LO
+            lapse = 10, # args.time,    ## Passed in seconds
+            points = 1e5, # args.points,
+            ntones = N_power,
+            delay_duration = 0.1, # args.delay_duration,
+            delay_over = None) #args.delay_over)
     # for g in gains:
-    #     for f in args.LOfrq:
+    #     
             
 
     u.Disconnect()
