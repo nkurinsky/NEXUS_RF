@@ -43,6 +43,8 @@ def parse_args():
                         help='Duration of the scan [seconds]')
     parser.add_argument('--rate' , '-r', type=float, default=srate,
                         help='Sampling frequency [ksps]')
+    parser.add_argument('--npts' , '-N', type=int  , default=200001,
+                        help='Number of points to acquire, supercedes \'lapse\' if provided')
 
     # Data path optional arguments
     parser.add_argument('--directory', '-d', type=str, default=sweepPath,
@@ -84,9 +86,9 @@ def run_scan():
     print("-      RF Power (dB):", P_ctr)
     print("-   Resonator F (Hz):", f_res)
     print("-     Duration (sec):", lapse)
-    print("- Sample rate (Msps):", srate)
-    print("-       IF Bandwidth:", bdwt)
-    print("-           N points:", npts)
+    print("- Sample rate (Ksps):", srate) ## Max 100 KHz
+    print("-       IF Bandwidth:", bdwt)  ## Max 100 KHz
+    print("-           N points:", npts)  ## Max 200001 samples
 
     ## Create a filename for this sweep
     output_filename = sweepPath +"/TimeSer_P"+str(P_ctr)+"_"+series
@@ -139,7 +141,9 @@ if __name__ == "__main__":
 
     ## Recalculate inherited params
     bdwt   = srate * 1e3   ## IF Bandwith [sampling rate Hz]
-    npts   = bdwt  * lapse ## N points to take
+    npts   = args.npts if args.npts is not None else bdwt*lapse ## N points to take
+    if (npts > 200001):
+        print(npts, "is too many samples, maxing out at 200001 samples (adjust time argument)")
 
     ## Where to save the output data (hdf5 files)
     sweepPath = args.directory if args.directory is not None else sweepPath
