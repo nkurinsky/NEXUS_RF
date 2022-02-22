@@ -229,14 +229,14 @@ if __name__ == "__main__":
     print(pwr_clc, 'dBm of power')
     print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
 
-    ## Print the settings we'll be using
-    print('===== VNA Settings =====')
-    print('    LO [MHz]: ',frequencies)
-    print('    f0 [MHz]: ',args.f0)
-    print('    f1 [MHz]: ',args.f1)
-    print(' power [dBm]: ',args.power)
-    print(' tx+rx gains: ',gains)
-    print('     npoints: ',args.points)
+    # ## Print the settings we'll be using
+    # print('===== VNA Settings =====')
+    # print('    LO [MHz]: ',frequencies)
+    # print('    f0 [MHz]: ',args.f0)
+    # print('    f1 [MHz]: ',args.f1)
+    # print(' power [dBm]: ',args.power)
+    # print(' tx+rx gains: ',gains)
+    # print('     npoints: ',args.points)
 
     # Data acquisition
     vna_file, delay = runVNA(
