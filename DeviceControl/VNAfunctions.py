@@ -132,6 +132,8 @@ class VNA:
         self._sendCmd("CALC3:PAR:DEF S21\n")
         self._sendCmd("CALC3:SEL:FORM PHASE\n")
 
+        self._sendCmd("DISPlay:UPDate:IMMediate\n")
+
         data = ""
         tpts = ""
         elapsed = 0
