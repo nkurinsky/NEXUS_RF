@@ -14,7 +14,7 @@ from VNAMeas import * #vna measurement class
 ## Parameters of the time domain acquisition
 P_ctr  = -40.0      ## RF stimulus power [dBm]
 f_res  = 4.24217e9  ## Resonator central frequency [Hz]
-lapse  = 100        ## Duration of acquisition [sec]
+lapse  = 30         ## Duration of acquisition [sec]
 srate  = 100        ## Sampling rate [ksps]
 npts   = 200000     ## Number of samples per trace
 
