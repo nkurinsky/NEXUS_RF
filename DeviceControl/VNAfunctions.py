@@ -108,7 +108,7 @@ class VNA:
         ## Set the frequency parameters
         self._sendCmd("SENS:FREQ:STAR "+str(f0)+"\n")
         self._sendCmd("SENS:FREQ:STOP "+str(f0)+"\n")
-        self._sendCmd("SENS:SWE:POIN "+str(npts)+"\n")
+        self._sendCmd("SENS:SWE:POIN "+str(int(npts))+"\n")
         self._sendCmd("CALC:PAR:DEF S21\n")
         self._sendCmd("TRIG:SOUR BUS\n")
         self._sendCmd("SENS:BWID "+str(ifb)+"\n")
