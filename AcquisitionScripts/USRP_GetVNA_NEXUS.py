@@ -29,10 +29,10 @@ dataPath = '/data/USRP_VNA_Sweeps'  #VNA subfolder of TempSweeps
 
 ## Sub directory definitions
 dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-sweepPath = dataPath + '/' + dateStr
+sweepPath = os.path.join(dataPath,dateStr)
 
 series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-seriesPath = sweepPath + '/' + series 
+seriesPath = os.path.join(sweepPath,series)
 
 def parse_args():
     # Instantiate the parser
@@ -138,6 +138,8 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
             print("Loading line delay from file...")
             u.load_delay_from_file(filename)
             print("Done.")
+
+    return 1,2
 
     if ntones ==1:
         ntones = None
