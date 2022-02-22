@@ -112,7 +112,11 @@ class VNA:
         self._sendCmd("SENS:SWE:POIN "+str(int(npts))+"\n")
         self._sendCmd("SENS:BWID "+str(ifb)+"\n")
 
-        self._sendCmd("CALC:PAR:DEF S21\n")
+        #Set averaging settings
+        self._sendCmd("TRIG:AVER OFF\n")
+        self._sendCmd("SENS:AVER OFF\n")
+
+        # self._sendCmd("CALC:PAR:DEF S21\n")
         self._sendCmd("TRIG:SOUR BUS\n")
 
         #Set up GUI display window
