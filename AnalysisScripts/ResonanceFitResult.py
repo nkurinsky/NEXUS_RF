@@ -186,8 +186,10 @@ class SeriesFitResult:
 				sub_array[j].create_dataset("fine_pguess", 
 					data=self.file_fits[i].peak_fits[j].fine_pguess)
 
-				# sub_array[j].create_dataset("fitval_keys",
-				# 	data=[k for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
+				sub_array[j].create_dataset("fitval_keys",
+					data=np.array([k for k in self.file_fits[i].peak_fits[j].rough_result.keys()],
+					dtype='S')
+					)
 				# sub_array[j].create_dataset("rough_result",
 				# 	data=[v for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
 				# sub_array[j].create_dataset("fine_result",
@@ -245,6 +247,6 @@ def decode_hdf5(filename):
 				fitres.file_fits[i].peak_fits[j].id_f0    = f[grp_keys[i]][subgrp_keys[j]]["id_f0"][0]
 				fitres.file_fits[i].peak_fits[j].id_BW    = f[grp_keys[i]][subgrp_keys[j]]["id_BW"][0]
 
-				fitres.file_fits[i].peak_fits[j].fine_pguess = np.array([f[grp_keys[i]][subgrp_keys[j]]["fine_pguess"]])
+				fitres.file_fits[i].peak_fits[j].fine_pguess = np.array(f[grp_keys[i]][subgrp_keys[j]]["fine_pguess"])
 
 		return fitres
