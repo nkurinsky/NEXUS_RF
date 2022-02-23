@@ -153,7 +153,7 @@ if __name__ == "__main__":
     for i in np.arange(len(vna_files)):
         ## Fit this data file
         fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
-        result.file_fits[i] = result 
+        result.file_fits[i] = res 
         result.fit_fr[i] = fr
         result.fit_Qr[i] = Qr
         result.fit_Qi[i] = Qc
