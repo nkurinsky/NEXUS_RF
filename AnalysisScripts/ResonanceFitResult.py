@@ -186,14 +186,14 @@ class SeriesFitResult:
 				sub_array[j].create_dataset("fine_pguess", 
 					data=self.file_fits[i].peak_fits[j].fine_pguess)
 
-				sub_array[j].create_dataset("fitval_keys",
-					data=[k for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
-				sub_array[j].create_dataset("rough_result",
-					data=[v for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
-				sub_array[j].create_dataset("fine_result",
-					data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_result.items()])
-				sub_array[j].create_dataset("fine_errors",
-					data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_errors.items()])
+				# sub_array[j].create_dataset("fitval_keys",
+				# 	data=[k for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
+				# sub_array[j].create_dataset("rough_result",
+				# 	data=[v for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
+				# sub_array[j].create_dataset("fine_result",
+				# 	data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_result.items()])
+				# sub_array[j].create_dataset("fine_errors",
+				# 	data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_errors.items()])
 
 		f.close()
 
