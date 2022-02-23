@@ -136,7 +136,7 @@ class SeriesFitResult:
 
 		## Locate, name, and open file
 		fname = file_name if file_name is not None else ("ResonanceFits_" + self.series)
-		f = h5py.File(os.path.join(file_path,fname+'.hdf5'),'w')
+		f = h5py.File(os.path.join(file_path,fname+'.h5'),'w')
 
 		## Save the SeriesFit metadata to top level
 		f.create_dataset("date"   , data=np.array([self.date]   , dtype='S'))
