@@ -223,7 +223,7 @@ def decode_hdf5(filename):
 		for x in set(grp_keys).intersection(["date","series","nfiles","fit_fr","fit_Qr","fit_Qi","fit_Qc"]):
 			grp_keys.remove(x)
 
-		print(grp_keys)
+		# print(grp_keys)
 
 		fitres.file_fits = np.zeros(fitres.n_files, dtype=object)
 		for i in np.arange(fitres.n_files):
