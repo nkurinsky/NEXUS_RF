@@ -23,19 +23,19 @@ filename = "ResonanceFits_"+series+".h5"
 fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
 
 fig = plt.figure()
-plt.plot(power_list,fr_list)
+plt.plot(fdata["powers"],fdata["fit_fr"])
 plt.xlabel('Applied RF Power [dBm]')
 plt.ylabel(r'Resonator frequency $f$ [Hz]')
 fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
 
 fig = plt.figure()
-plt.plot(power_list,(np.mean(fr_list)-fr_list)/fr_list)
+plt.plot(fdata["powers"],(np.mean(fdata["fit_fr"])-fdata["fit_fr"])/fdata["fit_fr"])
 plt.xlabel('Applied RF Power [dBm]')
 plt.ylabel(r'$\Delta f/f$')
 fig.savefig(os.path.join(out_path,"df_vs_P.png"), format='png')
 
 fig = plt.figure()
-plt.plot(power_list,Qr_list)
+plt.plot(fdata["powers"],fdata["fit_Qr"])
 plt.xlabel('Applied RF Power [dBm]')
 plt.ylabel(r'Resonator Quality Factor $Q$')
 fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
