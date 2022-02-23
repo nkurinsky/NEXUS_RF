@@ -58,8 +58,8 @@ for i in np.arange(len(series_list)):
 
 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
-fig1.gca() ; plt.tight_layout() ; plt.savefig("/home/nexus-admin/Downloads/Figure_1.png")
-fig2.gca() ; plt.tight_layout() ; plt.savefig("/home/nexus-admin/Downloads/Figure_2.png")
-fig3.gca() ; plt.tight_layout() ; plt.savefig("/home/nexus-admin/Downloads/Figure_3.png")
+fig1.gca() ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
+fig2.gca() ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
+fig3.gca() ; plt.tight_layout() ; fig3.savefig("/home/nexus-admin/Downloads/Figure_3.png")
 plt.show()
 
