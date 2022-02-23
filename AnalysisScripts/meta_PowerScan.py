@@ -40,3 +40,5 @@ plt.xlabel('Applied RF Power [dBm]')
 plt.ylabel(r'Resonator Quality Factor $Q$')
 fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
 
+plt.show()
+
