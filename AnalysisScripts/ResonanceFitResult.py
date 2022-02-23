@@ -202,7 +202,7 @@ class SeriesFitResult:
 def decode_hdf5(filename):
 
 	with h5py.File(filename, "r") as f:
-		_date  f["date"][0].decode('UTF-8')
+		_date  = f["date"][0].decode('UTF-8')
 		_sers  = f["series"][0].decode('UTF-8')
 		fitres = SeriesFitResult(_date,_sers)
 
