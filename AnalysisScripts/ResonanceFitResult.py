@@ -249,4 +249,13 @@ def decode_hdf5(filename):
 
 				fitres.file_fits[i].peak_fits[j].fine_pguess = np.array(f[grp_keys[i]][subgrp_keys[j]]["fine_pguess"])
 
+				dict_keys = list(f[grp_keys[i]][subgrp_keys[j]]["fitval_keys"])
+				ruff_vals = np.array(f[grp_keys[i]][subgrp_keys[j]]["rough_result"])
+				fine_vals = np.array(f[grp_keys[i]][subgrp_keys[j]]["fine_result"])
+				fine_errs = np.array(f[grp_keys[i]][subgrp_keys[j]]["fine_errors"])
+
+				fitres.file_fits[i].peak_fits[j].rough_result = {dict_keys[i]:ruff_vals[i] for i in range(len(dict_keys))}
+				fitres.file_fits[i].peak_fits[j].fine_result  = {dict_keys[i]:fine_vals[i] for i in range(len(dict_keys))}
+				fitres.file_fits[i].peak_fits[j].fine_errors  = {dict_keys[i]:fine_errs[i] for i in range(len(dict_keys))}
+
 		return fitres
