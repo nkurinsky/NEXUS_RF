@@ -164,7 +164,7 @@ if __name__ == "__main__":
         Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
 
     ## Store the fit results
-    result.save_to_file(os.path.join(out_path,"Psweep_FitResults.pkl"))
+    result.save_to_file(out_path)
 
     fig = plt.figure()
     plt.plot(power_list,fr_list)
