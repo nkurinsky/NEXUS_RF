@@ -146,8 +146,8 @@ class SeriesFitResult:
 		f.create_dataset("fit_Qc" , data=self.fit_Qc)
 
 		## Loop over each single file fit
-		grp_array = np.zeros(len(self.n_files), dtype=object)
-		for i in np.arange(len(self.n_files)):
+		grp_array = np.zeros(self.n_files, dtype=object)
+		for i in np.arange(self.n_files):
 			## Create a group for each single file result
 			grp_array[i] = f.create_group(self.file_fits[i].in_fname.split(".")[0].split("_")[-1])
 			grp_array[i].create_dataset("in_fname", 
@@ -162,8 +162,8 @@ class SeriesFitResult:
 				data=self.file_fits[i].final_T)
 
 			## Loop over each single resonance peak fit
-			sub_array = np.zeros(len(self.file_fits[i].n_pks), dtype=object)
-			for j in np.arange(len(self.file_fits[i].n_pks)):
+			sub_array = np.zeros(self.file_fits[i].n_pks, dtype=object)
+			for j in np.arange(self.file_fits[i].n_pks):
 				sub_array[j] = grp_array[i].create_group("peak"+str(j))
 				sub_array[j].create_dataset("pk_idx", 
 					data=np.array([self.file_fits[i].peak_fits[j].pk_idx], dtype='int'))
