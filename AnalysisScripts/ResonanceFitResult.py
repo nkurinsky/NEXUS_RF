@@ -105,6 +105,7 @@ class SeriesFitResult:
 
 	n_files = 1						## [INT] How many files are in this series
 
+	powers  = np.array([])			## [array of FLOAT] (dBm) RF power for this sweep
 	fit_fr  = np.array([])			## [array of FLOAT] (Hz) Central frequency 
 	fit_Qr  = np.array([])			## [array of FLOAT] Quality factor
 	fit_Qi  = np.array([])			## [array of FLOAT] Quality factor
@@ -120,6 +121,7 @@ class SeriesFitResult:
 	def resize_file_fits(self, n_files):
 		self.n_files   = n_files
 		self.file_fits = np.zeros(self.n_files, dtype=object)
+		self.powers    = np.zeros(self.n_files)
 		self.fit_fr    = np.zeros(self.n_files)
 		self.fit_Qr    = np.zeros(self.n_files)
 		self.fit_Qi    = np.zeros(self.n_files)
@@ -140,6 +142,7 @@ class SeriesFitResult:
 		f.create_dataset("date"   , data=np.array([self.date]   , dtype='S'))
 		f.create_dataset("series" , data=np.array([self.series] , dtype='S'))
 		f.create_dataset("nfiles" , data=np.array([self.n_files], dtype='int'))
+		f.create_dataset("powers" , data=self.powers)
 		f.create_dataset("fit_fr" , data=self.fit_fr)
 		f.create_dataset("fit_Qr" , data=self.fit_Qr)
 		f.create_dataset("fit_Qi" , data=self.fit_Qi)
@@ -209,6 +212,7 @@ def decode_hdf5(filename):
 		fitres = SeriesFitResult(_date,_sers)
 
 		fitres.n_files   = f["nfiles"][0]
+		fitres.powers    = np.array(list(f["powers"]))
 		fitres.fit_fr    = np.array(list(f["fit_fr"]))
 		fitres.fit_Qr    = np.array(list(f["fit_Qr"]))
 		fitres.fit_Qi    = np.array(list(f["fit_Qi"]))

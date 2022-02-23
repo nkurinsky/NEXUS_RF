@@ -119,7 +119,7 @@ def fit_single_file(file_name):
     fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
 
     ## Return the fit parameters
-    return fr, Qr, Qc, Qi, this_f_r
+    return sweep.power, fr, Qr, Qc, Qi, this_f_r
 
 if __name__ == "__main__":
 
@@ -152,8 +152,9 @@ if __name__ == "__main__":
 
     for i in np.arange(len(vna_files)):
         ## Fit this data file
-        fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
+        pwr, fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
         result.file_fits[i] = res 
+        result.powers[i] = pwr
         result.fit_fr[i] = fr
         result.fit_Qr[i] = Qr
         result.fit_Qi[i] = Qc
