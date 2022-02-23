@@ -161,39 +161,39 @@ class SeriesFitResult:
 			grp_array[i].create_dataset("final_T", 
 				data=self.file_fits[i].final_T)
 
-			# ## Loop over each single resonance peak fit
-			# sub_array = np.zeros(self.file_fits[i].n_pks, dtype=object)
-			# for j in np.arange(self.file_fits[i].n_pks):
-			# 	sub_array[j] = grp_array[i].create_group("peak"+str(j))
-			# 	sub_array[j].create_dataset("pk_idx", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].pk_idx], dtype='int'))
-			# 	sub_array[j].create_dataset("pk_added", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].pk_added], dtype='bool'))
-			# 	sub_array[j].create_dataset("f_ctr", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].f_ctr]))
-			# 	sub_array[j].create_dataset("mfz_ctr", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].mfz_ctr]))
+			## Loop over each single resonance peak fit
+			sub_array = np.zeros(self.file_fits[i].n_pks, dtype=object)
+			for j in np.arange(self.file_fits[i].n_pks):
+				sub_array[j] = grp_array[i].create_group("peak"+str(j))
+				sub_array[j].create_dataset("pk_idx", 
+					data=np.array([self.file_fits[i].peak_fits[j].pk_idx], dtype='int'))
+				sub_array[j].create_dataset("pk_added", 
+					data=np.array([self.file_fits[i].peak_fits[j].pk_added], dtype='bool'))
+				sub_array[j].create_dataset("f_ctr", 
+					data=np.array([self.file_fits[i].peak_fits[j].f_ctr]))
+				sub_array[j].create_dataset("mfz_ctr", 
+					data=np.array([self.file_fits[i].peak_fits[j].mfz_ctr]))
 
-			# 	sub_array[j].create_dataset("f0_est", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].f0_est]))
-			# 	sub_array[j].create_dataset("Qr_est", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].Qr_est]))
-			# 	sub_array[j].create_dataset("id_f0", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].id_f0]))
-			# 	sub_array[j].create_dataset("id_BW", 
-			# 		data=np.array([self.file_fits[i].peak_fits[j].id_BW]))
+				sub_array[j].create_dataset("f0_est", 
+					data=np.array([self.file_fits[i].peak_fits[j].f0_est]))
+				sub_array[j].create_dataset("Qr_est", 
+					data=np.array([self.file_fits[i].peak_fits[j].Qr_est]))
+				sub_array[j].create_dataset("id_f0", 
+					data=np.array([self.file_fits[i].peak_fits[j].id_f0]))
+				sub_array[j].create_dataset("id_BW", 
+					data=np.array([self.file_fits[i].peak_fits[j].id_BW]))
 
-			# 	sub_array[j].create_dataset("fine_pguess", 
-			# 		data=self.file_fits[i].peak_fits[j].fine_pguess)
+				sub_array[j].create_dataset("fine_pguess", 
+					data=self.file_fits[i].peak_fits[j].fine_pguess)
 
-			# 	sub_array[j].create_dataset("fitval_keys",
-			# 		data=[k for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
-			# 	sub_array[j].create_dataset("rough_result",
-			# 		data=[v for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
-			# 	sub_array[j].create_dataset("fine_result",
-			# 		data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_result.items()])
-			# 	sub_array[j].create_dataset("fine_errors",
-			# 		data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_errors.items()])
+				sub_array[j].create_dataset("fitval_keys",
+					data=[k for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
+				sub_array[j].create_dataset("rough_result",
+					data=[v for (k,v) in self.file_fits[i].peak_fits[j].rough_result.items()])
+				sub_array[j].create_dataset("fine_result",
+					data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_result.items()])
+				sub_array[j].create_dataset("fine_errors",
+					data=[v for (k,v) in self.file_fits[i].peak_fits[j].fine_errors.items()])
 
 		f.close()
 
@@ -207,14 +207,26 @@ def decode_hdf5(filename):
 		fitres = SeriesFitResult(_date,_sers)
 
 		fitres.n_files   = f["nfiles"][0]
-		fitres.fit_fr    = f["fit_fr"][0]
-		fitres.fit_Qr    = f["fit_Qr"][0]
-		fitres.fit_Qi    = f["fit_Qi"][0]
-		fitres.fit_Qc    = f["fit_Qc"][0]
+		fitres.fit_fr    = np.array(list(f["fit_fr"]))
+		fitres.fit_Qr    = np.array(list(f["fit_Qr"]))
+		fitres.fit_Qi    = np.array(list(f["fit_Qi"]))
+		fitres.fit_Qc    = np.array(list(f["fit_Qc"]))
 
-		# fitres.file_fits = np.zeros(n_files, dtype=object)
-		# for i in np.arange(fitres.n_files):
-		# 	fitres.file_fits[i] = SingleFileResult()
+		## Get a list of groups
+		grp_keys = list(f.keys())
+		for x in set(grp_keys).intersection(["date","series","nfiles","fit_fr","fit_Qr","fit_Qi","fit_Qc"]):
+			grp_keys.remove(x)
+
+		print(grp_keys)
+
+		fitres.file_fits = np.zeros(n_files, dtype=object)
+		for i in np.arange(fitres.n_files):
+			fitres.file_fits[i] = SingleFileResult(grp_keys[i])
+
+			fitres.file_fits[i].power   = f[grp_keys[i]]['power'][0]
+			fitres.file_fits[i].n_pks   = f[grp_keys[i]]['n_pks'][0]
+			fitres.file_fits[i].start_T = np.array([f[grp_keys[i]]['n_pks'][0]])
+			fitres.file_fits[i].final_T = np.array([f[grp_keys[i]]['n_pks'][0]])
 
 		# sweep.power   = f["power"][0]
 		# sweep.n_avgs  = f["n_avgs"][0]
