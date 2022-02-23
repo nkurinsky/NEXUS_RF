@@ -48,11 +48,11 @@ for i in np.arange(len(series_list)):
 
 	fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
 
-	ax10.plot(fdata.powers,fdata.fit_fr, aplha=0.5)
+	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
 
-	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, aplha=0.5)
+	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
 
-	ax30.plot(fdata.powers,fdata.fit_Qr, aplha=0.5)
+	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
 plt.show()
 
