@@ -15,7 +15,7 @@ sers = "220330"
 
 series = date + "_" + sers
 
-datapath = "/data/ProcessedOutputs/VNA/"
+datapath = "/data/ProcessedOutputs/"
 
 fullpath = os.path.join(datapath,"out_"+series)
 filename = "ResonanceFits_"+series+".h5"
