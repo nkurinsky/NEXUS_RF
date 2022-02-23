@@ -35,7 +35,7 @@ ax20 = plt.gca()
 ax20.set_xlabel('Applied RF Power [dBm]')
 ax20.set_ylabel(r'$(\langle f \rangle - f)/f$')
 
-fig3 = plt.figure(3, figsize=(8,6))
+fig3 = plt.figure(3, figsize=(8,5))
 ax30 = plt.gca()
 ax30.set_xlabel('Applied RF Power [dBm]')
 ax30.set_ylabel(r'Resonator Quality Factor $Q$')
