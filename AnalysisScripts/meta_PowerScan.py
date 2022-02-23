@@ -41,7 +41,7 @@ ax30.set_xlabel('Applied RF Power [dBm]')
 ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 
 
-for i in np.arange(series_list):
+for i in np.arange(len(series_list)):
 
 	fullpath = os.path.join(datapath,"out_"+series_list[i])
 	filename = "ResonanceFits_"+series_list[i]+".h5"
