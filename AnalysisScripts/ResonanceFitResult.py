@@ -219,25 +219,32 @@ def decode_hdf5(filename):
 
 		print(grp_keys)
 
-		fitres.file_fits = np.zeros(n_files, dtype=object)
+		fitres.file_fits = np.zeros(fitres.n_files, dtype=object)
 		for i in np.arange(fitres.n_files):
 			fitres.file_fits[i] = SingleFileResult(grp_keys[i])
 
 			fitres.file_fits[i].power   = f[grp_keys[i]]['power'][0]
 			fitres.file_fits[i].n_pks   = f[grp_keys[i]]['n_pks'][0]
-			fitres.file_fits[i].start_T = np.array([f[grp_keys[i]]['n_pks'][0]])
-			fitres.file_fits[i].final_T = np.array([f[grp_keys[i]]['n_pks'][0]])
+			fitres.file_fits[i].start_T = np.array([f[grp_keys[i]]['start_T'][0]])
+			fitres.file_fits[i].final_T = np.array([f[grp_keys[i]]['final_T'][0]])
 
-		# sweep.power   = f["power"][0]
-		# sweep.n_avgs  = f["n_avgs"][0]
-		# sweep.n_samps = f["n_samps"][0]
-		# sweep.f_min   = f["f_min"][0]
-		# sweep.f_max   = f["f_max"][0]
+			## Get a list of subgroups
+			subgrp_keys = list(f[grp_keys[i]].keys())
+			for x in set(subgrp_keys).intersection(["in_fname","power","n_pks","start_T","final_T"]):
+				subgrp_keys.remove(x)
 
-		# sweep.start_T = np.array(f["start_T"])
-		# sweep.final_T = np.array(f["final_T"])
-		# sweep.frequencies = np.array(f["frequencies"])
-		# sweep.S21realvals = np.array(f["S21realvals"])
-		# sweep.S21imagvals = np.array(f["S21imagvals"])
+			fitres.file_fits[i].peak_fits = np.zeros(fitres.file_fits[i].n_pks, dtype=object)
+			for j in np.arange(fitres.file_fits[i].n_pks):
+				fitres.file_fits[i].peak_fits[j].pk_idx   = f[grp_keys[i]][subgrp_keys[j]]["pk_idx"][0]
+				fitres.file_fits[i].peak_fits[j].pk_added = f[grp_keys[i]][subgrp_keys[j]]["pk_added"][0]
+				fitres.file_fits[i].peak_fits[j].f_ctr    = f[grp_keys[i]][subgrp_keys[j]]["f_ctr"][0]
+				fitres.file_fits[i].peak_fits[j].mfz_ctr  = f[grp_keys[i]][subgrp_keys[j]]["mfz_ctr"][0]
+
+				fitres.file_fits[i].peak_fits[j].f0_est   = f[grp_keys[i]][subgrp_keys[j]]["f0_est"][0]
+				fitres.file_fits[i].peak_fits[j].Qr_est   = f[grp_keys[i]][subgrp_keys[j]]["Qr_est"][0]
+				fitres.file_fits[i].peak_fits[j].id_f0    = f[grp_keys[i]][subgrp_keys[j]]["id_f0"][0]
+				fitres.file_fits[i].peak_fits[j].id_BW    = f[grp_keys[i]][subgrp_keys[j]]["id_BW"][0]
+
+				fitres.file_fits[i].peak_fits[j].fine_pguess = np.array([f[grp_keys[i]][subgrp_keys[j]]["fine_pguess"]])
 
 		return fitres
