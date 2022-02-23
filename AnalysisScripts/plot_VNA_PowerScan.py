@@ -10,8 +10,8 @@ from   matplotlib import cm
 import pandas as pd
 from   glob import glob
 
-import PyMKID_USRP_functions as puf
 import ResonanceFitter as fitres
+import ResonanceFitResult as fitclass
 
 sys.path.append('/home/nexus-admin/NEXUS_RF/AcquisitionScripts')
 from VNAMeas import *
@@ -102,7 +102,7 @@ def fit_single_file(file_name):
     z = sweep.S21realvals + 1j*sweep.S21imagvals
 
     ## Create an instance of a file fit result class
-    this_f_r = fitres.SingleFileResult(file_name)
+    this_f_r = fitclass.SingleFileResult(file_name)
     this_f_r.power = sweep.power
     this_f_r.start_T = sweep.start_T
     this_f_r.final_T = sweep.final_T
