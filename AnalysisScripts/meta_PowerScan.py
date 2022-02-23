@@ -18,7 +18,7 @@ series_list = [
 "20220215_011731",
 "20220215_020520",
 # "20220215_025315",
-"20220215_034114",
+# "20220215_034114",
 "20220215_042905",
 "20220215_051659"]
 
@@ -46,7 +46,12 @@ for i in np.arange(len(series_list)):
 	fullpath = os.path.join(datapath,"out_"+series_list[i])
 	filename = "ResonanceFits_"+series_list[i]+".h5"
 
-	fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+	try:
+		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+	except:
+		print("Problem with file:",os.path.join(fullpath,filename))
+		print("Skipping...")
+		continue
 
 	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
 
