@@ -40,7 +40,6 @@ ax30 = plt.gca()
 ax30.set_xlabel('Applied RF Power [dBm]')
 ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 
-
 for i in np.arange(len(series_list)):
 
 	fullpath = os.path.join(datapath,"out_"+series_list[i])
@@ -59,5 +58,8 @@ for i in np.arange(len(series_list)):
 
 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
+fig1.gca() ; plt.tight_layout() ; plt.save_fig("~/Downloads/Figure_1.png")
+fig2.gca() ; plt.tight_layout() ; plt.save_fig("~/Downloads/Figure_2.png")
+fig3.gca() ; plt.tight_layout() ; plt.save_fig("~/Downloads/Figure_3.png")
 plt.show()
 
