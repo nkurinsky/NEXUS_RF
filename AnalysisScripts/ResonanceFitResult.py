@@ -241,7 +241,9 @@ def decode_hdf5(filename):
 
 			fitres.file_fits[i].peak_fits = np.zeros(fitres.file_fits[i].n_pks, dtype=object)
 			for j in np.arange(fitres.file_fits[i].n_pks):
-				fitres.file_fits[i].peak_fits[j].pk_idx   = f[grp_keys[i]][subgrp_keys[j]]["pk_idx"][0]
+				fitres.file_fits[i].peak_fits[j] = SinglePeakResult(f[grp_keys[i]][subgrp_keys[j]]["pk_idx"][0])
+				
+				# fitres.file_fits[i].peak_fits[j].pk_idx   = f[grp_keys[i]][subgrp_keys[j]]["pk_idx"][0]
 				fitres.file_fits[i].peak_fits[j].pk_added = f[grp_keys[i]][subgrp_keys[j]]["pk_added"][0]
 				fitres.file_fits[i].peak_fits[j].f_ctr    = f[grp_keys[i]][subgrp_keys[j]]["f_ctr"][0]
 				fitres.file_fits[i].peak_fits[j].mfz_ctr  = f[grp_keys[i]][subgrp_keys[j]]["mfz_ctr"][0]
