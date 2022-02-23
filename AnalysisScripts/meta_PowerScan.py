@@ -10,35 +10,49 @@ plt.rcParams.update({'font.size': 12})
 plt.rc('font', family='serif')
 dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-date = "20220214"
-sers = "220330"
-
-series = date + "_" + sers
+series_list = [
+"20220214_220330",
+"20220214_225344",
+"20220214_234130",
+"20220215_002929",
+"20220215_011731",
+"20220215_020520",
+"20220215_025315",
+"20220215_034114",
+"20220215_042905",
+"20220215_051659"]
 
 datapath = "/data/ProcessedOutputs/"
 
-fullpath = os.path.join(datapath,"out_"+series)
-filename = "ResonanceFits_"+series+".h5"
+## Create the figures
+fig1 = plt.figure(1)
+ax10 = plt.gca()
+ax10.set_xlabel('Applied RF Power [dBm]')
+ax10.set_ylabel(r'Resonator frequency $f$ [Hz]')
 
-fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+fig2 = plt.figure(2)
+ax20 = plt.gca()
+ax20.set_xlabel('Applied RF Power [dBm]')
+ax20.set_ylabel(r'$(\langle f \rangle - f)/f$')
 
-fig = plt.figure()
-plt.plot(fdata.powers,fdata.fit_fr)
-plt.xlabel('Applied RF Power [dBm]')
-plt.ylabel(r'Resonator frequency $f$ [Hz]')
-# fig.savefig(os.path.join(out_path,"f_vs_P.png"), format='png')
+fig3 = plt.figure(3)
+ax30 = plt.gca()
+ax30.set_xlabel('Applied RF Power [dBm]')
+ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 
-fig = plt.figure()
-plt.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr)
-plt.xlabel('Applied RF Power [dBm]')
-plt.ylabel(r'$\Delta f/f$')
-# fig.savefig(os.path.join(out_path,"df_vs_P.png"), format='png')
 
-fig = plt.figure()
-plt.plot(fdata.powers,fdata.fit_Qr)
-plt.xlabel('Applied RF Power [dBm]')
-plt.ylabel(r'Resonator Quality Factor $Q$')
-# fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
+for i in np.arange(series_list):
+
+	fullpath = os.path.join(datapath,"out_"+series_list[i])
+	filename = "ResonanceFits_"+series_list[i]+".h5"
+
+	fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+
+	ax10.plot(fdata.powers,fdata.fit_fr, aplha=0.5)
+
+	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, aplha=0.5)
+
+	ax30.plot(fdata.powers,fdata.fit_Qr, aplha=0.5)
 
 plt.show()
 
