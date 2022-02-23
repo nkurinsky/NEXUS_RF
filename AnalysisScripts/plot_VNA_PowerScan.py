@@ -27,8 +27,8 @@ dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 show_plots = False
 
 ## Series identifier
-day    = '20220127'
-time   = '160519'
+day    = '20220222'
+time   = '130249'
 series = day + '_' + time
 
 ## Path to VNA data
