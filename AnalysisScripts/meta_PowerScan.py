@@ -10,7 +10,7 @@ plt.rcParams.update({'font.size': 12})
 plt.rc('font', family='serif')
 dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-# series_list = [ ## Sources in CR
+# series_list = [ ## Al resonator, Sources in CR
 # "20220214_220330",
 # "20220214_225344",
 # "20220214_234130",
@@ -22,12 +22,24 @@ dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 # "20220215_042905",
 # "20220215_051659"]
 
-series_list = [ ## No sources in CR
-"20220216_091922",
-"20220216_100716",
-"20220216_105505",
-"20220216_114303",
-"20220216_123052"]
+# series_list = [ ## Al resonator, No sources in CR
+# "20220216_091922",
+# "20220216_100716",
+# "20220216_105505",
+# "20220216_114303",
+# "20220216_123052"]
+
+series_list = [
+"20220223_154540",
+"20220223_163334",
+"20220223_172123",
+"20220223_180912",
+"20220223_185707",
+"20220223_194457",
+"20220223_203246",
+"20220223_212036",
+"20220223_220831",
+"20220223_225623"]
 
 datapath = "/data/ProcessedOutputs/"
 
