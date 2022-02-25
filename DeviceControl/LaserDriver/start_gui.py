@@ -9,7 +9,7 @@ except ImportError:
 from laser_driver import *
 
 ## Create a driver instance
-# driver = LaserDriver()
+driver = LaserDriver()
 
 ## Define some colors
 SLATEGREY = "#778899"
