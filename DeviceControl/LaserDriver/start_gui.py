@@ -9,10 +9,14 @@ except ImportError:
 from laser_driver import *
 
 ## Create a driver instance
-driver = LaserDriver()
+# driver = LaserDriver()
+
+## Define some colors
+SLATEGREY = "#778899"
+DANGERRED = "#ff0000"
 
 ## Geometry of the GUI
-win_size_x  = 460
+win_size_x  = 470
 win_size_y  = 200
 
 but_size_x  =  12
@@ -47,28 +51,28 @@ btn_roll_call=Button(win, text="Roll Call",
     width   = but_size_x,
     height  = but_size_y,
     state   = "disabled", )
-btn_roll_call.grid(row=1, column=0)
+btn_roll_call.grid(row=0, column=1)
 
 ## Details of the "LED ON" button
 btn_led_on=Button(win, text="LED On", 
-    width   = but_size_x,
-    height  = but_size_y,
+    width   = int(but_size_x),
+    height  = int(but_size_y/2),
     state   = "disabled", )
-btn_led_on.grid(row=2, column=0)
+btn_led_on.grid(row=5, column=0)
 
 ## Details of the "LED OFF" button
 btn_led_off=Button(win, text="LED Off", 
-    width   = but_size_x,
-    height  = but_size_y,
+    width   = int(but_size_x),
+    height  = int(but_size_y/2),
     state   = "disabled", )
-btn_led_off.grid(row=3, column=0)
+btn_led_off.grid(row=5, column=1)
 
 ## Details of the "LED OFF" button
 btn_disconnect=Button(win, text="Disconnect", 
     width   = but_size_x,
     height  = but_size_y,
     state   = "disabled", )
-btn_disconnect.grid(row=4, column=0)
+btn_disconnect.grid(row=1, column=0)
 
 ## Details of the "Update PW" button
 btn_update_pw=Button(win, text="Update", 
@@ -92,10 +96,14 @@ btn_update_lr=Button(win, text="Update",
 btn_update_lr.grid(row=3, column=3)
 
 ## ========= LABELS ========= ##
-Label(win, text='Roll Call: ').grid(row=0, column=1)
+# Label(win, text='Roll Call: ').grid(row=0, column=1)
 Label(win, text='Pulse Width [us]:').grid(row=1, column=1)
 Label(win, text='Burst Freq. [Hz]:').grid(row=2, column=1)
 Label(win, text='  Laser R. [int]:').grid(row=3, column=1)
+
+l_en = Label(win, text='LASER OFF', font=('Times', 24))
+l_en.grid(row=4, column=1)
+l_en.config(bg=SLATEGREY)
 
 ## ========= TEXT BOXES ========= ##
 ## Create containers for the entry strings
@@ -115,6 +123,19 @@ e_bf.grid(row=2, column=2)
 
 e_lr = Entry(win, textvariable=bf_str, state="disabled")
 e_lr.grid(row=3, column=2)
+
+## ========= CHECK BOXES ========= ##
+laser_en = IntVar()
+c_en = Checkbutton(win, text='Enable Laser',variable=laser_en, onvalue=1, offvalue=0, state="disabled")
+c_en.grid(row=4, column=0)
+
+def en_laser():
+    if (laser_en.get()):
+        l_en.config(bg=DANGERRED, text='LASER  ON')
+    else:
+        l_en.config(bg=SLATEGREY, text='LASER OFF')
+    enable_laser(laser_en)
+c_en["command"] = en_laser
 
 ## ======================================= ##
 
@@ -145,6 +166,7 @@ def roll_call():
     e_pw["state"] = "normal"
     e_bf["state"] = "normal"
     e_lr["state"] = "normal"
+    c_en["state"] = "normal"
 
     return
 btn_roll_call['command'] = roll_call
