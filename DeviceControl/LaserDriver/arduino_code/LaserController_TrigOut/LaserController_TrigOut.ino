@@ -6,20 +6,24 @@ const byte flipFlopInPin = 2;  // "TRIG OUT" Pin
 const byte trigInPin     = 3;  // "TRIG IN" Pin
 const byte ledPin        = 13; // Control the LED state
 
+// Default values, get overwritten in comms
+double f_temp = 0.05;
+int    r_temp = 127;
+
 // TPL0401B-10DCKR parameters
 #define pot_address 0x2F
-int r_int = 127;
+int r_int = r_temp; // 127;
 
 // Si5351A-B-GT parameters
 Si5351 si5351;
 unsigned long long MHz = 100000000ULL;
-unsigned long long freq = 0.05*MHz; // default = 0.05 MHz, 1 us p.w.
+unsigned long long freq = f_temp*MHz; // 0.05*MHz; // default = 0.05 MHz, 1 us p.w.
 // In unit of 0.01 Hz, 1 MHz means 500 ns pulse width
 // PW[us] = 0.5 / freq[MHz] due to 50% duty cycle of Si5351 chip
 
 // Communication variables
 String a;
-double f_temp, r_temp;
+
 
 // Control and timing parameters
 double burst_rate  = 250.0;  // Default to 250 Hz
@@ -99,7 +103,7 @@ void read_serial()
   int alen = a.length();
 
   // Reply to queries
-  if (a.substring(alen-2,alen-1) == "?")
+  if (a.substring(alen-1,alen) == "?")
   {
     // Standard IDENTITY query
     if (a == "*IDN?") Serial.println("Laser pulser");
@@ -107,21 +111,21 @@ void read_serial()
     // Get set pulse width
     if (a.substring(0,1) == "F") 
     {
-      Serial.print(f_temp, 2);
-      Serial.println(" MHz");
+      Serial.println(f_temp, 2);
+//      Serial.println(" MHz");
     }
 
     // Get set burst rate
     if (a.substring(0,1) == "B") 
     {
-      Serial.print(burst_rate, 2);
-      Serial.println(" Hz");
+      Serial.println(burst_rate, 2);
+//      Serial.println(" Hz");
     }
 
     // Get set resistance
-    if (a.substring(0,1) == "B") 
+    if (a.substring(0,1) == "R") 
     {
-      Serial.println(r_temp, 0);
+      Serial.println((double)r_temp, 0);
     }
     
   }
