@@ -121,7 +121,7 @@ e_pw.grid(row=1, column=2)
 e_bf = Entry(win, textvariable=bf_str, state="disabled")
 e_bf.grid(row=2, column=2)
 
-e_lr = Entry(win, textvariable=bf_str, state="disabled")
+e_lr = Entry(win, textvariable=lr_str, state="disabled")
 e_lr.grid(row=3, column=2)
 
 ## ========= CHECK BOXES ========= ##
