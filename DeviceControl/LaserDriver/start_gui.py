@@ -9,7 +9,7 @@ except ImportError:
 from laser_driver import *
 
 ## Create a driver instance
-driver = LaserDriver()
+# driver = LaserDriver()
 
 ## Define some colors
 SLATEGREY = "#778899"
@@ -74,19 +74,19 @@ btn_disconnect=Button(win, text="Disconnect",
     state   = "disabled", )
 btn_disconnect.grid(row=1, column=0)
 
-## Details of the "Update PW" button
-btn_update_pw=Button(win, text="Update", 
-    width   = int(but_size_x/2),
-    height  = int(but_size_y/2),
-    state   = "disabled", )
-btn_update_pw.grid(row=1, column=3)
-
 ## Details of the "Update BF" button
 btn_update_bf=Button(win, text="Update", 
     width   = int(but_size_x/2),
     height  = int(but_size_y/2),
     state   = "disabled", )
-btn_update_bf.grid(row=2, column=3)
+btn_update_bf.grid(row=1, column=3)
+
+## Details of the "Update PW" button
+btn_update_pw=Button(win, text="Update", 
+    width   = int(but_size_x/2),
+    height  = int(but_size_y/2),
+    state   = "disabled", )
+btn_update_pw.grid(row=2, column=3)
 
 ## Details of the "Update BF" button
 btn_update_lr=Button(win, text="Update", 
@@ -97,8 +97,8 @@ btn_update_lr.grid(row=3, column=3)
 
 ## ========= LABELS ========= ##
 # Label(win, text='Roll Call: ').grid(row=0, column=1)
-Label(win, text='Pulse Width [us]:').grid(row=1, column=1)
-Label(win, text='Burst Freq. [Hz]:').grid(row=2, column=1)
+Label(win, text='Burst Freq. [Hz]:').grid(row=1, column=1)
+Label(win, text='Pulse Width [us]:').grid(row=2, column=1)
 Label(win, text='  Laser R. [int]:').grid(row=3, column=1)
 
 l_en = Label(win, text='LASER OFF', font=('Times', 24))
@@ -115,11 +115,11 @@ lr_str = StringVar() ; lr_str.set("LaserR")
 e_id = Entry(win, textvariable=id_str, state="disabled")
 e_id.grid(row=0, column=2)
 
-e_pw = Entry(win, textvariable=pw_str, state="disabled")
-e_pw.grid(row=1, column=2)
-
 e_bf = Entry(win, textvariable=bf_str, state="disabled")
-e_bf.grid(row=2, column=2)
+e_bf.grid(row=1, column=2)
+
+e_pw = Entry(win, textvariable=pw_str, state="disabled")
+e_pw.grid(row=2, column=2)
 
 e_lr = Entry(win, textvariable=lr_str, state="disabled")
 e_lr.grid(row=3, column=2)
