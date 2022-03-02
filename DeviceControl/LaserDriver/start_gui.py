@@ -134,7 +134,7 @@ def en_laser():
         l_en.config(bg=DANGERRED, text='LASER  ON')
     else:
         l_en.config(bg=SLATEGREY, text='LASER OFF')
-    enable_laser(laser_en)
+    driver.enable_laser(laser_en)
 c_en["command"] = en_laser
 
 ## ======================================= ##
@@ -151,7 +151,7 @@ def cfg_serial():
 btn_cfg_serial["command"] = cfg_serial
 
 def roll_call():
-    btn_roll_call["state"] = "disabled"
+    # btn_roll_call["state"] = "disabled"
 
     id_str.set( driver.get_identity() )
     pw_str.set( driver.get_pw() )

@@ -14,7 +14,7 @@ def pw_to_freq(pw_us):
 def freq_to_pw(fq_MHz):
 	## Convert a "frequency" in MHz
 	## to a "pulse width" in microseconds, assuming 50% duty cycle
-	return 1./(2.*fq_Hz)
+	return 1./(2.*fq_MHz)
 
 def bool2yn(val):
     return 'y' if val else 'n'
@@ -134,7 +134,7 @@ class LaserDriver():
 		time.sleep(0.05)
 		try:
 			pw_MHz = float(self._getReply())
-			return string(freq_to_pw(pw_MHz))
+			return str(freq_to_pw(pw_MHz))
 		except Exception as e:
 			print("ERROR:",str(e))
 			return -1
@@ -200,11 +200,15 @@ class LaserDriver():
 	def enable_laser(self, state=False):
 		cmd = "ON" if state else "OFF"
 		self._sendCmd(cmd)
+		print(self._getReply())
+		return
 
 	def close(self):
 		self.led(False)
+		self.enable_laser(False)
 		try:
 			self.ArduinoSerial.close() # close serial port
 		except:
+			print("Could not close serial port successfully.")
 			pass
 		quit()
