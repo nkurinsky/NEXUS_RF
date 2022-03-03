@@ -70,59 +70,59 @@ for i in np.arange(len(Nb6_NoSource)):
 
 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
-for i in np.arange(len(Nb7_NoSource)):
+# for i in np.arange(len(Nb7_NoSource)):
 
-	fullpath = os.path.join(datapath,"out_"+Nb7_NoSource[i])
-	filename = "ResonanceFits_"+Nb7_NoSource[i]+".h5"
+# 	fullpath = os.path.join(datapath,"out_"+Nb7_NoSource[i])
+# 	filename = "ResonanceFits_"+Nb7_NoSource[i]+".h5"
 
-	try:
-		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
-	except:
-		print("Problem with file:",os.path.join(fullpath,filename))
-		print("Skipping...")
-		continue
+# 	try:
+# 		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+# 	except:
+# 		print("Problem with file:",os.path.join(fullpath,filename))
+# 		print("Skipping...")
+# 		continue
 
-	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
+# 	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
 
-	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
+# 	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
 
-	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
+# 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
-for i in np.arange(len(Nb6_WithSource)):
+# for i in np.arange(len(Nb6_WithSource)):
 
-	fullpath = os.path.join(datapath,"out_"+Nb6_WithSource[i])
-	filename = "ResonanceFits_"+Nb6_WithSource[i]+".h5"
+# 	fullpath = os.path.join(datapath,"out_"+Nb6_WithSource[i])
+# 	filename = "ResonanceFits_"+Nb6_WithSource[i]+".h5"
 
-	try:
-		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
-	except:
-		print("Problem with file:",os.path.join(fullpath,filename))
-		print("Skipping...")
-		continue
+# 	try:
+# 		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+# 	except:
+# 		print("Problem with file:",os.path.join(fullpath,filename))
+# 		print("Skipping...")
+# 		continue
 
-	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
+# 	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
 
-	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
+# 	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
 
-	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
+# 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
-for i in np.arange(len(Nb7_WithSource)):
+# for i in np.arange(len(Nb7_WithSource)):
 
-	fullpath = os.path.join(datapath,"out_"+Nb7_WithSource[i])
-	filename = "ResonanceFits_"+Nb7_WithSource[i]+".h5"
+# 	fullpath = os.path.join(datapath,"out_"+Nb7_WithSource[i])
+# 	filename = "ResonanceFits_"+Nb7_WithSource[i]+".h5"
 
-	try:
-		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
-	except:
-		print("Problem with file:",os.path.join(fullpath,filename))
-		print("Skipping...")
-		continue
+# 	try:
+# 		fdata = fit.decode_hdf5(os.path.join(fullpath,filename))
+# 	except:
+# 		print("Problem with file:",os.path.join(fullpath,filename))
+# 		print("Skipping...")
+# 		continue
 
-	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
+# 	ax10.plot(fdata.powers,fdata.fit_fr, alpha=0.5)
 
-	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
+# 	ax20.plot(fdata.powers,(np.mean(fdata.fit_fr)-fdata.fit_fr)/fdata.fit_fr, alpha=0.5)
 
-	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
+# 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
 fig1.gca() ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
 fig2.gca() ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
