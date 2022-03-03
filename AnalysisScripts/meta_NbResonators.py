@@ -40,10 +40,10 @@ RunLabels = np.array(["Nb6 No Source", "Nb7 No Source", "Nb6 With Source", "Nb7 
 datapath = "/data/ProcessedOutputs/"
 
 ## Create the figures
-fig1 = plt.figure(1)
-ax10 = plt.gca()
-ax10.set_xlabel('Applied RF Power [dBm]')
-ax10.set_ylabel(r'Resonator frequency $f$ [Hz]')
+# fig1 = plt.figure(1)
+# ax10 = plt.gca()
+# ax10.set_xlabel('Applied RF Power [dBm]')
+# ax10.set_ylabel(r'Resonator frequency $f$ [Hz]')
 
 fig2 = plt.figure(2)
 ax20 = plt.gca()
@@ -54,6 +54,11 @@ fig3 = plt.figure(3, figsize=(8,5))
 ax30 = plt.gca()
 ax30.set_xlabel('Applied RF Power [dBm]')
 ax30.set_ylabel(r'Resonator Quality Factor $Q$')
+
+fig4 = plt.figure(4)
+ax40 = plt.gca()
+ax40.set_xlabel('Applied RF Power [dBm]')
+ax40.set_ylabel(r'$($max$(Q) - Q)/Q$')
 
 ## Do the same thing to every set of runs
 for i in np.arange(len(RunSets)):
@@ -88,11 +93,13 @@ for i in np.arange(len(RunSets)):
 	run_RMS_Fs  = np.sqrt(np.sum(np.power(run_mean_Fs-np.mean(run_mean_Fs),2)))
 	run_RMS_Qs  = np.sqrt(np.sum(np.power(run_mean_Qs-np.mean(run_mean_Qs),2)))
 
-	ax10.plot(run_powers,run_mean_Fs, alpha=1.0, label=RunLabels[i])
+	# ax10.plot(run_powers,run_mean_Fs, alpha=1.0, label=RunLabels[i])
 
 	ax20.plot(run_powers,(np.mean(run_mean_Fs)-run_mean_Fs)/run_mean_Fs, alpha=1.0, label=RunLabels[i])
 
 	ax30.plot(run_powers,run_mean_Qs, alpha=1.0, label=RunLabels[i])
+
+	ax40.plot(run_powers,(np.max(run_mean_Qs)-run_mean_Qs)/run_mean_Qs, alpha=1.0, label=RunLabels[i])
 
 
 # for i in np.arange(len(Nb6_NoSource)):
@@ -167,8 +174,9 @@ for i in np.arange(len(RunSets)):
 
 # 	ax30.plot(fdata.powers,fdata.fit_Qr, alpha=0.5)
 
-fig1.gca() ; plt.tight_layout() ; plt.legend(loc='lower left') ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
-fig2.gca() ; plt.tight_layout() ; plt.legend(loc='lower left') ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
-fig3.gca() ; plt.tight_layout() ; plt.legend(loc='lower left') ; fig3.savefig("/home/nexus-admin/Downloads/Figure_3.png")
+# fig1.gca() ; plt.tight_layout() ; fig1.legend(loc='lower left') ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
+fig2.gca() ; plt.tight_layout() ; fig2.legend(loc='lower left') ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
+fig3.gca() ; plt.tight_layout() ; fig3.legend(loc='lower left') ; fig3.savefig("/home/nexus-admin/Downloads/Figure_3.png")
+fig4.gca() ; plt.tight_layout() ; fig4.legend(loc='lower left') ; fig4.savefig("/home/nexus-admin/Downloads/Figure_4.png")
 plt.show()
 
