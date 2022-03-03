@@ -59,10 +59,11 @@ ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 for i in np.arange(len(RunSets)):
 
 	## Output containers
-	run_powers  = np.empty()
-	run_mean_Fs = np.empty()
-	run_mean_Qs = np.empty()
+	run_powers  = np.array([])
+	run_mean_Fs = np.array([])
+	run_mean_Qs = np.array([])
 
+	## Loop over every file in a single run set
 	n_runs = len(RunSets[i])
 	for j in np.arange(n_runs):
 
@@ -76,6 +77,7 @@ for i in np.arange(len(RunSets)):
 			print("Skipping...")
 			continue
 
+		## Pull out the result arrays
 		run_powers   = fdata.powers
 		run_mean_Fs += fdata.fit_fr
 		run_mean_Qs += fdata.fit_Qr
