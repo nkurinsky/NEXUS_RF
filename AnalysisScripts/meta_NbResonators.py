@@ -59,9 +59,9 @@ ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 for i in np.arange(len(RunSets)):
 
 	## Output containers
-	run_powers  = np.array([])
-	run_mean_Fs = np.array([])
-	run_mean_Qs = np.array([])
+	run_powers  = np.zeros(36)
+	run_mean_Fs = np.zeros(36)
+	run_mean_Qs = np.zeros(36)
 
 	## Loop over every file in a single run set
 	n_runs = len(RunSets[i])
@@ -77,26 +77,22 @@ for i in np.arange(len(RunSets)):
 			print("Skipping...")
 			continue
 
-		print(np.shape(fdata.powers))
-		print(np.shape(fdata.fit_fr))
-		print(np.shape(fdata.fit_Qr))
+		## Pull out the result arrays
+		run_powers   = fdata.powers
+		run_mean_Fs += fdata.fit_fr
+		run_mean_Qs += fdata.fit_Qr
 
-	# 	## Pull out the result arrays
-	# 	run_powers   = fdata.powers
-	# 	run_mean_Fs += fdata.fit_fr
-	# 	run_mean_Qs += fdata.fit_Qr
+	run_mean_Fs = run_mean_Fs/n_runs
+	run_mean_Qs = run_mean_Qs/n_runs
 
-	# run_mean_Fs = run_mean_Fs/n_runs
-	# run_mean_Qs = run_mean_Qs/n_runs
+	run_RMS_Fs  = np.sqrt(np.sum(np.power(run_mean_Fs-np.mean(run_mean_Fs),2)))
+	run_RMS_Qs  = np.sqrt(np.sum(np.power(run_mean_Qs-np.mean(run_mean_Qs),2)))
 
-	# run_RMS_Fs  = np.sqrt(np.sum(np.power(run_mean_Fs-np.mean(run_mean_Fs),2)))
-	# run_RMS_Qs  = np.sqrt(np.sum(np.power(run_mean_Qs-np.mean(run_mean_Qs),2)))
+	ax10.plot(run_powers,run_mean_Fs, alpha=1.0, label=RunLabels[i])
 
-	# ax10.plot(run_powers,run_mean_Fs, alpha=1.0, label=RunLabels[i])
+	ax20.plot(run_powers,(np.mean(run_mean_Fs)-run_mean_Fs)/run_mean_Fs, alpha=1.0, label=RunLabels[i])
 
-	# ax20.plot(run_powers,(np.mean(run_mean_Fs)-run_mean_Fs)/run_mean_Fs, alpha=1.0, label=RunLabels[i])
-
-	# ax30.plot(run_powers,run_mean_Qs, alpha=1.0, label=RunLabels[i])
+	ax30.plot(run_powers,run_mean_Qs, alpha=1.0, label=RunLabels[i])
 
 
 # for i in np.arange(len(Nb6_NoSource)):
