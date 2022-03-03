@@ -12,11 +12,11 @@ from NEXUSFunctions import * #control NEXUS fridge
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the time domain acquisition
-P_ctr  = -40.0      ## RF stimulus power [dBm]
-f_res  = 4.24217e9  ## Resonator central frequency [Hz]
-lapse  = 30         ## Duration of acquisition [sec]
-srate  = 100        ## Sampling rate [ksps]
-npts   = 200000     ## Number of samples per trace
+P_ctr  = -27.0          ## RF stimulus power [dBm]
+f_res  = 4.24217938e9   ## Resonator central frequency [Hz]
+lapse  = 30             ## Duration of acquisition [sec]
+srate  = 100            ## Sampling rate [ksps]
+npts   = 200000         ## Number of samples per trace
 
 ## Inherited parameters
 bdwt   = srate * 1e3   ## IF Bandwith [sampling rate Hz]
@@ -98,9 +98,17 @@ def run_scan():
     ## Create a filename for this sweep
     output_filename = sweepPath +"/TimeSer_P"+str(P_ctr)+"_"+series
 
+    ## Create a class to contain the sweep result
+    sweep = VNAMeas(dateStr, series)
+    sweep.power   = power
+    sweep.n_avgs  = 0
+    sweep.n_samps = npts
+    sweep.f_min   = -1.0
+    sweep.f_max   = f_res
+
     ## Grab and save the fridge temperature before starting sweep
     # sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
-    start_T = np.array([nf1.getResistance(), nf2.getResistance()])
+    sweep.start_T = np.array([nf1.getResistance(), nf2.getResistance()])
 
     ## Set the VNA stimulus power and take a frequency sweep
     v.setPower(P_ctr)
@@ -108,18 +116,18 @@ def run_scan():
 
     ## Grab and save the fridge temperature after sweep
     # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
-    final_T = np.array([nf1.getResistance(), nf2.getResistance()])
+    sweep.final_T = np.array([nf1.getResistance(), nf2.getResistance()])
 
-    # ## Save the result to our class instance
-    # sweep.frequencies = np.array(freqs)
-    # sweep.S21realvals = np.array(S21_real)
-    # sweep.S21imagvals = np.array(S21_imag)
+    ## Save the result to our class instance
+    sweep.frequencies = np.array(times)
+    sweep.S21realvals = np.array(S21_real)
+    sweep.S21imagvals = np.array(S21_imag)
 
-    ## Write our class to a file (h5)
-    # print("Storing data at:", sweep.save_hdf5(output_filename))
+    # Write our class to a file (h5)
+    print("Storing data at:", sweep.save_hdf5(output_filename))
 
     ## Store the data in our file name (csv)
-    v.storeData(times, S21_real, S21_imag, output_filename)
+    # v.storeData(times, S21_real, S21_imag, output_filename)
 
     ## Diagnostic text
     print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
