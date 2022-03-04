@@ -62,8 +62,8 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Test the basic VNA functionality.')
 
-    parser.add_argument('--power'    , '-P' , type=float, default = power, 
-        help='RF power applied in dBm. (default '+str(power)+' dBm)')
+    # parser.add_argument('--power'    , '-P' , nargs='+' , default = np.array([-25.0]), 
+    #     help='RF power applied in dBm. (default '+np.array([-25.0])+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain'   , '-rx', type=float, default = rx_gain, 
@@ -97,14 +97,14 @@ def parse_args():
 
     # Do some conditional checks
 
-    if (args.power is not None):
-        if(args.power < -70):
-            print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
-            exit(1)
+    # if (args.power is not None):
+    #     if(args.power < -70):
+    #         print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
+    #         exit(1)
 
-        elif(args.power > 0):
-            print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
-            exit(1)
+    #     elif(args.power > 0):
+    #         print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
+    #         exit(1)
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
