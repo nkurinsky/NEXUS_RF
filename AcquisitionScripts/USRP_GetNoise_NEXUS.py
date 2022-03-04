@@ -38,7 +38,7 @@ f0      = -10e6         ## [Hz], relative to LO
 f1      = -5e6          ## [Hz], relative to LO
 points  =  1e5
 duration = 10           ## [Sec]
-tracking_tones = np.array([]) # np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
+tracking_tones = np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
 powers = np.array([-26])
@@ -246,13 +246,14 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         readout_tones  = np.append(tracking_tones, [f + delta*float(f)/q])
         n_ro_tones     = len(readout_tones)
 
+        ## Split the power evenly across two tones
         amplitudes     = 1./ntones * np.ones(n_ro_tones)
 
         relative_tones = np.zeros(n_ro_tones)
         for k in np.arange(n_ro_tones):
             relative_tones[k] = float(readout_tones[k]) - freq
 
-        outfname = "USRP_Noise_"+series+"_"+str(j)
+        outfname = "USRP_Noise_"+series+"_delta"+str(int(100.*delta))
 
         print("Relative tones [Hz]:", relative_tones)
         print("Amplitudes:         ", amplitudes)
@@ -359,10 +360,10 @@ if __name__ == "__main__":
         freqs[i] = cal_freqs
         means[i] = cal_means
 
-    # ## Create an output file
-    # with h5py.File('noise_averages.h5','a') as fyle:
-    #     fyle.create_dataset('freqs',data=freqs)
-    #     fyle.create_dataset('means',data=means)
+    ## Create an output file
+    with h5py.File(os.path.join(sweepPath,'noise_averages.h5'),'a') as fyle:
+        fyle.create_dataset('freqs',data=freqs)
+        fyle.create_dataset('means',data=means)
 
     ## Disconnect from the USRP server
     u.Disconnect()
