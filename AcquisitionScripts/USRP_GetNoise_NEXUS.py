@@ -32,18 +32,17 @@ except ImportError:
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.5
-LO      = 4.25e9        ## Nice round numbers, don't go finer than 50 MHz
+LO      = 4.25e9        ## In Hz, Nice round numbers, don't go finer than 50 MHz
 res     = 4.242170      ## In GHz
-tracking_tones = np.array([]) # np.array([4.235e9,4.255e9])
+tracking_tones = np.array([]) # np.array([4.235e9,4.255e9]) ## In Hz
 
 ## Set the stimulus powers to loop over
-powers = np.arange(start = -50,
-                   stop  = -40,
-                   step  =   5)
+powers = np.array([-26])
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
-cal_deltas = [0 ]#np.linspace(start=-0.05, stop=0.05, num=3)
+## These deltas are fractions of the central frequency
+cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
 
 ## File handling options
@@ -225,7 +224,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     print("Done.")
 
     ## Extract the important parameters from fit
-    f = fs[0]*1e9
+    f = fs[0]*1e9 ## Get it in Hz (fs is in GHz)
     q = qs[0]
     # print(f,q)
 
