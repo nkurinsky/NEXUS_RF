@@ -246,7 +246,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         readout_tones  = np.append(tracking_tones, [f + delta*float(f)/q])
         n_ro_tones     = len(readout_tones)
 
-        amplitudes     = 1./N_power * np.zeros(n_ro_tones)
+        amplitudes     = 1./ntones * np.ones(n_ro_tones)
 
         relative_tones = np.zeros(n_ro_tones)
         for k in np.arange(n_ro_tones):
