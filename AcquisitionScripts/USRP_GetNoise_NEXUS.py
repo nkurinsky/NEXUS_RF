@@ -348,10 +348,10 @@ if __name__ == "__main__":
         freqs[i] = cal_freqs
         means[i] = cal_means
 
-    ## Create an output file
-    with h5py.File('noise_averages.h5','a') as fyle:
-        fyle.create_dataset('freqs',data=freqs)
-        fyle.create_dataset('means',data=means)
+    # ## Create an output file
+    # with h5py.File('noise_averages.h5','a') as fyle:
+    #     fyle.create_dataset('freqs',data=freqs)
+    #     fyle.create_dataset('means',data=means)
 
     ## Disconnect from the USRP server
     u.Disconnect()
