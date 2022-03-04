@@ -1,3 +1,7 @@
+## To Do:
+## - Improve data structure to store in final h5 file
+## - Implement arguments for tracking tones, etc
+
 ## Import the relevant modules
 import sys, os
 import time, datetime
