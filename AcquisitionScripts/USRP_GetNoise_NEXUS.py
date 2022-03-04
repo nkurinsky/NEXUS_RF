@@ -32,8 +32,12 @@ except ImportError:
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.5
-LO      = 4.25e9        ## In Hz, Nice round numbers, don't go finer than 50 MHz
-res     = 4.242170      ## In GHz
+LO      = 4.25e9        ## [Hz] Nice round numbers, don't go finer than 50 MHz
+res     = 4.242170      ## [GHz]
+f0      = -10e6         ## [Hz], relative to LO
+f1      = -5e6          ## [Hz], relative to LO
+points  =  1e5
+duration = 10           ## [Sec]
 tracking_tones = np.array([]) # np.array([4.235e9,4.255e9]) ## In Hz
 
 ## Set the stimulus powers to loop over
@@ -72,10 +76,10 @@ def parse_args():
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
     parser.add_argument('--points'   , '-p' , type=int  , default=points, 
         help='Number of points use d in the scan (default '+str(points)+' points)')
-    parser.add_argument('--timeVNA'  , '-Tv' , type=float, default=10, 
-        help='Duration of the VNA scan in seconds per iteration (default 10 seconds)')
-    parser.add_argument('--timeNoise', '-Tn' , type=float, default=10, 
-        help='Duration of the noise scan in seconds (default 10 seconds)')
+    parser.add_argument('--timeVNA'  , '-Tv' , type=float, default=duration, 
+        help='Duration of the VNA scan in seconds per iteration (default '+str(duration)+' seconds)')
+    parser.add_argument('--timeNoise', '-Tn' , type=float, default=duration, 
+        help='Duration of the noise scan in seconds (default '+str(duration)+' seconds)')
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
