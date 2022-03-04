@@ -230,7 +230,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     ## Extract the important parameters from fit
     f = fs[0]*1e9 ## Get it in Hz (fs is in GHz)
     q = qs[0]
-    # print(f,q)
+    print("F:",f,"Q:",q)
 
     ## Create some output objects
     ## Each entry is a single number
