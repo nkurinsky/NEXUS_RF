@@ -38,7 +38,7 @@ f0      = -10e6         ## [Hz], relative to LO
 f1      = -5e6          ## [Hz], relative to LO
 points  =  1e5
 duration = 10           ## [Sec]
-tracking_tones = np.array([]) # np.array([4.235e9,4.255e9]) ## In Hz
+tracking_tones = np.array([]) # np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
 powers = np.array([-26])
@@ -242,7 +242,8 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Pick this calibration delta
         delta = cal_deltas[j]
 
-        readout_tones  = (f + delta*float(f)/q) + tracking_tones
+        ## Check this appending
+        readout_tones  = np.append(tracking_tones, [f + delta*float(f)/q])
         n_ro_tones     = len(readout_tones)
 
         amplitudes     = 1./N_power * np.zeros(n_ro_tones)
@@ -252,6 +253,11 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
             relative_tones[k] = float(readout_tones[k]) - freq
 
         outfname = "USRP_noise_"+series+"_"+str(j)
+
+        print("Relative tones [Hz]:", relative_tones)
+        print("Amplitudes:         ", amplitudes)
+        print("LO Frequency [Hz]:  ", freq)
+
 
         print("Starting Noise Run...")
         ## Do a noise run with the USRP
@@ -317,6 +323,7 @@ if __name__ == "__main__":
         power = powers[i]
 
         ## Ensure the power doesn't go above -25 dBm
+        ## Due to power splitting across tones
         if power > -25:
             USRP_power = -25
             tx_gain    = power - USRP_power
