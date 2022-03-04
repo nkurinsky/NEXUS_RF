@@ -122,7 +122,7 @@ def parse_args():
 
     ## MHz frequencies to Hz
     if (args.LOfrq is not None):
-        args.LOfrq = [f*1e6 for f in args.LOfrq] ## Store it as Hz not MHz
+        args.LOfrq = args.LOfrq*1e6 ## Store it as Hz not MHz
     if (args.f0 is not None):
         args.f0 = args.f0*1e6 ## Store it as Hz not MHz
     if (args.f1 is not None):
