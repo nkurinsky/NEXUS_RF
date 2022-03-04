@@ -28,16 +28,22 @@ except ImportError:
         print("Cannot find the PyMKID_USRP_functions package")
         exit()
 
-## Set some noise scan parameters
+## Set DAQ parameters
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.5
 LO      = 4.25e9        ## [Hz] Nice round numbers, don't go finer than 50 MHz
-res     = 4.242170      ## [GHz]
+
+## Set some VNA sweep parameters
 f0      = -10e6         ## [Hz], relative to LO
 f1      = -5e6          ## [Hz], relative to LO
 points  =  1e5
 duration = 10           ## [Sec]
+
+## Set Resonator parameters
+res     = 4.242170      ## [GHz]
+
+## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
@@ -46,6 +52,7 @@ n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
 ## These deltas are fractions of the central frequency
+## This can be used to do a pseudo-VNA post facto
 cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
 
@@ -303,15 +310,12 @@ if __name__ == "__main__":
 
     ## Create the output directories
     create_dirs()
-    os.chdir(seriesPath)
+    os.chdir(seriesPath) ## When doing this, no need to provide subfolder
 
     ## Connect to GPU SDR server
     if not u.Connect():
         u.print_error("Cannot find the GPU server!")
         exit(1)
-
-    ## Print the settings we'll be using
-    print("HERE")
 
     ## Create some output containers
     ## Each entry in these arrays is itself an array
