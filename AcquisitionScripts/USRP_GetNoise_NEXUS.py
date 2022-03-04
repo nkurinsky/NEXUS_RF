@@ -184,7 +184,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
                 compensate = True, 
                 duration = delay_duration,
                 output_filename=outfname, 
-                subfolder=seriesPath)
+                subfolder=None)#seriesPath)
             print("Done.")
 
             print("Analyzing line delay file...")
@@ -217,7 +217,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         Device    = None, 
         Iterations= _iter, 
         verbose   = False,
-        subfolder = seriesPath,
+        subfolder = None, #seriesPath,
         output_filename = outfname, 
         Multitone_compensation = ntones)
     print("Done.")
@@ -252,7 +252,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         for k in np.arange(n_ro_tones):
             relative_tones[k] = float(readout_tones[k]) - freq
 
-        outfname = "USRP_noise_"+series+"_"+str(j)
+        outfname = "USRP_Noise_"+series+"_"+str(j)
 
         print("Relative tones [Hz]:", relative_tones)
         print("Amplitudes:         ", amplitudes)
@@ -276,7 +276,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
                                     mode       = "DIRECT", 
                                     trigger    = None, 
                                     shared_lo  = False,
-                                    subfolder  = seriesPath,
+                                    subfolder  = None,#seriesPath,
                                     output_filename = outfname)
 
         ## Add an extension to the file path
