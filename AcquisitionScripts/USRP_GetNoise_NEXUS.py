@@ -237,52 +237,52 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     cal_freqs = np.zeros(n_c_deltas)
     cal_means = np.zeros(n_c_deltas)
 
-    # ## For each power, loop over all the calibration offsets
-    # for j in np.arange(n_c_deltas):
-    #     ## Pick this calibration delta
-    #     delta = cal_deltas[j]
+    ## For each power, loop over all the calibration offsets
+    for j in np.arange(n_c_deltas):
+        ## Pick this calibration delta
+        delta = cal_deltas[j]
 
-    #     readout_tones  = (f + delta*float(f)/q) + tracking_tones
-    #     n_ro_tones     = len(readout_tones)
+        readout_tones  = (f + delta*float(f)/q) + tracking_tones
+        n_ro_tones     = len(readout_tones)
 
-    #     amplitudes     = 1./N_power * np.zeros(n_ro_tones)
+        amplitudes     = 1./N_power * np.zeros(n_ro_tones)
 
-    #     relative_tones = np.zeros(n_ro_tones)
-    #     for k in np.arange(n_ro_tones):
-    #         relative_tones[k] = float(readout_tones[k]) - freq
+        relative_tones = np.zeros(n_ro_tones)
+        for k in np.arange(n_ro_tones):
+            relative_tones[k] = float(readout_tones[k]) - freq
 
-    #     outfname = "USRP_noise_"+series+"_"+str(j)
+        outfname = "USRP_noise_"+series+"_"+str(j)
 
-    #     print("Starting Noise Run...")
-    #     ## Do a noise run with the USRP
-    #     noise_file = u.get_tones_noise(relative_tones, 
-    #                                 measure_t  = lapse_noise,  ## passed in sec
-    #                                 tx_gain    = tx_gain, 
-    #                                 rx_gain    = rx_gain, 
-    #                                 rate       = rate,  ## passed in Hz
-    #                                 decimation = 100, 
-    #                                 RF         = freq,  ## passed in Hz 
-    #                                 Front_end  = front_end,
-    #                                 Device     = None,
-    #                                 amplitudes = amplitudes,
-    #                                 delay      = delay, ## passed in ns
-    #                                 pf_average = 4, 
-    #                                 mode       = "DIRECT", 
-    #                                 trigger    = None, 
-    #                                 shared_lo  = False,
-    #                                 subfolder  = seriesPath,
-    #                                 output_filename = outfname)
+        print("Starting Noise Run...")
+        ## Do a noise run with the USRP
+        noise_file = u.get_tones_noise(relative_tones, 
+                                    measure_t  = lapse_noise,  ## passed in sec
+                                    tx_gain    = tx_gain, 
+                                    rx_gain    = rx_gain, 
+                                    rate       = rate,  ## passed in Hz
+                                    decimation = 100, 
+                                    RF         = freq,  ## passed in Hz 
+                                    Front_end  = front_end,
+                                    Device     = None,
+                                    amplitudes = amplitudes,
+                                    delay      = delay, ## passed in ns
+                                    pf_average = 4, 
+                                    mode       = "DIRECT", 
+                                    trigger    = None, 
+                                    shared_lo  = False,
+                                    subfolder  = seriesPath,
+                                    output_filename = outfname)
 
-    #     ## Add an extension to the file path
-    #     noise_file += '.h5'
+        ## Add an extension to the file path
+        noise_file += '.h5'
 
-    #     time_threshold = duration / 2
+        time_threshold = duration / 2
 
-    #     frequencies_scanned, noise_mean_scanned = puf.avg_noi(noise_file,time_threshold=time_threshold)
+        frequencies_scanned, noise_mean_scanned = puf.avg_noi(noise_file,time_threshold=time_threshold)
 
-    #     ## Store the result in the internal output arrays
-    #     cal_freqs[j] = frequencies_scanned[0]
-    #     cal_means[j] = noise_mean_scanned[0]
+        ## Store the result in the internal output arrays
+        cal_freqs[j] = frequencies_scanned[0]
+        cal_means[j] = noise_mean_scanned[0]
 
         # if delta != 0:
         #     os.remove(noise_file)
