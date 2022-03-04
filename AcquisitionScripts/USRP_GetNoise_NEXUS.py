@@ -224,7 +224,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
     ## Fit the data acquired in this noise scan
     print("Fitting VNA sweep to find resonator frequency...")
-    fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_file + '.h5',[res],show=False)
+    fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[res],show=False)
     print("Done.")
 
     ## Extract the important parameters from fit
