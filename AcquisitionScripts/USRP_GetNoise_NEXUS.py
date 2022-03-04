@@ -84,7 +84,7 @@ def parse_args():
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
     
-    parser.add_argument('--LOfrq' , '-f' , nargs='+' , default=[LO/1e6],
+    parser.add_argument('--LOfrq' , '-f' , type=float, default=[LO/1e6],
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
     parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
         help='Baseband start frequrency in MHz relative to LO (default '+str(f0/1e6)+' MHz)')
