@@ -210,7 +210,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
             print("Done.")
 
     ## Store the line delay as metadata in our noise file
-    h5_group_obj.attrs["delay_ns"]  = delay * 1e9
+    h5_group_obj.attrs.create("delay_ns", delay * 1e9)
 
     if ntones ==1:
         ntones = None
@@ -219,10 +219,10 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
     ## Create a VNA group for our h5 file
     gVNA = h5_group_obj.create_group('VNA')
-    gVNA.attrs["duration"] = lapse_VNA
-    gVNA.attrs["n_points"] = points
-    gVNA.attrs["iteratns"] = _iter
-    gVNA.attrs["VNAfile"]  = outfname+".h5"
+    gVNA.attrs.create("duration", lapse_VNA)
+    gVNA.attrs.create("n_points", points)
+    gVNA.attrs.create("iteratns", _iter)
+    gVNA.attrs.create("VNAfile",  outfname+".h5")
 
     print("Starting single VNA run...")
     vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
@@ -281,8 +281,8 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
         ## Create a group for the noise scan parameters
         gScan = h5_group_obj.create_group('Scan'+str())
-        gScan.attrs["delta"] = delta
-        gScan.attrs["file"]  = outfname+".h5"
+        gScan.attrs.create("delta", delta)
+        gScan.attrs.create("file",  outfname+".h5")
         gScan.create_dataset("readout_tones",  data=readout_tones)
         gScan.create_dataset("relative_tones", data=relative_tones)
         gScan.create_dataset("amplitudes",     data=amplitudes)
@@ -367,12 +367,12 @@ if __name__ == "__main__":
 
         ## Create an h5 group for this data, store some general metadata
         gPower = fyle.create_group('Power'+str(i))
-        gPower.attrs["power"]   = USRP_power
-        gPower.attrs["tx_gain"] = args.tx_gain
-        gPower.attrs["rx_gain"] = args.rx_gain
-        gPower.attrs["N_power"] = args.N_power
-        gPower.attrs["rate"]    = args.rate
-        gPower.attrs["LOfreq"]  = args.LOfrq
+        gPower.attrs.create("power",   USRP_power)
+        gPower.attrs.create("tx_gain", args.tx_gain)
+        gPower.attrs.create("rx_gain", args.rx_gain)
+        gPower.attrs.create("N_power", args.N_power)
+        gPower.attrs.create("rate",    args.rate)
+        gPower.attrs.create("LOfreq",  args.LOfrq)
 
         cal_freqs, cal_means = runNoise(
             tx_gain = args.txgain,
