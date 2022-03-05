@@ -280,7 +280,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         outfname = "USRP_Noise_"+series+"_delta"+str(int(100.*delta))
 
         ## Create a group for the noise scan parameters
-        gScan = h5_group_obj.create_group('Scan'+str())
+        gScan = h5_group_obj.create_group('Scan'+str(j))
         gScan.attrs.create("delta", delta)
         gScan.attrs.create("file",  outfname+".h5")
         gScan.create_dataset("readout_tones",  data=readout_tones)
