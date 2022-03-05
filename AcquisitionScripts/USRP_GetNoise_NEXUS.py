@@ -342,7 +342,7 @@ if __name__ == "__main__":
         exit(1)
 
     ## Instantiate an output file
-    fyle = h5py.File(os.path.join(sweepPath,'noise_averages.h5'),'a')
+    fyle = h5py.File(os.path.join(sweepPath,'noise_averages.h5'),'w')
 
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
@@ -394,6 +394,9 @@ if __name__ == "__main__":
         ## Store the resulting arrays in this h5 group
         gPower.create_dataset('freqs',data=cal_freqs)
         gPower.create_dataset('freqs',data=cal_means)
+
+    ## Close h5 file for writing
+    fyle.close()
 
     ## Disconnect from the USRP server
     u.Disconnect()
