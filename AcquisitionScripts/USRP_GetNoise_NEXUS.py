@@ -1,5 +1,4 @@
 ## To Do:
-## - Improve data structure to store in final h5 file
 ## - Implement arguments for tracking tones, etc
 
 ## Import the relevant modules
@@ -173,7 +172,7 @@ def create_dirs():
     print ("Scan stored as series "+series+" in path "+sweepPath)
     return 0
 
-def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, lapse_noise, points, ntones, delay_duration, delay_over=None):
+def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, lapse_noise, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
     ## First do a line delay measurement
     if delay_over is not None:
         print("Line delay is user specified:", delay_over, "ns")
@@ -210,10 +209,20 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
             u.load_delay_from_file(filename)
             print("Done.")
 
+    ## Store the line delay as metadata in our noise file
+    h5_group_obj.attrs["delay_ns"]  = delay * 1e9
+
     if ntones ==1:
         ntones = None
 
     outfname = "USRP_VNA_"+series
+
+    ## Create a VNA group for our h5 file
+    gVNA = h5_group_obj.create_group('VNA')
+    gVNA.attrs["duration"] = lapse_VNA
+    gVNA.attrs["n_points"] = points
+    gVNA.attrs["iteratns"] = _iter
+    gVNA.attrs["VNAfile"]  = outfname+".h5"
 
     print("Starting single VNA run...")
     vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
@@ -243,6 +252,10 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     q = qs[0]
     print("F:",f,"Q:",q)
 
+    ## Save the fit results to the VNA group
+    gVNA.create_dataset('fit_f_GHz', data=np.array(fs[0]))
+    gVNA.create_dataset('fit_Q_fac', data=np.array(qs[0]))
+
     ## Create some output objects
     ## Each entry is a single number
     cal_freqs = np.zeros(n_c_deltas)
@@ -266,10 +279,17 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
         outfname = "USRP_Noise_"+series+"_delta"+str(int(100.*delta))
 
+        ## Create a group for the noise scan parameters
+        gScan = h5_group_obj.create_group('Scan'+str())
+        gScan.attrs["delta"] = delta
+        gScan.attrs["file"]  = outfname+".h5"
+        gScan.create_dataset("readout_tones",  data=readout_tones)
+        gScan.create_dataset("relative_tones", data=relative_tones)
+        gScan.create_dataset("amplitudes",     data=amplitudes)
+
         print("Relative tones [Hz]:", relative_tones)
         print("Amplitudes:         ", amplitudes)
         print("LO Frequency [Hz]:  ", freq)
-
 
         print("Starting Noise Run...")
         ## Do a noise run with the USRP
@@ -321,10 +341,8 @@ if __name__ == "__main__":
         u.print_error("Cannot find the GPU server!")
         exit(1)
 
-    ## Create some output containers
-    ## Each entry in these arrays is itself an array
-    freqs = np.zeros(n_pwrs, dtype=object)
-    means = np.zeros(n_pwrs, dtype=object)
+    ## Instantiate an output file
+    fyle = h5py.File(os.path.join(sweepPath,'noise_averages.h5'),'a')
 
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
@@ -334,10 +352,10 @@ if __name__ == "__main__":
         ## Ensure the power doesn't go above -25 dBm
         ## Due to power splitting across tones
         if power > -25:
-            USRP_power = -25
-            tx_gain    = power - USRP_power
+            USRP_power   = -25
+            args.tx_gain = power - USRP_power
         else:
-            USRP_power = power
+            USRP_power   = power
 
         ## Calculate some derived quantities
         N_power = np.power(10.,(((-1*USRP_power)-14)/20.))
@@ -346,6 +364,15 @@ if __name__ == "__main__":
         print("Initializing Noise Scan...")
         print(pwr_clc, 'dBm of power')
         print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
+
+        ## Create an h5 group for this data, store some general metadata
+        gPower = hf.create_group('Power'+str(i))
+        gPower.attrs["power"]   = USRP_power
+        gPower.attrs["tx_gain"] = args.tx_gain
+        gPower.attrs["rx_gain"] = args.rx_gain
+        gPower.attrs["N_power"] = args.N_power
+        gPower.attrs["rate"]    = args.rate
+        gPower.attrs["LOfreq"]  = args.LOfrq
 
         cal_freqs, cal_means = runNoise(
             tx_gain = args.txgain,
@@ -361,17 +388,12 @@ if __name__ == "__main__":
             points  = args.points,
             ntones  = N_power,
             delay_duration = 0.1, # args.delay_duration,
-            delay_over = None) #args.delay_over)
+            delay_over = None,
+            h5_group_obj = gPower) #args.delay_over)
 
-        ## Store the resulting array from the inner loop in the
-        ## overall output containers (arrays of arrays)
-        freqs[i] = cal_freqs
-        means[i] = cal_means
-
-    ## Create an output file
-    with h5py.File(os.path.join(sweepPath,'noise_averages.h5'),'a') as fyle:
-        fyle.create_dataset('freqs',data=freqs)
-        fyle.create_dataset('means',data=means)
+        ## Store the resulting arrays in this h5 group
+        gPower.create_dataset('freqs',data=cal_freqs)
+        gPower.create_dataset('freqs',data=cal_means)
 
     ## Disconnect from the USRP server
     u.Disconnect()
