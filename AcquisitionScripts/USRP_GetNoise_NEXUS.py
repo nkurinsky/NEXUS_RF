@@ -393,7 +393,7 @@ if __name__ == "__main__":
 
         ## Store the resulting arrays in this h5 group
         gPower.create_dataset('freqs',data=cal_freqs)
-        gPower.create_dataset('freqs',data=cal_means)
+        gPower.create_dataset('means',data=cal_means)
 
     ## Close h5 file for writing
     fyle.close()
