@@ -366,7 +366,7 @@ if __name__ == "__main__":
         print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
 
         ## Create an h5 group for this data, store some general metadata
-        gPower = hf.create_group('Power'+str(i))
+        gPower = fyle.create_group('Power'+str(i))
         gPower.attrs["power"]   = USRP_power
         gPower.attrs["tx_gain"] = args.tx_gain
         gPower.attrs["rx_gain"] = args.rx_gain
