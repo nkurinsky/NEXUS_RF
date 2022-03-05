@@ -342,7 +342,7 @@ if __name__ == "__main__":
         exit(1)
 
     ## Instantiate an output file
-    fyle = h5py.File(os.path.join(sweepPath,'noise_averages.h5'),'w')
+    fyle = h5py.File(os.path.join(seriesPath,'noise_averages'+series+'.h5'),'w')
 
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
