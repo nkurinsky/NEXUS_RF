@@ -368,8 +368,8 @@ if __name__ == "__main__":
         ## Create an h5 group for this data, store some general metadata
         gPower = fyle.create_group('Power'+str(i))
         gPower.attrs.create("power",   USRP_power)
-        gPower.attrs.create("tx_gain", args.tx_gain)
-        gPower.attrs.create("rx_gain", args.rx_gain)
+        gPower.attrs.create("tx_gain", args.txgain)
+        gPower.attrs.create("rx_gain", args.rxgain)
         gPower.attrs.create("N_power", args.N_power)
         gPower.attrs.create("rate",    args.rate)
         gPower.attrs.create("LOfreq",  args.LOfrq)
