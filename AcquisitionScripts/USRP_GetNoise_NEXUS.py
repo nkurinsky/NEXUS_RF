@@ -370,7 +370,7 @@ if __name__ == "__main__":
         gPower.attrs.create("power",   USRP_power)
         gPower.attrs.create("tx_gain", args.txgain)
         gPower.attrs.create("rx_gain", args.rxgain)
-        gPower.attrs.create("N_power", args.N_power)
+        gPower.attrs.create("N_power", N_power)
         gPower.attrs.create("rate",    args.rate)
         gPower.attrs.create("LOfreq",  args.LOfrq)
 
