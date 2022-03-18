@@ -50,7 +50,7 @@ res     = 4.242170      ## [GHz]
 tracking_tones = np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-26])
+powers = [-26]
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -76,7 +76,7 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Acquire a noise timestream with the USRP using the GPU_SDR backend.')
 
-    parser.add_argument('--power'    , '-P' , nargs='+' , default = [-25.0], 
+    parser.add_argument('--power'    , '-P' , nargs='+' , default = powers, 
         help='RF power applied in dBm. (default '+str([-25.0])+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
@@ -113,13 +113,18 @@ def parse_args():
 
     if (args.power is not None):
         print("Power(s):", args.power, type(args.power))
-        # if(args.power < -70):
-        #     print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
-        #     exit(1)
 
-    #     elif(args.power > 0):
-    #         print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
-    #         exit(1)
+        powers = np.array(args.power)
+        n_pwrs = len(powers)
+
+        for i in np.arange(n_pwrs):
+            if (powers[i] < -70):
+                print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
+                powers[i] = -70.0
+
+            if (powers[i] > -25):
+                print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
+                powers[i] = -25.0
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
@@ -332,6 +337,8 @@ if __name__ == "__main__":
 
     ## Parse command line arguments to set parameters
     args = parse_args()
+    for i in np.arange(n_pwrs):
+        print(powers[i])
     exit(1) ## testing for now
 
     ## Create the output directories
