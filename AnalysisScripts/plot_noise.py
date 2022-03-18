@@ -9,7 +9,7 @@ import PyMKID_resolution_functions as prf
 import h5py
 from scipy.signal import decimate
 
-series = "20220317_130556"
+series = "20220317_213556"
 path   = os.path.join("/data/USRP_Noise_Scans",series.split("_")[0],series)
 os.chdir(path)
 
@@ -130,9 +130,9 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     # plt.title('arc length timestream decimated')
     # plt.plot(time_window_decimated,arc_window_decimated + visual_separation)
     #
-    # plt.figure(4)
-    # plt.title('radius timestream decimated')
-    # plt.plot(time_window_decimated,radius_window_decimated + visual_separation)
+    plt.figure(4)
+    plt.title('radius timestream decimated')
+    plt.plot(time_window_decimated,radius_window_decimated + visual_separation)
 
 
 
