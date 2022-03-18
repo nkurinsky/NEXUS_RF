@@ -210,7 +210,7 @@ if __name__ == "__main__":
                 vna_files += [objects[fm][:-3]]
 
 
-    raw_f, raw_VNA = puf.read_vna(vna_files[0]+'.h5')
+    raw_f, raw_VNA, _ = puf.read_vna(vna_files[0]+'.h5')
     trim_f = raw_f[2000:-2000]
     trim_VNA = raw_VNA[2000:-2000]
 
