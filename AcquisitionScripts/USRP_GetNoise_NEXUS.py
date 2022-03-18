@@ -77,7 +77,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Acquire a noise timestream with the USRP using the GPU_SDR backend.')
 
     parser.add_argument('--power'    , '-P' , nargs='+' , default = [-25.0], 
-        help='RF power applied in dBm. (default '+[-25.0]+' dBm)')
+        help='RF power applied in dBm. (default '+str([-25.0])+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain'   , '-rx', type=float, default = rx_gain, 
