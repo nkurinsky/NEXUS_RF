@@ -204,7 +204,7 @@ if __name__ == "__main__":
     pulsing_files = []
     for fm in range(len(objects)):
         if objects[fm][-3:] == '.h5':
-            if '1540' in objects[fm]:
+            if 'USRP_Laser' in objects[fm]:
                 pulsing_files += [objects[fm][:]]
             elif 'USRP_VNA' in objects[fm]:
                 vna_files += [objects[fm][:-3]]
