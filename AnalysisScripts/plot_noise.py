@@ -74,7 +74,7 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     idx_end = int(time_end*eff_rate)
 
     noise_window = raw_noise[idx_start:idx_end]
-    # radius_data, arc_length_data = prf.electronics_basis(raw_noise,axis_option='multiple freqs')
+    radius_data, arc_length_data = prf.electronics_basis(raw_noise,axis_option='multiple freqs')
 
     time = np.linspace(1/eff_rate,total_time,total_idx)
     time_window = time[idx_start:idx_end]
