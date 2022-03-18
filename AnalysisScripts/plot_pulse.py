@@ -15,7 +15,8 @@ import PyMKID_USRP_functions as puf
 import h5py
 import copy
 
-total_time = 10.
+total_time = 30.
+series = "20220317_213556"
 
 def idx2time(idx,total_idx=total_time*5000000.,tot_time=total_time):
     return idx/total_idx*tot_time
@@ -110,7 +111,7 @@ def plot_pulse_scans(filename):
 
 def average_traces(noise_file):
 
-    print noise_file
+    print(noise_file)
     with h5py.File(noise_file, "r") as fyle:
         raw_noise = puf.get_raw(fyle)
         amplitude = fyle["raw_data0/A_TXRX"].attrs.get('ampl')
@@ -129,7 +130,7 @@ def average_traces(noise_file):
     noise_mag_avg = np.mean(noise_mag,axis=0)
     noise_mag_std = np.std(noise_mag,axis=0)
 
-#    print noise_mag_avg
+#    print(noise_mag_avg)
 
 
 
@@ -194,7 +195,6 @@ def average_traces(noise_file):
 if __name__ == "__main__":
     plt.close('all')
 
-    series = "20220317_130556"
     path   = os.path.join("/data/USRP_Noise_Scans",series.split("_")[0],series)
     os.chdir(path)
 
