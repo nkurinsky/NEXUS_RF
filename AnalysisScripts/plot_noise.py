@@ -9,6 +9,10 @@ import PyMKID_resolution_functions as prf
 import h5py
 from scipy.signal import decimate
 
+series = "20220317_130556"
+path   = os.path.join("/data/USRP_Noise_Scans",series.split("_")[0],series)
+os.chdir(path)
+
 objects = sorted(os.listdir(os.getcwd()))
 noise_files = []
 vna_files = []
