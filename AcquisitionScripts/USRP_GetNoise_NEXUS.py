@@ -332,7 +332,7 @@ if __name__ == "__main__":
 
     ## Parse command line arguments to set parameters
     args = parse_args()
-    return ## testing for now
+    exit(1) ## testing for now
 
     ## Create the output directories
     create_dirs()
