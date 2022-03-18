@@ -432,7 +432,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
     # extra_dec is necessary if significant beating in band
     if extra_dec:
-        print 'doing additional decimation'
+        print('doing additional decimation')
         data_noise = average_decimate(data_noise,extra_dec)
         time_correction *= extra_dec
         time = time[::extra_dec]
@@ -674,7 +674,7 @@ def coherence_analysis(noise_data_file,extra_dec=None):
 
     # extra_dec is necessary if significant beating in band
     if extra_dec:
-        print 'doing additional decimation'
+        print('doing additional decimation')
         resonance_dec = sig.decimate(data_noise[:,0],extra_dec)
         tracking_dec = sig.decimate(data_noise[:,1],extra_dec)
         data_noise = np.array([resonance_dec,tracking_dec]).T
