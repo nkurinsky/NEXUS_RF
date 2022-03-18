@@ -50,7 +50,7 @@ res     = 4.242170      ## [GHz]
 tracking_tones = np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = [-26]
+powers = np.array([-26])
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -76,8 +76,8 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Acquire a noise timestream with the USRP using the GPU_SDR backend.')
 
-    parser.add_argument('--power'    , '-P' , nargs='+' , default = powers, 
-        help='RF power applied in dBm. (default '+str([-25.0])+' dBm)')
+    # parser.add_argument('--power'    , '-P' , nargs='+' , default = powers, 
+    #     help='RF power applied in dBm. (default '+str([-25.0])+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain'   , '-rx', type=float, default = rx_gain, 
@@ -97,9 +97,19 @@ def parse_args():
     parser.add_argument('--LOfrq' , '-f' , type=float, default=LO/1e6,
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
     parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
-        help='Baseband start frequrency in MHz relative to LO (default '+str(f0/1e6)+' MHz)')
+        help='Baseband start frequency in MHz, absolute (default '+str(f0/1e6)+' MHz)')
     parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
-        help='Baseband end frequrency in MHz relative to LO (default '+str(f1/1e6)+' MHz)')
+        help='Baseband end frequency in MHz, absolute (default '+str(f1/1e6)+' MHz)')
+
+    # parser.add_argument('--resf'  , '-rf', type=float, default=res, 
+    #     help='Resonator peak frequency in GHz, absolute (default '+str(res)+' GHz)')
+
+    # parser.add_argument('--tracktone1'  , '-tt1', type=float, default=tracking_tones[0]/1e6, 
+    #     help='Tracking tone 1 frequency in MHz, absolute (default '+str(tracking_tones[0]/1e6)+' MHz)')
+    # parser.add_argument('--tracktone2'  , '-tt2', type=float, default=tracking_tones[1]/1e6, 
+    #     help='Tracking tone 1 frequency in MHz, absolute (default '+str(tracking_tones[1]/1e6)+' MHz)')
+
+
     
     # ## Line delay arguments
     # parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
@@ -109,22 +119,22 @@ def parse_args():
 
     args = parser.parse_args()
 
-    # Do some conditional checks
+    ## Do some conditional checks
 
-    if (args.power is not None):
-        print("Power(s):", args.power, type(args.power))
+    # if (args.power is not None):
+    #     print("Power(s):", args.power, type(args.power))
 
-        powers = np.array(args.power)
-        n_pwrs = len(powers)
+    #     powers = np.array(args.power)
+    #     n_pwrs = len(powers)
 
-        for i in np.arange(n_pwrs):
-            if (powers[i] < -70):
-                print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
-                powers[i] = -70.0
+    #     for i in np.arange(n_pwrs):
+    #         if (powers[i] < -70):
+    #             print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
+    #             powers[i] = -70.0
 
-            if (powers[i] > -25):
-                print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
-                powers[i] = -25.0
+    #         if (powers[i] > -25):
+    #             print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
+    #             powers[i] = -25.0
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
@@ -143,6 +153,16 @@ def parse_args():
         args.f0 = args.f0*1e6 ## Store it as Hz not MHz
     if (args.f1 is not None):
         args.f1 = args.f1*1e6 ## Store it as Hz not MHz
+
+    # if (args.tracktone1 is not None):
+    #     args.tracktone1 = args.tracktone1*1e6 ## Store it as Hz not MHz
+    # else:
+        
+    # if (args.tracktone2 is not None):
+    #     args.tracktone2 = args.tracktone2*1e6 ## Store it as Hz not MHz
+
+
+
 
     if(args.f0 is not None and args.f1 is not None):
         if((args.f1 - args.f0) > 1e7):
@@ -250,7 +270,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
     ## Fit the data acquired in this noise scan
     print("Fitting VNA sweep to find resonator frequency...")
-    fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[res],show=False)
+    fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[args.resf],show=False)
     print("Done.")
 
     ## Extract the important parameters from fit
@@ -337,9 +357,9 @@ if __name__ == "__main__":
 
     ## Parse command line arguments to set parameters
     args = parse_args()
-    for i in np.arange(n_pwrs):
-        print(powers[i])
-    exit(1) ## testing for now
+    # for i in np.arange(n_pwrs):
+    #     print(powers[i])
+    # exit(1) ## testing for now
 
     ## Create the output directories
     create_dirs()
