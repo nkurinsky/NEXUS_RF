@@ -505,12 +505,12 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         f,P_frequency_clean = welch(frequency_clean,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
         f,P_dissipation_clean = welch(dissipation_clean,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
 
-    	Qr = res['Qr']
-    	Qc = res['Qc']
+        Qr = res['Qr']
+        Qc = res['Qc']
     # print(20*np.log10(np.mean(abs(timestreams_no_pulse[:,0]))), 10*np.log10( Qr**2 / Qc * 2 / np.pi))
-    	readout_power_at_res = 20*np.log10(np.mean(abs(timestreams_no_pulse[:,0]))) - 17.5 - 35
-    	internal_power = np.round(readout_power_at_res + 10*np.log10( Qr**2 / Qc * 2 / np.pi),1)
-    	title = 'internal power of ' + str(internal_power)
+        readout_power_at_res = 20*np.log10(np.mean(abs(timestreams_no_pulse[:,0]))) - 17.5 - 35
+        internal_power = np.round(readout_power_at_res + 10*np.log10( Qr**2 / Qc * 2 / np.pi),1)
+        title = 'internal power of ' + str(internal_power)
 
     if False:
 
