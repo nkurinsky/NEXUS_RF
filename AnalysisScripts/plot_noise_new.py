@@ -23,11 +23,14 @@ noise_calibration_file = None
 for fm in range(len(objects)):
     if objects[fm][-3:] == '.h5':
         if '_Noise_' in objects[fm]:
-            noise_noise_files += [noise_directory + objects[fm]]
+            # noise_noise_files += [noise_directory + objects[fm]]
+            noise_noise_files = np.append(noise_noise_files, os.path.join(noise_directory,objects[fm]))
         elif '_VNA_' in objects[fm]:
-            noise_vna_files += [noise_directory + objects[fm]]
+            # noise_vna_files += [noise_directory + objects[fm]]
+            noise_vna_files = np.append(noise_vna_files, os.path.join(noise_directory,objects[fm]))
         elif 'noise_averages' in objects[fm]:
-            noise_calibration_file = noise_directory + objects[fm]
+            # noise_calibration_file = noise_directory + objects[fm]
+            noise_calibration_file = np.append(noise_calibration_file, os.path.join(noise_directory,objects[fm]))
 # noise_noise_files = noise_noise_files[1:2]
 print(noise_noise_files)
 
