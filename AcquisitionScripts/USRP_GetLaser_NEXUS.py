@@ -53,8 +53,10 @@ rx_gain = 17.5
 LO      = 4.25e9        ## [Hz] Nice round numbers, don't go finer than 50 MHz
 
 ## Set some VNA sweep parameters
-f0      = -10e6         ## [Hz], relative to LO
-f1      = -5e6          ## [Hz], relative to LO
+f0      = -10e6         ## (Al)   [Hz], relative to LO
+f1      = -5e6          ## (Al)   [Hz], relative to LO
+# f0      = -7e6          ## (Nb 7) [Hz], relative to LO
+# f1      = -2e6          ## (Nb 7) [Hz], relative to LO
 points  =  1e5
 duration = 10           ## [Sec]
 
