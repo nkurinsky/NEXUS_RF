@@ -111,10 +111,11 @@ def parse_args():
 
     # Do some conditional checks
 
-    # if (args.power is not None):
-    #     if(args.power < -70):
-    #         print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
-    #         exit(1)
+    if (args.power is not None):
+        print("Power(s):", args.power, type(args.power))
+        # if(args.power < -70):
+        #     print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
+        #     exit(1)
 
     #     elif(args.power > 0):
     #         print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
