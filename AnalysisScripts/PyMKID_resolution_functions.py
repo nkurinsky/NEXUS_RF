@@ -24,6 +24,25 @@ c_wheel_1 = ['deepskyblue','sandybrown','lightgreen','lightcoral','mediumorchid'
 def discrete_FT(data,axis=0):
     return (1/len(data))*fft.fft(data,axis=axis)
 
+# def electronics_basis(noise_timestream,axis_option=0):
+#     """
+#     input: a noise timestream that comes from the a "USRP_Noise_*" file
+#     output: timestreams of the radius and arc length directions
+#     """
+#     if axis_option == 'multiple freqs':
+#         ndims = noise_timestream.ndim
+#         axis_average = tuple(range(ndims-1))
+#     elif axis_option == 0:
+#         axis_average = 0
+#     full_radius_timestream = abs(noise_timestream)
+#     radius = np.mean(full_radius_timestream,axis=axis_average)
+#     radius_timestream = full_radius_timestream - radius
+#     mean = np.mean(noise_timestream,axis=axis_average,dtype=complex)
+#     noise_timestream_rotated = noise_timestream*np.exp(-1j*np.angle(mean))
+#     angle_timestream = np.angle(noise_timestream_rotated)
+#     arc_length_timestream = angle_timestream*radius
+#     return radius_timestream, arc_length_timestream
+
 def electronics_basis(noise_timestream,axis_option=0):
     """
     input: a noise timestream that comes from the a "USRP_Noise_*" file
@@ -34,14 +53,19 @@ def electronics_basis(noise_timestream,axis_option=0):
         axis_average = tuple(range(ndims-1))
     elif axis_option == 0:
         axis_average = 0
+    # print(noise_timestream)
     full_radius_timestream = abs(noise_timestream)
-    radius = np.mean(full_radius_timestream,axis=axis_average)
+    # print(full_radius_timestream)
+    radius = np.mean(full_radius_timestream,axis=axis_average,dtype=np.float64)
+    # print(full_radius_timestream.shape,axis_average)
+    # print(radius)
     radius_timestream = full_radius_timestream - radius
     mean = np.mean(noise_timestream,axis=axis_average,dtype=complex)
-    noise_timestream_rotated = noise_timestream*np.exp(-1j*np.angle(mean))
+    angle = np.angle(mean)
+    noise_timestream_rotated = noise_timestream*np.exp(-1j*angle)
     angle_timestream = np.angle(noise_timestream_rotated)
     arc_length_timestream = angle_timestream*radius
-    return radius_timestream, arc_length_timestream
+    return radius_timestream, arc_length_timestream, radius, angle
 
 def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z):
 
