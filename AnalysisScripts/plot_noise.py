@@ -122,9 +122,9 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     # plt.title('arc length timestream downsampled')
     # plt.plot(time[idx_start:idx_end:down_sampling],\
     #          arc_length_data[::down_sampling])
-    # arc_std = np.std(arc_window_decimated[:,0])
-    # num_freqs = int(len(search_freqs))
-    # visual_separation = np.linspace(0,10*num_freqs*arc_std,num_freqs)
+    arc_std = np.std(arc_window_decimated[:,0])
+    num_freqs = int(len(search_freqs))
+    visual_separation = np.linspace(0,10*num_freqs*arc_std,num_freqs)
 
     # plt.figure(3)
     # plt.title('arc length timestream decimated')
