@@ -92,7 +92,7 @@ driver = laser_driver.LaserDriver()
 
 def parse_args():
     # Instantiate the parser
-    parser = argparse.ArgumentParser(description='Test the basic VNA functionality.')
+    parser = argparse.ArgumentParser(description='Acquire a laser timestream with the USRP using the GPU_SDR backend.')
 
     # parser.add_argument('--power'    , '-P' , nargs='+' , default = np.array([-25.0]), 
     #     help='RF power applied in dBm. (default '+np.array([-25.0])+' dBm)')
@@ -364,6 +364,7 @@ if __name__ == "__main__":
 
     ## Parse command line arguments to set parameters
     args = parse_args()
+    return ## testing for now
 
     ## Create the output directories
     create_dirs()
