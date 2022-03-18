@@ -3,7 +3,7 @@ import sys,os
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-sys.path.append('../PyMKID-master')
+# sys.path.append('../PyMKID-master')
 import PyMKID_USRP_functions as puf
 import PyMKID_resolution_functions as prf
 import h5py
