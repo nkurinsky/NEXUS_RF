@@ -12,7 +12,7 @@ from scipy.signal import decimate
 # noise_directory = '201227 noise/4p240/'
 # noise_directory = '220201 laser data/-30/0 NDF 3p0V AWF/'
 # noise_directory = '220202 laser data/-30/0 NDF 2p8V AWF/'
-series = "20220317_213556"
+series = "20220317_223034"
 noise_directory = os.path.join('/data/USRP_Noise_Scans',series.split('_')[0],series)
 
 objects = sorted(os.listdir(noise_directory))
