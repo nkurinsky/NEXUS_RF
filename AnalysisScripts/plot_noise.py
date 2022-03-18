@@ -80,9 +80,9 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     time_window = time[idx_start:idx_end]
 
     noise_decimated = prf.average_decimate(raw_noise,proper_decimation)
-    # radius_decimated = prf.average_decimate(radius_data,proper_decimation)
-    # arc_decimated = prf.average_decimate(arc_length_data,proper_decimation)
-    # print(noise_decimated.shape,radius_decimated.shape,arc_decimated.shape)
+    radius_decimated = prf.average_decimate(radius_data,proper_decimation)
+    arc_decimated = prf.average_decimate(arc_length_data,proper_decimation)
+    print(noise_decimated.shape,radius_decimated.shape,arc_decimated.shape)
 
     eff_rate_dec = eff_rate/proper_decimation
     total_idx_dec = len(noise_decimated)
@@ -94,8 +94,8 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     time_window_decimated = time_window[::proper_decimation]
 
     noise_window_decimated = noise_decimated[idx_start_dec:idx_end_dec]
-    # radius_window_decimated = radius_decimated[idx_start_dec:idx_end_dec]
-    # arc_window_decimated = arc_decimated[idx_start_dec:idx_end_dec]
+    radius_window_decimated = radius_decimated[idx_start_dec:idx_end_dec]
+    arc_window_decimated = arc_decimated[idx_start_dec:idx_end_dec]
 
     # plt.figure(5)
     # plt.title('radius timestream downsampled')
