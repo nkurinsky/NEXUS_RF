@@ -211,7 +211,7 @@ for j in np.arange(len(series_bus)):
 		ax20.plot(fdata.powers, (fdata.fit_fr-np.mean(fdata.fit_fr))/fdata.fit_fr, 
 			alpha=0.5, color=colors[i], label=class_names[i])
 
-		ax30.plot(fdata.powers,f data.fit_Qr,
+		ax30.plot(fdata.powers, fdata.fit_Qr,
 			alpha=0.5, color=colors[i], label=class_names[i])
 
 fig1.gca() ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
