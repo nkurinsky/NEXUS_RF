@@ -206,13 +206,13 @@ for j in np.arange(len(series_bus)):
 			continue
 
 		ax10.plot(fdata.powers, fdata.fit_fr, 
-			alpha=0.5, color=colors[i], label=class_names[i])
+			alpha=0.5, color=colors[j], label=class_names[j])
 
 		ax20.plot(fdata.powers, (fdata.fit_fr-np.mean(fdata.fit_fr))/fdata.fit_fr, 
-			alpha=0.5, color=colors[i], label=class_names[i])
+			alpha=0.5, color=colors[j], label=class_names[j])
 
 		ax30.plot(fdata.powers, fdata.fit_Qr,
-			alpha=0.5, color=colors[i], label=class_names[i])
+			alpha=0.5, color=colors[j], label=class_names[j])
 
 fig1.gca() ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
 fig2.gca() ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
