@@ -59,10 +59,12 @@ points  =  1e5
 duration = 10           ## [Sec]
 
 ## Set Resonator parameters
-res     = 4.242170      ## [GHz]
+res     = 4.242170      ## Al   [GHz]
+# res     = 4.244760      ## Nb 7 [GHz]
 
 ## Set the non-resonator tracking tones
-tracking_tones = np.array([4.235e9,4.255e9]) ## In Hz a.k.a. cleaning tones to remove correlated noise
+tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning tones to remove correlated noise
+# tracking_tones = np.array([4.240e9,4.260e9]) ## (Nb 7)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
 powers = np.array([-26])
@@ -364,7 +366,6 @@ if __name__ == "__main__":
 
     ## Parse command line arguments to set parameters
     args = parse_args()
-    return ## testing for now
 
     ## Create the output directories
     create_dirs()
