@@ -51,7 +51,7 @@ near = 1000
 i = 0
 for noise_file, vna_file in zip(noise_noise_files,noise_vna_files):
     if i == i: #len(noise_noise_files) - 1:
-        VNA_f, VNA_z = puf.read_vna(vna_file)
+        VNA_f, VNA_z, _ = puf.read_vna(vna_file)
 
         try:
             with h5py.File(noise_file, "r") as fyle:
