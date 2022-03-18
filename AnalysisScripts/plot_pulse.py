@@ -194,6 +194,9 @@ def average_traces(noise_file):
 if __name__ == "__main__":
     plt.close('all')
 
+    series = "20220317_130556"
+    path   = os.path.join("/data/USRP_Noise_Scans",series.split("_")[0],series)
+    os.chdir(path)
 
     objects = sorted(os.listdir(os.getcwd()))
     noise_files = []
