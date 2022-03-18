@@ -207,13 +207,13 @@ for j in np.arange(len(series_bus)):
 			continue
 
 		ax10.plot(fdata.powers, fdata.fit_fr, 
-			alpha=0.5, color=colors[j], label=class_names[j])
+			alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
 
 		ax20.plot(fdata.powers, (fdata.fit_fr-np.mean(fdata.fit_fr))/fdata.fit_fr, 
-			alpha=0.5, color=colors[j], label=class_names[j])
+			alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
 
 		ax30.plot(fdata.powers, fdata.fit_Qr,
-			alpha=0.5, color=colors[j], label=class_names[j])
+			alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
 
 fig1.gca() ; ax10.legend(loc="best") ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
 fig2.gca() ; ax20.legend(loc="best") ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
