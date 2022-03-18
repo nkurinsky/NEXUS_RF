@@ -151,9 +151,10 @@ series_list_3 = [ ## Al resonator, No sources in CR, Shield Closed
 "20220302_191845",
 "20220302_200631",
 "20220302_205426",
-"20220304_094854",
+# "20220304_094854",
 "20220317_094420",
-"20220318_001948"]
+"20220318_001948" # laser on
+]
 
 class_names = [
 "Al, Ba+Cs sources",
@@ -214,8 +215,8 @@ for j in np.arange(len(series_bus)):
 		ax30.plot(fdata.powers, fdata.fit_Qr,
 			alpha=0.5, color=colors[j], label=class_names[j])
 
-fig1.gca() ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
-fig2.gca() ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
-fig3.gca() ; plt.tight_layout() ; fig3.savefig("/home/nexus-admin/Downloads/Figure_3.png")
+fig1.gca() ; ax10.legend(loc="best") ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
+fig2.gca() ; ax20.legend(loc="best") ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
+fig3.gca() ; ax30.legend(loc="best") ; plt.tight_layout() ; fig3.savefig("/home/nexus-admin/Downloads/Figure_3.png")
 plt.show()
 
