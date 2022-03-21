@@ -394,7 +394,7 @@ if __name__ == "__main__":
     print("          Laser R:", driver.get_lr())
 
     ## Instantiate an output file
-    fyle = h5py.File(os.path.join(seriesPath,'noise_averages'+series+'.h5'),'w')
+    fyle = h5py.File(os.path.join(seriesPath,'noise_averages_'+series+'.h5'),'w')
 
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
