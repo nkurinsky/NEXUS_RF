@@ -426,6 +426,10 @@ if __name__ == "__main__":
         gPower.attrs.create("rate",    args.rate)
         gPower.attrs.create("LOfreq",  args.LOfrq)
 
+        gPower.attrs.create("L_pw",  args.laserPW)
+        gPower.attrs.create("L_br",  args.laserBR)
+        gPower.attrs.create("L_R" ,  args.laserRR)
+
         cal_freqs, cal_means = runLaser(
             tx_gain = args.txgain,
             rx_gain = args.rxgain,
