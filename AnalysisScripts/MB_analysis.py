@@ -12,7 +12,7 @@ def fit_temp_res(fname, sweepnum, pickedres=None):
     with h5py.File(fname, 'r') as fyle:
         timestamps = fyle['tempsweep'].keys()
         chosen_tempsweep = timestamps[sweepnum] # Just the first temperature sweep saved in this file
-        print chosen_tempsweep
+        print(chosen_tempsweep)
         MCTemps1 = np.array(fyle['tempsweep/'+chosen_tempsweep].keys())
         MCTemps1 = MCTemps1[MCTemps1!='MB']
         MCTemps1 = MCTemps1[MCTemps1!='RES']
@@ -36,7 +36,7 @@ def fit_temp_res(fname, sweepnum, pickedres=None):
     tau_of_T = (1+1j)*np.zeros((len(MCTemps1),len(MKIDnum)))
     Qc_hat_mag_of_T = np.zeros((len(MCTemps1),len(MKIDnum)))
 
-    print 'Doing resonance fits...'
+    print('Doing resonance fits...')
 
     for Tn in range(len(MCTemps1)):
         temperature_Tn = MCTemps1[Tn]
@@ -85,7 +85,7 @@ def plot_res(fname, sweepnum, pickedres=None, title1='', show=True):
     with h5py.File(fname, 'r') as fyle:
         timestamps = fyle['tempsweep'].keys()
         chosen_tempsweep = timestamps[sweepnum]
-        print chosen_tempsweep
+        print(chosen_tempsweep)
         MCTemps1 = np.array(fyle['tempsweep/'+chosen_tempsweep].keys())
         MCTemps1 = MCTemps1[MCTemps1!='MB']
         MCTemps1 = MCTemps1[MCTemps1!='RES']
@@ -103,7 +103,7 @@ def plot_res(fname, sweepnum, pickedres=None, title1='', show=True):
     cmap = plt.cm.jet
     norm = Normalize(vmin=0, vmax=max(np.array(MCTemps1,dtype=float)))
 
-    print 'Plotting resonance fits...'
+    print('Plotting resonance fits...')
 
     for Kn in range(len(MKIDnum)):
         param_array = np.array(df2.loc[df2['resID'] == MKIDnum[Kn]])
@@ -114,12 +114,12 @@ def plot_res(fname, sweepnum, pickedres=None, title1='', show=True):
             df1 = pd.read_hdf(fname, key='tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
 
             if params[0]==0:
-                print 'failed fit: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn
+                print('failed fit: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
                 continue
             if params[2] < 0:
-                print 'negative Qc: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn
+                print('negative Qc: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
             if params[1]*params[2]/(params[2]-params[1]) < 0:
-                print 'negative Qi: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn
+                print('negative Qi: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
 
             resID_index = df1['resID']
             f1 = df1['f']
@@ -184,7 +184,7 @@ def fit_temp_MB(fname, sweepnum, pickedres=None):
     with h5py.File(fname, 'r') as fyle:
         timestamps = fyle['tempsweep'].keys()
         chosen_tempsweep = timestamps[sweepnum]
-        print chosen_tempsweep
+        print(chosen_tempsweep)
         MCTemps1 = np.array(fyle['tempsweep/'+chosen_tempsweep].keys())
         MCTemps1 = MCTemps1[MCTemps1!='MB']
         MCTemps1 = MCTemps1[MCTemps1!='RES']
@@ -206,9 +206,9 @@ def fit_temp_MB(fname, sweepnum, pickedres=None):
 
     MCTemps1 = np.array(MCTemps1, dtype=float)
 
-    print 'Doing Mattis-Bardeen fits...'
+    print('Doing Mattis-Bardeen fits...')
     for Kn in range(len(MKIDnum)):
-        print Kn
+        print(Kn)
         fr_of_T = np.array(df2['fr'][df2['resID']==Kn])
         Qr_of_T = np.array(df2['Qr'][df2['resID']==Kn])
         Qc_of_T = np.array(df2['Qc'][df2['resID']==Kn])
@@ -236,7 +236,7 @@ def plot_MB(fname, sweepnum, pickedres=None, show=True):
     with h5py.File(fname, 'r') as fyle:
         timestamps = fyle['tempsweep'].keys()
         chosen_tempsweep = timestamps[sweepnum]
-        print chosen_tempsweep
+        print(chosen_tempsweep)
         MCTemps1 = np.array(fyle['tempsweep/'+chosen_tempsweep].keys())
         MCTemps1 = MCTemps1[MCTemps1!='MB']
         MCTemps1 = MCTemps1[MCTemps1!='RES']
@@ -256,7 +256,7 @@ def plot_MB(fname, sweepnum, pickedres=None, show=True):
     MCTemps1 = np.array(MCTemps1, dtype=float)
     T_smooth = np.linspace(0.0001,MCTemps1[-1],10000)
 
-    print 'Plotting Mattis-Bardeen fits...'
+    print('Plotting Mattis-Bardeen fits...')
     for Kn in range(len(MKIDnum)):
         fr_of_T = np.array(df2['fr'][df2['resID']==MKIDnum[Kn]])
         Qr_of_T = np.array(df2['Qr'][df2['resID']==MKIDnum[Kn]])
@@ -296,7 +296,7 @@ def MB_kappa(fname, sweepnum, pickedres=None):
     with h5py.File(fname, 'r') as fyle:
         timestamps = fyle['tempsweep'].keys()
         chosen_tempsweep = timestamps[sweepnum]
-        print chosen_tempsweep
+        print(chosen_tempsweep)
 
     df2 = pd.read_hdf(fname, key='tempsweep/'+chosen_tempsweep+'/RES')
     resID_index = df2['resID']
@@ -316,7 +316,7 @@ def save_MB(fname, sweepnum, pickedres=None, show=False):
     with h5py.File(fname, 'r') as fyle:
         timestamps = fyle['tempsweep'].keys()
         chosen_tempsweep = timestamps[sweepnum]
-        print chosen_tempsweep
+        print(chosen_tempsweep)
         MCTemps1 = np.array(fyle['tempsweep/'+chosen_tempsweep].keys())
         MCTemps1 = MCTemps1[MCTemps1!='MB']
         MCTemps1 = MCTemps1[MCTemps1!='RES']
@@ -341,7 +341,7 @@ def save_MB(fname, sweepnum, pickedres=None, show=False):
 
     Res_pdf = PdfPages(fname[:-3]+'_MB.pdf')
 
-    print 'Plotting Mattis-Bardeen fits...'
+    print('Plotting Mattis-Bardeen fits...')
     for Kn in range(len(MKIDnum)):
         param_array = np.array(df2.loc[df2['resID'] == MKIDnum[Kn]])
         fig, axarr = plt.subplots(ncols=2, nrows=2, figsize=(10,10))
@@ -352,12 +352,12 @@ def save_MB(fname, sweepnum, pickedres=None, show=False):
             df1 = pd.read_hdf(fname, key='tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
 
             if params[0]==0:
-                print 'failed fit: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn
+                print('failed fit: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
                 continue
             if params[2] < 0:
-                print 'negative Qc: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn
+                print('negative Qc: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
             if params[1]*params[2]/(params[2]-params[1]) < 0:
-                print 'negative Qi: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn
+                print('negative Qi: '+'tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
 
             resID_index = df1['resID']
             f1 = df1['f']
