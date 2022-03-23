@@ -296,7 +296,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         delta = cal_deltas[j]
 
         ## Check this appending
-        readout_tones  = np.append(tracking_tones, [f + delta*float(f)/q])
+        readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
 
         ## Split the power evenly across two tones
