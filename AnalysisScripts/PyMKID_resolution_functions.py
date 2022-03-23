@@ -11,7 +11,7 @@ import h5py
 import PyMKID_USRP_functions as PUf
 import scipy
 from scipy.signal import periodogram,get_window,coherence,welch,blackman
-import fitres as fitres
+import ResonanceFitter as fitres
 import MB_equations as MBe
 import MB_analysis as MBa
 # reload(PUf)
