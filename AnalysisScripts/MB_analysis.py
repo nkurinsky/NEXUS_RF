@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 import pandas as pd
-import fitres
+import ResonanceFitter as fitres
 import MB_equations as MBe
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.colors import Normalize
