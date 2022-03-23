@@ -187,15 +187,24 @@ def clean_noi(file):
 def read_vna(filename, decimation=1,verbose=False):
     #Dt_tm = filename.split('.')[0].split('_')[2] + '_' + filename.split('.')[0].split('_')[3]
 
-    with h5py.File(filename, "r") as fyle:
-        raw_VNA = get_raw(fyle)
-        amplitude = fyle["raw_data0/A_RX2"].attrs.get('ampl')
-        rate = fyle["raw_data0/A_RX2"].attrs.get('rate')
-        LO = fyle["raw_data0/A_RX2"].attrs.get('rf')
-        f0 = fyle["raw_data0/A_RX2"].attrs.get('freq')[0]
-        f1 = fyle["raw_data0/A_RX2"].attrs.get('chirp_f')[0]
-        delay = (fyle["raw_data0/A_RX2"].attrs.get('delay')-1)*1e9 # ns
-
+    try:
+        with h5py.File(filename, "r") as fyle:
+            raw_VNA = get_raw(fyle)
+            amplitude = fyle["raw_data0/B_RX2"].attrs.get('ampl')
+            rate = fyle["raw_data0/B_RX2"].attrs.get('rate')
+            LO = fyle["raw_data0/B_RX2"].attrs.get('rf')
+            f0 = fyle["raw_data0/B_RX2"].attrs.get('freq')[0]
+            f1 = fyle["raw_data0/B_RX2"].attrs.get('chirp_f')[0]
+            delay = (fyle["raw_data0/B_RX2"].attrs.get('delay')-1)*1e9 # ns
+    except:
+        with h5py.File(filename, "r") as fyle:
+            raw_VNA = get_raw(fyle)
+            amplitude = fyle["raw_data0/A_RX2"].attrs.get('ampl')
+            rate = fyle["raw_data0/A_RX2"].attrs.get('rate')
+            LO = fyle["raw_data0/A_RX2"].attrs.get('rf')
+            f0 = fyle["raw_data0/A_RX2"].attrs.get('freq')[0]
+            f1 = fyle["raw_data0/A_RX2"].attrs.get('chirp_f')[0]
+            delay = (fyle["raw_data0/A_RX2"].attrs.get('delay')-1)*1e9 # ns
     eff_rate = rate/decimation
 
     if verbose:
@@ -209,7 +218,7 @@ def read_vna(filename, decimation=1,verbose=False):
 
     raw_f = np.linspace(LO+f0,LO+f1,len(raw_VNA[:,0]))*1e-6
 
-    return raw_f, raw_VNA[:,0], amplitude
+    return raw_f, raw_VNA[:,0]#, amplitude
 
 def avg_noi(filename,time_threshold=0.05,verbose=False):
     Dt_tm = filename.split('.')[0].split('_')[2] + '_' + filename.split('.')[0].split('_')[3]
