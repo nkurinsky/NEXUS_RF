@@ -9,7 +9,7 @@ import PyMKID_resolution_functions as prf
 import h5py
 from scipy.signal import decimate
 
-series = "20220317_213556"
+series = "20220317_182533"
 path   = os.path.join("/data/USRP_Noise_Scans",series.split("_")[0],series)
 os.chdir(path)
 
@@ -48,7 +48,7 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     #     continue
 
 
-    VNA_f, VNA_z,_ = puf.read_vna(vna_file + '.h5')
+    VNA_f, VNA_z = puf.read_vna(vna_file + '.h5')
 
     with h5py.File(noise_file + '.h5', "r") as fyle:
         raw_noise = puf.get_raw(fyle)
@@ -74,7 +74,7 @@ for noise_file, vna_file in zip(noise_files,vna_files):
     idx_end = int(time_end*eff_rate)
 
     noise_window = raw_noise[idx_start:idx_end]
-    radius_data, arc_length_data = prf.electronics_basis(raw_noise,axis_option='multiple freqs')
+    radius_data, arc_length_data,_,_ = prf.electronics_basis(raw_noise,axis_option='multiple freqs')
 
     time = np.linspace(1/eff_rate,total_time,total_idx)
     time_window = time[idx_start:idx_end]
