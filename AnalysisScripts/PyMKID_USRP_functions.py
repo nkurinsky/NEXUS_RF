@@ -367,8 +367,12 @@ def plot_VNA(filename):
     plt.title(filename)
     plt.show()
 
-def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title=''):
-    plt.figure('noise and vna ' + title)
+def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None):
+    if fig_obj == None:
+        fig = plt.figure('noise and vna ' + title)
+    else:
+        fig = fig_obj
+    fig.gca();
 
     plt.title('noise and vna ' + title)
 
@@ -412,6 +416,8 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
     plt.axvline(x=0, color='gray')
     plt.axhline(y=0, color='gray')
     plt.legend(loc='upper center',bbox_to_anchor=(0.5,-0.05),ncol=4)
+
+    return fig
 
 
 if __name__ == '__main__':
