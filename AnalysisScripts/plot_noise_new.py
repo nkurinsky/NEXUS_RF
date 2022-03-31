@@ -12,7 +12,7 @@ from scipy.signal import decimate
 # noise_directory = '201227 noise/4p240/'
 # noise_directory = '220201 laser data/-30/0 NDF 3p0V AWF/'
 # noise_directory = '220202 laser data/-30/0 NDF 2p8V AWF/'
-series = "20220317_230119"
+series = "20220317_182533"
 noise_directory = os.path.join('/data/USRP_Noise_Scans',series.split('_')[0],series)
 
 objects = sorted(os.listdir(noise_directory))
@@ -51,7 +51,7 @@ near = 1000
 i = 0
 for noise_file, vna_file in zip(noise_noise_files,noise_vna_files):
     if i == i: #len(noise_noise_files) - 1:
-        VNA_f, VNA_z, _ = puf.read_vna(vna_file)
+        VNA_f, VNA_z = puf.read_vna(vna_file)
 
         try:
             with h5py.File(noise_file, "r") as fyle:
