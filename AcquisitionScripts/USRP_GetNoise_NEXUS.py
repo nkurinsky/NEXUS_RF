@@ -317,7 +317,9 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         gScan.create_dataset("readout_tones",  data=readout_tones)
         gScan.create_dataset("relative_tones", data=relative_tones)
         gScan.create_dataset("amplitudes",     data=amplitudes)
+        gScan.create_dataset("LOfrequency",    data=np.array([freq]))
 
+        print("Readout  tones [Hz]:", readout_tones)
         print("Relative tones [Hz]:", relative_tones)
         print("Amplitudes:         ", amplitudes)
         print("LO Frequency [Hz]:  ", freq)
