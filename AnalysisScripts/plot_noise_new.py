@@ -34,6 +34,9 @@ for fm in range(len(objects)):
 # noise_noise_files = noise_noise_files[1:2]
 print(noise_noise_files)
 
+if (len(noise_vna_files)==1):
+    noise_vna_files = noise_vna_files[0]*np.ones(len(noise_noise_files),dtype='object')
+
 proper_decimation = 1
 down_sampling = 1000
 time_start = 3
@@ -50,6 +53,7 @@ near = 1000
 
 i = 0
 for noise_file, vna_file in zip(noise_noise_files,noise_vna_files):
+    print(i,noise_file,vna_file)
     if i == i: #len(noise_noise_files) - 1:
         VNA_f, VNA_z = puf.read_vna(vna_file)
 
