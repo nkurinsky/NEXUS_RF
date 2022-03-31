@@ -44,6 +44,8 @@ time_end = 9.9
 resonance = 4240.1
 near = 1000
 
+all_vna_fig = plt.figure(100)
+
 # with h5py.File('noise_averages.h5', 'r') as fyle:
 #     char_fs = np.array(fyle['frequencies'])
 #     char_zs = np.array(fyle['means'])
@@ -153,8 +155,7 @@ for noise_file, vna_file in zip(noise_noise_files,noise_vna_files):
 
 
         # puf.plot_noise_and_vna(noise_window_decimated,VNA_z,char_zs=noise_char_zs[[i],:],alpha=0.1)
-        puf.plot_noise_and_vna(noise_window,VNA_z,alpha=0.1)
-
+        puf.plot_noise_and_vna(noise_window,VNA_z,alpha=0.1,fig_obj=all_vna_fig)
 
         plt.figure(3)
         plt.title('arc length timestream decimated')
