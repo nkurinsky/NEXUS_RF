@@ -134,7 +134,7 @@ def en_laser():
         l_en.config(bg=DANGERRED, text='LASER  ON')
     else:
         l_en.config(bg=SLATEGREY, text='LASER OFF')
-    driver.enable_laser(laser_en)
+    driver.enable_laser(laser_en.get())
 c_en["command"] = en_laser
 
 ## ======================================= ##
