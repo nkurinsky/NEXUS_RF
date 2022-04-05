@@ -49,7 +49,7 @@ l_Rf    = int(127)      ## [integer]
 ## Set DAQ parameters
 rate    = 100e6
 tx_gain = 0
-rx_gain = 0 # 17.5
+rx_gain = 17.5
 LO      = 4.25e9        ## [Hz] Nice round numbers, don't go finer than 50 MHz
 
 ## Set some VNA sweep parameters
