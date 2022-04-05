@@ -288,7 +288,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     ## Create some output objects
     ## Each entry is a single number
     cal_freqs = np.zeros(n_c_deltas)
-    cal_means = np.zeros(n_c_deltas)
+    cal_means = np.zeros(n_c_deltas, dtype=np.complex_)
 
     ## For each power, loop over all the calibration offsets
     for j in np.arange(n_c_deltas):
@@ -298,6 +298,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Check this appending
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
+        readout_tones  = np.around(readout_tones, decimals=0)
 
         ## Split the power evenly across two tones
         amplitudes     = 1./ntones * np.ones(n_ro_tones)
