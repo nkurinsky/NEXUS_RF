@@ -34,7 +34,7 @@ except ImportError:
 ## Set DAQ parameters
 rate    = 100e6
 tx_gain = 0
-rx_gain = 17.5
+rx_gain = 17.0
 LO      = 4.25e9        ## [Hz] Nice round numbers, don't go finer than 50 MHz
 
 ## Set some VNA sweep parameters
