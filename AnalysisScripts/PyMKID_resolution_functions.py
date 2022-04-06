@@ -501,7 +501,7 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
     plt.ylabel(directions[1] + ' PSD [(' + units[1] + ')$^2 Hz^{-1}$]',fontsize=15,labelpad=70)
     plt.xlabel('Frequency [Hz]')
     fig_0.suptitle(title)
-    plt.show(False)
+    # plt.show(False)
     # raw_input('press enter to close all plots')
     plt.savefig(noise_data_file[:-3]+'_'+savefig+'_PSD.png')
     # plt.close()
