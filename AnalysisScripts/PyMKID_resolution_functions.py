@@ -818,10 +818,10 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         # timestream_bad_chunks = np.reshape(timestreams_bad_chunks,(num_bad_chunks*chunk_len,num_freqs),order='F')
         # PUf.plot_noise_and_vna(timestream_bad_chunks,VNA_z,f_idx=f_idx,char_zs=char_zs,alpha=1)
         # plt.show()
-        plt.show(False)
-        plt.pause(5)
+        # plt.show(False)
+        # plt.pause(5)
         # raw_input('press enter to close all plots')
-        plt.close('all')
+        # plt.close('all')
 
     resonator_timestream_plot = True
     if resonator_timestream_plot and resonator:
