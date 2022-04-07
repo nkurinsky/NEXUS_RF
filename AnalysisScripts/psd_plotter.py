@@ -7,9 +7,9 @@ import pandas as pd
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
 
-series    = '20220406_125443'
-# data_path = os.path.join('/home/dylan/KID_data/',series)
-data_path = os.path.join('/data/USRP_Noise_Scans',series.split('_')[0],series)
+series    = '20220407_112223'
+data_path = os.path.join('/home/dylan/KID_data/',series)
+# data_path = os.path.join('/data/USRP_Noise_Scans',series.split('_')[0],series)
 
 ## Grab the file with no calibration offset
 file_list = np.sort(glob.glob(data_path+"/*.h5"))
@@ -56,15 +56,15 @@ frequencies = np.array(md['freqs'])
 noise_means = np.array(md['means'])
 
 S0 = md['Scan0'] ; print(S0.keys())
-S1 = md['Scan1'] ; print(S1.keys())
-S2 = md['Scan2'] ; print(S2.keys())
+# S1 = md['Scan1'] ; print(S1.keys())
+# S2 = md['Scan2'] ; print(S2.keys())
 print(md['VNA'])
 print(frequencies)
 print(noise_means)
 
 print("Scan0 tones:", np.array(S0['readout_tones']))
-print("Scan1 tones:", np.array(S1['readout_tones']))
-print("Scan2 tones:", np.array(S2['readout_tones']))
+# print("Scan1 tones:", np.array(S1['readout_tones']))
+# print("Scan2 tones:", np.array(S2['readout_tones']))
 
 ## Now look at on-resonance, no cal delta file
 PSD_lo_f = int(1e2)  ## chunk up to [Hz]
@@ -72,7 +72,7 @@ PSD_hi_f = int(5e4)  ## decimate down to  [Hz]
 
 print("Power: ",power)
 
-_, noise_info = PUf.unavg_noi(tone_files[1])
+_, noise_info = PUf.unavg_noi(tone_files[0])
 noise_total_time = noise_info['time'][-1]
 noise_fs = 1./noise_info['sampling period']
 noise_readout_f = noise_info['search freqs'][0]
@@ -83,7 +83,7 @@ noise_decimation = int(noise_fs/PSD_hi_f)
 print("Will separate data into ", num_chunks      , "chunks to achieve the requested", "{:.2e}".format(PSD_lo_f),' Hz low  end of the PSD')
 print("Additional decimation by", noise_decimation, "needed to achieve the requested", "{:.2e}".format(PSD_hi_f),' Hz high end of the PSD')
 
-powers, PSDs, res, timestreams = Prf.PSDs_and_cleaning(tone_files[1], VNA_file,
+powers, PSDs, res, timestreams = Prf.PSDs_and_cleaning(tone_files[0], VNA_file,
                                                       extra_dec  = noise_decimation,
                                                       num_chunks = num_chunks,
                                                       blank_chunks = int(0.3*num_chunks),
@@ -92,8 +92,8 @@ powers, PSDs, res, timestreams = Prf.PSDs_and_cleaning(tone_files[1], VNA_file,
 plt.show()
 
 # ## Look for pulses
-# f = h5py.File(tone_files[1], 'r')
-# f_clean = h5py.File(tone_files[1].split('.')[0]+"_cleaned.h5", 'r')
+# f = h5py.File(tone_files[0], 'r')
+# f_clean = h5py.File(tone_files[0].split('.')[0]+"_cleaned.h5", 'r')
 # # print("Top-level:", f.keys())
 # # print("Top-level:", f_clean.keys())
 # # print("Cleaned data:", f_clean['cleaned_data'])
