@@ -100,11 +100,11 @@ for i in np.arange(len(series_list)):
 	ax30.plot(fdata.powers, fdata.fit_Qr,
 		alpha=0.5, label=series_list[i] if i==0 else None)
 
-print(f_by_power)
-print(Q_by_power)
+# print(f_by_power)
+# print(Q_by_power)
 
-f_by_power = f_by_power[f_by_power is not np.nan]
-Q_by_power = Q_by_power[f_by_power is not np.nan]
+# f_by_power = f_by_power[f_by_power is not np.nan]
+# Q_by_power = Q_by_power[f_by_power is not np.nan]
 
 f_mean_by_power = np.mean(f_by_power, axis=1)
 Q_mean_by_power = np.mean(Q_by_power, axis=1)
