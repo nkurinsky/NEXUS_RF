@@ -55,7 +55,7 @@ ax10.set_ylabel(r'Resonator frequency $f$ [Hz]')
 fig2 = plt.figure(2)
 ax20 = plt.gca()
 ax20.set_xlabel('Applied RF Power [dBm]')
-ax20.set_ylabel(r'$(f - \langle f \rangle)/f$')
+ax20.set_ylabel(r'$(f - f(-50 dBm))/f$')
 
 fig3 = plt.figure(3, figsize=(8,5))
 ax30 = plt.gca()
