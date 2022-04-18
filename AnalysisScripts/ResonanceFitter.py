@@ -587,14 +587,15 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                     mx_pos = i
                     lookformax = True
 
+    # ## Handle too many peaks
+    # if (len(peaklist) > 10):
+    #     peaklist = np.array([ peaklist[np.argmax(pkvallist)] ])
+    #     file_fit_obj.resize_peak_fits(len(peaklist))
+
     peaklist = sorted(peaklist)
     print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
+    print('Filtered value of identified peaks:', )
     file_fit_obj.resize_peak_fits(len(peaklist))
-
-    ## Handle too many peaks
-    if (len(peaklist) > 10):
-        peaklist = np.array([ peaklist[np.argmax(pkvallist)] ])
-        file_fit_obj.resize_peak_fits(len(peaklist))
 
     ## Create a plot 
     fig = plt.figure(figsize=(9,7))
