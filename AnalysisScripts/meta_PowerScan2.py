@@ -92,13 +92,13 @@ for i in np.arange(len(series_list)):
 	Q_by_power[:,i] = fdata.fit_Qr
 
 	ax10.plot(fdata.powers, fdata.fit_fr, 
-		alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
+		alpha=0.5, label=series_list[i] if i==0 else None)
 
 	ax20.plot(fdata.powers, (fdata.fit_fr-np.mean(fdata.fit_fr))/fdata.fit_fr, 
-		alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
+		alpha=0.5, label=series_list[i] if i==0 else None)
 
 	ax30.plot(fdata.powers, fdata.fit_Qr,
-		alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
+		alpha=0.5, label=series_list[i] if i==0 else None)
 
 f_mean_by_power = np.mean(f_by_power, axis=1)
 Q_mean_by_power = np.mean(Q_by_power, axis=1)
