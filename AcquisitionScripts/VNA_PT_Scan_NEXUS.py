@@ -13,19 +13,20 @@ from NEXUSFunctions import * #control NEXUS fridge
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
-P_min  = -55.0
-P_max  = -20.0
-P_step =   1.0
+P_min  = -50
+P_max  = -20
+P_step =   5
 
 ## Set the VNA's frequency parameters
-freqmin = 4.24205e9 # 4.24212e9   ## Hz
-freqmax = 4.24225e9 # 4.24262e9   ## Hz
-n_samps = 5e4
+freqmin = 4.242005e9 # 4.244585e9   ## Hz
+freqmax = 4.242355e9 # 4.244936e9   ## Hz
+n_samps = 14e3
 
 ## How many readings to take at each step of the sweep
-n_avs = 10
+n_avs = 3
 
 ## Temperature scan settings [K]
+Temp_base =  11e-3
 Temp_min  =  20e-3
 Temp_max  = 350e-3
 Temp_step =  10e-3
@@ -218,12 +219,15 @@ if __name__ == "__main__":
     ## List the temperature setpoints
     Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
+    if (Temp_base < Temp_min):
+        Temps = np.append(Temp_base,Temps)
+
     ## Print some diagnostic text
     SP = float(nf.getSP())
-    print("Starting Set Point:",oSP)
+    print("Starting Set Point:",SP)
     print("Scan Settings")
-    print("         Start Temp:",Temp_min*1e3,"mK")
-    print("           End Temp:",Temp_max*1e3,"mK")
+    print("         Start Temp:",Temps[ 0]*1e3,"mK")
+    print("           End Temp:",Temps[-1]*1e3,"mK")
     print("          Temp Step:",Temp_step*1e3,"mK")
     print("     Temp Tolerance:",tempTolerance*1e3,"mK")
     print("          Hold Time:",holTemp_stepime,"s")
@@ -243,6 +247,6 @@ if __name__ == "__main__":
 
     ## Go back to base temperature
     print("Reverting to base temperature")
-    nf.setSP(0.01)
+    nf.setSP(Temp_base)
 
 
