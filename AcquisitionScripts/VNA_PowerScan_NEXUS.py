@@ -1,5 +1,6 @@
 import sys, os
-from time import sleep
+#from time import sleep, time
+#import time
 import numpy as np
 import datetime
 import argparse
@@ -86,8 +87,8 @@ def create_dirs():
 def run_scan():
 
     ## Diagnostic text
-    print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
-    print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
+    #print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
+    #print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
 
     print("--Power Scan Settings-------")
     print("-   Start Power (dB):", P_min)
@@ -126,7 +127,7 @@ def run_scan():
 
       ## Grab and save the fridge temperature after sweep
       # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
-      sweep.final_T = np.array([nf1.getResistance(), nf2.getResistance()])
+      sweep.final_T = np.array([-1.0,-1.0]) #[nf1.getResistance(), nf2.getResistance()])
 
       ## Save the result to our class instance
       sweep.frequencies = np.array(freqs)
@@ -137,15 +138,16 @@ def run_scan():
       print("Storing data at:", sweep.save_hdf5(output_filename))
 
       ## Store the data in our file name (csv)
-      v.storeData(freqs, S21_real, S21_imag, output_filename)
+      #v.storeData(freqs, S21_real, S21_imag, output_filename)
 
     ## Diagnostic text
-    print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
-    print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
+    #print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
+    #print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
     print("Power scan complete.")
     return 0
 
 if __name__ == "__main__":
+    #start = time.time()
     ## Initialize the NEXUS temperature servers
     nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
     nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
@@ -177,3 +179,6 @@ if __name__ == "__main__":
 
     ## Run the power scan
     run_scan()
+
+    #end=time.time()
+    #print(-(start-end)/60.,"minutes")
