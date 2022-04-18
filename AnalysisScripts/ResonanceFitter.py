@@ -552,12 +552,6 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
 
     ## initialize peaklist
     peaklist  = np.array([], dtype = int)
-    pkvallist = np.array([], dtype = float)
-
-    ## add the manually entered frequencies to peaklist
-    for added in additions:
-        peaklist = np.append(peaklist, np.argmin(abs(f-added)))
-    addlist = peaklist
 
     ## initialize mx below min
     mx = -np.inf
@@ -578,7 +572,6 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                 if cp < gamma:
                     peak_pos  = mx_pos
                     peaklist  = np.append(peaklist , peak_pos)
-                    pkvallist = np.append(pkvallist, mfz[i])
                     lookformax = False
             else:
 ##                if cp > delta and f[i] > (min(f)+2*fwindow):
@@ -587,10 +580,14 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                     mx_pos = i
                     lookformax = True
 
-    # ## Handle too many peaks
-    # if (len(peaklist) > 10):
-    #     peaklist = np.array([ peaklist[np.argmax(pkvallist)] ])
-    #     file_fit_obj.resize_peak_fits(len(peaklist))
+    ## Handle too many peaks
+    if (len(peaklist) > 10):
+        peaklist = np.array([ np.argmax(mfz) ])
+
+    ## add the manually entered frequencies to peaklist
+    for added in additions:
+        peaklist = np.append(peaklist, np.argmin(abs(f-added)))
+    addlist = peaklist
 
     peaklist = sorted(peaklist)
     print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
