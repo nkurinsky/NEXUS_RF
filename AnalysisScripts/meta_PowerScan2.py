@@ -69,11 +69,9 @@ n_sers = len(series_list)
 powers = np.arange(start=-50,stop=-20+2,step=2)
 n_pwrs = len(powers)
 
-
 ## Create some output containers
 f_by_power = np.zeros(shape=(n_pwrs,n_sers))
-
-n_series_loaded = 0
+Q_by_power = np.zeros(shape=(n_pwrs,n_sers))
 
 ## Loop over each series in this class
 for i in np.arange(len(series_list)):
