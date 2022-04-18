@@ -551,7 +551,8 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
     bstd = np.std(mfz)
 
     ## initialize peaklist
-    peaklist = np.array([], dtype = int)
+    peaklist  = np.array([], dtype = int)
+    pkvallist = np.array([], dtype = float)
 
     ## add the manually entered frequencies to peaklist
     for added in additions:
@@ -575,8 +576,9 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                 mx_pos = i
             if lookformax == True:
                 if cp < gamma:
-                    peak_pos = mx_pos
-                    peaklist = np.append(peaklist, peak_pos)
+                    peak_pos  = mx_pos
+                    peaklist  = np.append(peaklist , peak_pos)
+                    pkvallist = np.append(pkvallist, cp)
                     lookformax = False
             else:
 ##                if cp > delta and f[i] > (min(f)+2*fwindow):
@@ -591,7 +593,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
 
     ## Handle too many peaks
     if (len(peaklist) > 10):
-        peaklist = np.array([ np.argmin(mfz) ])
+        peaklist = np.array([ peaklist[np.argmax(pkvallist)] ])
         file_fit_obj.resize_peak_fits(len(peaklist))
 
     ## Create a plot 
