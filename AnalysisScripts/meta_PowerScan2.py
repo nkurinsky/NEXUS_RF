@@ -10,7 +10,7 @@ plt.rcParams.update({'font.size': 12})
 plt.rc('font', family='serif')
 dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-series_list_0417 = [
+series_list = [
 # "20220417_195127",
 # "20220417_201631",
 # "20220417_202641",
@@ -63,7 +63,7 @@ ax30.set_xlabel('Applied RF Power [dBm]')
 ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 
 ## Count the series
-n_sers = len(series_list_0417)
+n_sers = len(series_list)
 
 ## Check how many powers are in the first series
 powers = np.arange(start=-50,stop=-20+2,step=2)
