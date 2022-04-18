@@ -71,7 +71,7 @@ n_pwrs = len(powers)
 
 
 ## Create some output containers
-f_by_power = np.zeros(n_pwrs,n_sers)
+f_by_power = np.zeros(shape=(n_pwrs,n_sers))
 
 n_series_loaded = 0
 
