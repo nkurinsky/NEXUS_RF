@@ -592,6 +592,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
     ## Handle too many peaks
     if (len(peaklist) > 10):
         peaklist = np.array([ np.argmin(mfz) ])
+        file_fit_obj.resize_peak_fits(len(peaklist))
 
     ## Create a plot 
     fig = plt.figure(figsize=(9,7))
