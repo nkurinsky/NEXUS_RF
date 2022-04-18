@@ -118,5 +118,15 @@ ax30.errorbar(powers, Q_mean_by_power, yerr=Q_sdev_by_power, marker='o', color='
 fig1.gca() ; ax10.legend(loc="best") ; plt.tight_layout() ; fig1.savefig("/home/nexus-admin/Downloads/Figure_1.png")
 fig2.gca() ; ax20.legend(loc="best") ; plt.tight_layout() ; fig2.savefig("/home/nexus-admin/Downloads/Figure_2.png")
 fig3.gca() ; ax30.legend(loc="best") ; plt.tight_layout() ; fig3.savefig("/home/nexus-admin/Downloads/Figure_3.png")
+
+
+fig4 = plt.figure(4)
+ax40 = plt.gca()
+ax40.set_xlabel('Applied RF Power [dBm]')
+ax40.set_ylabel(r'Fractional Uncertainty (%)')
+ax40.plot(powers, 100.0*f_sdev_by_power/f_mean_by_power, "Frequency")
+ax40.plot(powers, 100.0*Q_sdev_by_power/Q_mean_by_power, "Q-value")
+
+
 plt.show()
 
