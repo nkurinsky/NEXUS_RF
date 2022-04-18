@@ -578,7 +578,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                 if cp < gamma:
                     peak_pos  = mx_pos
                     peaklist  = np.append(peaklist , peak_pos)
-                    pkvallist = np.append(pkvallist, cp)
+                    pkvallist = np.append(pkvallist, mfz[i])
                     lookformax = False
             else:
 ##                if cp > delta and f[i] > (min(f)+2*fwindow):
