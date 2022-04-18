@@ -124,9 +124,9 @@ fig4 = plt.figure(4)
 ax40 = plt.gca()
 ax40.set_xlabel('Applied RF Power [dBm]')
 ax40.set_ylabel(r'Fractional Uncertainty (%)')
-ax40.plot(powers, 100.0*f_sdev_by_power/f_mean_by_power, "Frequency")
-ax40.plot(powers, 100.0*Q_sdev_by_power/Q_mean_by_power, "Q-value")
-
+ax40.plot(powers, 100.0*f_sdev_by_power/f_mean_by_power, label="Frequency")
+ax40.plot(powers, 100.0*Q_sdev_by_power/Q_mean_by_power, label="Q-value")
+ax40.legend(loc="best")
 
 plt.show()
 
