@@ -167,8 +167,8 @@ if __name__ == "__main__":
         result.fit_Qc[i] = Qi
 
         ## Store the fit results
-        fr_list.append(fr[0]); Qr_list.append(Qr[0])
-        Qc_list.append(Qc[0]); Qi_list.append(Qi[0])
+        fr_list.append(fr); Qr_list.append(Qr)
+        Qc_list.append(Qc); Qi_list.append(Qi)
 
     ## Store the fit results
     result.save_to_file(out_path)
