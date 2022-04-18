@@ -86,12 +86,12 @@ for i in np.arange(len(series_list)):
 	except:
 		print("Problem with file:",os.path.join(fullpath,filename))
 		print("Skipping...")
-		f_by_power[i,:] = np.nan * np.ones(n_pwrs)
-		Q_by_power[i,:] = np.nan * np.ones(n_pwrs)
+		f_by_power[:,i] = np.nan * np.ones(n_pwrs)
+		Q_by_power[:,i] = np.nan * np.ones(n_pwrs)
 		continue
 
-	f_by_power[i,:] = fdata.fit_fr
-	Q_by_power[i,:] = fdata.fit_Qr
+	f_by_power[:,i] = fdata.fit_fr
+	Q_by_power[:,i] = fdata.fit_Qr
 
 	ax10.plot(fdata.powers, fdata.fit_fr, 
 		alpha=0.5, color=colors[j], label=class_names[j] if i==0 else None)
