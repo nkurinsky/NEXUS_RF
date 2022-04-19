@@ -13,8 +13,8 @@ from NEXUSFunctions import * #control NEXUS fridge
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
-P_min  = -50
-P_max  = -20
+P_min  = -55
+P_max  = -15
 P_step =   5
 
 ## Set the VNA's frequency parameters
@@ -32,9 +32,21 @@ Temp_max  = 350e-3
 Temp_step =  10e-3
 
 ## Temperature stabilization params
-tempTolerance =  1e-4     ## K
-sleepTime     =  5        ## sec
-stabletTime   = 60        ## sec
+tempTolerance =   1e-4     ## K
+sleepTime     =  30        ## sec
+stabletTime   = 180        ## sec
+
+## Create the temperature array
+Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
+
+## Use this if starting at the top temperature
+Temps = Temps[::-1] 
+if (Temp_base) < Temps[-1]:
+    Temps = np.append(Temps,Temp_base)
+
+# ## Use this if starting at base temperature
+# if (Temp_base) < Temps[0]:
+#     Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/Tempsweeps/VNA'  #VNA subfolder of Tempsweeps
@@ -100,31 +112,32 @@ def create_series_dir():
 
     return series, seriesPath
 
-def temp_change_and_wait(new_sp):
+def temp_change_and_wait(new_sp_K,nf_inst):
 
-    print("CHANGING SETPOINT TO",new_sp,"K")
-    nf.setSP(new_sp)
+    print("CHANGING SETPOINT TO",new_sp*1e3,"mK")
+    nf_inst.setSP(new_sp)
 
-    cTemp=float(nf.getTemp())
+    cTemp=float(nf_inst.getTemp())
     print("Waiting for Fridge to Reach Temperature")
     print("Monitoring temp every",sleepTime,"seconds")
-    print("...",cTemp)
-    terr = temp-cTemp
+    print("...",cTemp*1e3,"mK")
+    terr = new_sp_K-cTemp
     while(np.abs(terr) > tempTolerance):
         sleep(sleepTime)
         try:
-            cTemp=float(nf.getTemp())
-            terr = temp-cTemp
-            print("...",cTemp,"("+str(terr)+")")
+            cTemp=float(nf_inst.getTemp())
+            terr = new_sp_K-cTemp
+            print("...",cTemp*1e3,"("+str(terr*1e3)+") mK")
         except:
             print("Socket Failed, skipping reading")
 
     print("Holding at current temp for",stabletTime,"seconds")
     sleep(stabletTime)
 
+    print("Done.")
     return 0
 
-def run_power_scan(currTemp, seriesPath):
+def run_power_scan(currTemp, seriesPath, nf_inst):
 
     ## Diagnostic text
     #print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
@@ -159,7 +172,7 @@ def run_power_scan(currTemp, seriesPath):
 
       ## Grab and save the fridge temperature before starting sweep
       # sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
-      sweep.start_T = np.array([nf1.getResistance(), nf2.getResistance()])
+      sweep.start_T = np.array([float(nf_inst.getTemp()), -1.0]) # , nf2.getResistance()])
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
@@ -167,7 +180,7 @@ def run_power_scan(currTemp, seriesPath):
 
       ## Grab and save the fridge temperature after sweep
       # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
-      sweep.final_T = np.array([-1.0,-1.0]) #[nf1.getResistance(), nf2.getResistance()])
+      sweep.final_T = np.array([float(nf_inst.getTemp()), -1.0]) # np.array([-1.0,-1.0]) #[nf1.getResistance(), nf2.getResistance()])
 
       ## Save the result to our class instance
       sweep.frequencies = np.array(freqs)
@@ -188,8 +201,7 @@ def run_power_scan(currTemp, seriesPath):
 
 if __name__ == "__main__":
     ## Initialize the NEXUS temperature servers
-    nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
-    nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
+    nf3 = NEXUSTemps(server_ip="192.168.0.34",server_port=11034)
 
     ## Initialize the VNA
     v = VNA()
@@ -216,14 +228,8 @@ if __name__ == "__main__":
     ## Create the output directories
     create_dirs()
 
-    ## List the temperature setpoints
-    Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
-
-    if (Temp_base < Temp_min):
-        Temps = np.append(Temp_base,Temps)
-
     ## Print some diagnostic text
-    SP = float(nf.getSP())
+    SP = float(nf3.getSP())
     print("Starting Set Point:",SP)
     print("Scan Settings")
     print("         Start Temp:",Temps[ 0]*1e3,"mK")
@@ -237,13 +243,13 @@ if __name__ == "__main__":
     for T in Temps:
         
         ## Change the fridge temperature
-        temp_change_and_wait(T)
+        temp_change_and_wait(T, nf3)
 
         ## Create a new directory
         series, seriesPath = create_series_dir()
 
         ## Run a power scan
-        run_power_scan(T, seriesPath)
+        run_power_scan(T, seriesPath, nf3)
 
     ## Go back to base temperature
     print("Reverting to base temperature")
