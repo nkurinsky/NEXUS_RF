@@ -34,7 +34,7 @@ Temp_step =  10e-3
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
 sleepTime     =  30        ## sec
-stabletTime   = 180        ## sec
+stableTime    = 180        ## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
@@ -131,8 +131,8 @@ def temp_change_and_wait(new_sp_K,nf_inst):
         except:
             print("Socket Failed, skipping reading")
 
-    print("Holding at current temp for",stabletTime,"seconds")
-    sleep(stabletTime)
+    print("Holding at current temp for",stableTime,"seconds")
+    sleep(stableTime)
 
     print("Done.")
     return 0
@@ -236,7 +236,7 @@ if __name__ == "__main__":
     print("           End Temp:",Temps[-1]*1e3,"mK")
     print("          Temp Step:",Temp_step*1e3,"mK")
     print("     Temp Tolerance:",tempTolerance*1e3,"mK")
-    print("          Hold Time:",holTemp_stepime,"s")
+    print("          Hold Time:",stableTime,"s")
     print("   Reading Interval:",sleepTime,"s")
 
     ## Run the temperature scan
