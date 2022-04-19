@@ -18,12 +18,12 @@ P_max  = -15
 P_step =   5
 
 ## Set the VNA's frequency parameters
-freqmin = 4.242005e9 # 4.244585e9   ## Hz
-freqmax = 4.242355e9 # 4.244936e9   ## Hz
-n_samps = 14e3
+freqmin = 4.24143e9 # 4.244585e9   ## Hz
+freqmax = 4.24293e9 # 4.244936e9   ## Hz
+n_samps = 15e3
 
 ## How many readings to take at each step of the sweep
-n_avs = 3
+n_avs = 5
 
 ## Temperature scan settings [K]
 Temp_base =  11e-3
