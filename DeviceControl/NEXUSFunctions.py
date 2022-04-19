@@ -123,3 +123,22 @@ class NEXUSTemps:
             ans = -99.99
         return ans
 
+    def getSP(self):
+        return self._getVar(2)
+
+    def setSP(self,sp,scale="K"):
+        if(scale == "K"):            
+            spf = float(sp)
+        elif(scale == "mK"):
+            spf = float(sp)*1e-3
+            
+        if(spf > 0.350):
+            raise ValueError("Temperature too high, limit is 350 mK")
+        elif(spf < 0.01):
+            raise ValueError("Temperature too low, limit is 10 mK")
+
+        print("Changing setpoint to "+str(spf))
+        
+        f,v = self._sendCmd("1;2;"+str(spf))
+        return
+
