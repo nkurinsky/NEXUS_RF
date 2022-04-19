@@ -5,6 +5,7 @@
 *.pdf
 *.png
 AcquisitionScripts/__pycache__/*
+AcquisitionScripts/.ipynb_checkpoints/*
 AnalysisScripts/__pycache__/*
 AnalysisScripts/.ipynb_checkpoints/*
 DeviceControl/__pycache__/*
