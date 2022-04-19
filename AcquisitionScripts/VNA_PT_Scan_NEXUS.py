@@ -114,8 +114,8 @@ def create_series_dir():
 
 def temp_change_and_wait(new_sp_K,nf_inst):
 
-    print("CHANGING SETPOINT TO",new_sp*1e3,"mK")
-    nf_inst.setSP(new_sp)
+    print("CHANGING SETPOINT TO",new_sp_K*1e3,"mK")
+    nf_inst.setSP(new_sp_K)
 
     cTemp=float(nf_inst.getTemp())
     print("Waiting for Fridge to Reach Temperature")
