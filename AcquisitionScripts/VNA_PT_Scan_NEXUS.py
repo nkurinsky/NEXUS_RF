@@ -122,6 +122,7 @@ def temp_change_and_wait(new_sp_K,nf_inst):
     print("Monitoring temp every",sleepTime,"seconds")
     print("...",cTemp*1e3,"mK")
     terr = new_sp_K-cTemp
+    ## This part doesn't work because getTemp only queries the setpoint
     while(np.abs(terr) > tempTolerance):
         sleep(sleepTime)
         try:
@@ -140,8 +141,7 @@ def temp_change_and_wait(new_sp_K,nf_inst):
 def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
 
     ## Diagnostic text
-    #print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
-    #print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
+    #print("Current Fridge Temperature (mK): ", nf_inst.getTemp()*1e3)
 
     print("--Power Scan Settings-------")
     print("-   Start Power (dB):", P_min)
@@ -171,8 +171,7 @@ def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
       sweep.f_max   = freqmax + delta_Hz
 
       ## Grab and save the fridge temperature before starting sweep
-      # sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
-      sweep.start_T = np.array([float(nf_inst.getTemp()), -1.0]) # , nf2.getResistance()])
+      sweep.start_T = np.array([ nf_inst.getTemp() ])
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
@@ -180,7 +179,7 @@ def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
 
       ## Grab and save the fridge temperature after sweep
       # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
-      sweep.final_T = np.array([float(nf_inst.getTemp()), -1.0]) # np.array([-1.0,-1.0]) #[nf1.getResistance(), nf2.getResistance()])
+      sweep.final_T = np.array([ nf_inst.getTemp() ])
 
       ## Save the result to our class instance
       sweep.frequencies = np.array(freqs)
@@ -194,14 +193,13 @@ def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
       #v.storeData(freqs, S21_real, S21_imag, output_filename)
 
     ## Diagnostic text
-    #print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
-    #print("Current Fridge Temperature 2 (mK): ", nf2.getTemp())
+    #print("Current Fridge Temperature (mK): ", nf_inst.getTemp()*1e3)
     print("Power scan complete.")
     return 0
 
 if __name__ == "__main__":
-    ## Initialize the NEXUS temperature servers
-    nf3 = NEXUSTemps(server_ip="192.168.0.34",server_port=11034)
+    ## Initialize the NEXUS MGC3 servers
+    nf3 = NEXUSHeater(server_ip="192.168.0.34",server_port=11034)
 
     ## Initialize the VNA
     v = VNA()
@@ -258,7 +256,7 @@ if __name__ == "__main__":
         run_power_scan(T, seriesPath, nf3, delta_Hz=2.58e6)
 
     ## Go back to base temperature
-    print("Reverting to base temperature")
-    nf.setSP(Temp_base)
+    print("Reverting to base temperature of",Temp_base*1e3,"mK")
+    nf3.setSP(Temp_base)
 
 
