@@ -137,7 +137,7 @@ def temp_change_and_wait(new_sp_K,nf_inst):
     print("Done.")
     return 0
 
-def run_power_scan(currTemp, seriesPath, nf_inst):
+def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
 
     ## Diagnostic text
     #print("Current Fridge Temperature 1 (mK): ", nf1.getTemp())
@@ -160,15 +160,15 @@ def run_power_scan(currTemp, seriesPath, nf_inst):
       print("Current Power (dBm):", str(round(power)))
 
       ## Create a filename for this sweep
-      output_filename = os.path.join(seriesPath,"TPsweep"+"_T"+str(round(cTemp,5)*1e3)+"_P"+str(power)+"_"+series)
+      output_filename = os.path.join(seriesPath,"TPsweep"+"_T"+str(round(currTemp,5)*1e3)+"_P"+str(power)+"_"+series)
 
       ## Create a class to contain the sweep result
       sweep = VNAMeas(dateStr, series)
       sweep.power   = power
       sweep.n_avgs  = n_avs
       sweep.n_samps = n_samps
-      sweep.f_min   = freqmin
-      sweep.f_max   = freqmax
+      sweep.f_min   = freqmin + delta_Hz
+      sweep.f_max   = freqmax + delta_Hz
 
       ## Grab and save the fridge temperature before starting sweep
       # sweep.start_T = np.array([nf1.getTemp(), nf2.getTemp()])
@@ -176,7 +176,7 @@ def run_power_scan(currTemp, seriesPath, nf_inst):
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
-      freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs)
+      freqs, S21_real, S21_imag = v.takeSweep(freqmin + delta_Hz, freqmax + delta_Hz, n_samps, n_avs)
 
       ## Grab and save the fridge temperature after sweep
       # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
@@ -248,8 +248,14 @@ if __name__ == "__main__":
         ## Create a new directory
         series, seriesPath = create_series_dir()
 
-        ## Run a power scan
+        ## Run a power scan on Al resonator
         run_power_scan(T, seriesPath, nf3)
+
+        ## Create a new directory
+        series, seriesPath = create_series_dir()
+
+        ## Run a power scan on Nb 7 resonator
+        run_power_scan(T, seriesPath, nf3, delta_Hz=2.58e6)
 
     ## Go back to base temperature
     print("Reverting to base temperature")
