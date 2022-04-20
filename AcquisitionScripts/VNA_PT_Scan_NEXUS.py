@@ -49,7 +49,7 @@ if (Temp_base) < Temps[-1]:
 #     Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
-dataPath = '/data/Tempsweeps/VNA'  #VNA subfolder of Tempsweeps
+dataPath = '/data/TempSweeps/VNA'  #VNA subfolder of Tempsweeps
 
 ## Sub directory definitions
 dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
