@@ -143,7 +143,7 @@ def fit_single_file(file_name):
     temp = file_name.split('/')[-1].split('_')[1][1:]
     color = cm.jet(norm(float(temp)))
     
-    fig_main.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color, alpha=0.25)
+    ax_main.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color, alpha=0.25)
 
     ## Save the figure
     plt.gcf()
