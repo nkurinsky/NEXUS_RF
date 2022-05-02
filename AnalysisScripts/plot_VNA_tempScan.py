@@ -40,7 +40,7 @@ dataPath = '/data/TempSweeps/VNA/'
 out_path = '/data/ProcessedOutputs/out_' + series
 
 ## Which power to look at
-power=-50
+power=-20
 norm = plt.Normalize(vmin=10,vmax=350)
 
 def parse_args():
@@ -189,7 +189,7 @@ if __name__ == "__main__":
 
     plt.title(('MKID Frequency Sweep at ' +str(power)+' dBm'), fontdict = {'fontsize': 18})
     plt.figure(2)
-    plt.xlabel('f [MHz]', fontdict = {'fontsize': 18})
+    plt.xlabel('f [GHz]', fontdict = {'fontsize': 18})
     plt.ylabel('S21 [dB]', fontdict = {'fontsize': 18})
     cbar=plt.colorbar(cm.ScalarMappable(cmap=cm.jet, norm=norm),shrink=0.8)
     cbar.set_label('Temperature [mK]', size=16)
