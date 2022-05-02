@@ -132,7 +132,7 @@ def fit_single_file(file_name):
     this_f_r.show_fit_results()
 
     ## Get the color for this spectrum
-    temp = file_name.split('_')[1][1:]
+    temp = file_name.split('/')[-1].split('_')[1][1:]
     color = cm.jet(norm(float(temp)))
     
     plt.figure(2,figsize=(8,6))
