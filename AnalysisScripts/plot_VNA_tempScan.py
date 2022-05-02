@@ -84,7 +84,7 @@ def get_input_files(series_str):
 
     ## File string format
     fn_prefix = "TPsweep_T*_P%i" % power
-    fn_suffix = "_" + series_str + ".h5"
+    fn_suffix = "_*.h5"
 
     ## Find and sort the relevant directories in the series
     print("Searching for files in:", srPath)
