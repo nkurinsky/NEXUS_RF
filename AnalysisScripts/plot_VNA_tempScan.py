@@ -137,6 +137,7 @@ def fit_single_file(file_name):
     
     plt.figure(2,figsize=(8,6))
     plt.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color)
+    plt.show()
 
     # ## Save the figure
     # plt.gcf()
