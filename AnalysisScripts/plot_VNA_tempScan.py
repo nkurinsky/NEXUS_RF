@@ -45,6 +45,7 @@ norm = plt.Normalize(vmin=10,vmax=350)
 
 ## Create a figure for the spectra
 fig_main = plt.figure(200,figsize=(8,6))
+ax_main  = fig_main.gca()
 plt.title(('MKID Frequency Sweep at ' +str(power)+' dBm'), fontdict = {'fontsize': 18})
 plt.xlabel('f [GHz]', fontdict = {'fontsize': 18})
 plt.ylabel('|S21| [dB]', fontdict = {'fontsize': 18})
