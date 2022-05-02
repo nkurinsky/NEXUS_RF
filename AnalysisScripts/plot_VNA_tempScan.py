@@ -186,7 +186,7 @@ if __name__ == "__main__":
     ## Store the fit results
     # result.save_to_file(out_path)
 
-    plt.title(('MKID Frequency Sweep at ' +power+' dBm'), fontdict = {'fontsize': 18})
+    plt.title(('MKID Frequency Sweep at ' +str(power)+' dBm'), fontdict = {'fontsize': 18})
     plt.figure(2)
     plt.xlabel('f [MHz]', fontdict = {'fontsize': 18})
     plt.ylabel('S21 [dB]', fontdict = {'fontsize': 18})
