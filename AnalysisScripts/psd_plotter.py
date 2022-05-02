@@ -7,9 +7,9 @@ import pandas as pd
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
 
-series    = '20220407_112223'
-data_path = os.path.join('/home/dylan/KID_data/',series)
-# data_path = os.path.join('/data/USRP_Noise_Scans',series.split('_')[0],series)
+series    = '20220407_153101'
+# data_path = os.path.join('/home/dylan/KID_data/',series)
+data_path = os.path.join('/data/USRP_Noise_Scans',series.split('_')[0],series)
 
 ## Grab the file with no calibration offset
 file_list = np.sort(glob.glob(data_path+"/*.h5"))
