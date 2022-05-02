@@ -144,7 +144,7 @@ def fit_single_file(file_name):
     # fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
 
     ## Return the fit parameters
-    return sweep.power, fr, Qr, Qc, Qi, this_f_r, temp
+    # return sweep.power, fr, Qr, Qc, Qi, this_f_r, temp
 
 if __name__ == "__main__":
 
