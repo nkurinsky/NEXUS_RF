@@ -113,23 +113,23 @@ def fit_single_file(file_name):
     f = sweep.frequencies / 1.0e9
     z = sweep.S21realvals + 1j*sweep.S21imagvals
 
-    ## Create an instance of a file fit result class
-    this_f_r = fitclass.SingleFileResult(file_name)
-    this_f_r.power = sweep.power
-    this_f_r.start_T = sweep.start_T
-    this_f_r.final_T = sweep.final_T
+    # ## Create an instance of a file fit result class
+    # this_f_r = fitclass.SingleFileResult(file_name)
+    # this_f_r.power = sweep.power
+    # this_f_r.start_T = sweep.start_T
+    # this_f_r.final_T = sweep.final_T
 
-    ## Fit this data file
-    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
+    # ## Fit this data file
+    # fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
 
-    if (len(fr) > 1):
-        fr = fr[0]
-        Qr = Qr[0]
-        Qc = Qc[0]
-        Qi = Qi[0]
+    # if (len(fr) > 1):
+    #     fr = fr[0]
+    #     Qr = Qr[0]
+    #     Qc = Qc[0]
+    #     Qi = Qi[0]
 
-    ## Show the results of the fit
-    this_f_r.show_fit_results()
+    # ## Show the results of the fit
+    # this_f_r.show_fit_results()
 
     ## Get the color for this spectrum
     temp = file_name.split('/')[-1].split('_')[1][1:]
