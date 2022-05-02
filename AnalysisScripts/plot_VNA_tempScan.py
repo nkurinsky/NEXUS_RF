@@ -48,16 +48,14 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Plot and Fit the data acquired in a VNA power scan')
 
     # Power scan optional arguments
+    parser.add_argument('-p', type=float, default=-50,
+                        help='RF power to plot at each T')
     parser.add_argument('-d', type=str,
                         help='Date of data acquisition [YYYYMMDD]')
     parser.add_argument('-t', type=str,
                         help='Time of data acquisition [hhmmss]')
     parser.add_argument('-s', type=str,
                         help='A specific series identifier (typically [YYYYMMDD_hhmmss]). This supercedes any supplied Date or Time')
-    
-    # Data path optional arguments
-    parser.add_argument('-p', type=str,
-                        help='Top-level directory for saved VNA data')
 
     # Optional show plots switch
     parser.add_argument('--show', action='store_true',
@@ -152,10 +150,10 @@ if __name__ == "__main__":
     args = parse_args()
 
     ## Read in the arguments
-    day      = args.d if args.d is not None else day
-    time     = args.t if args.t is not None else time
-    series   = args.s if args.s is not None else day + '_' + time
-    dataPath = args.p if args.p is not None else dataPath
+    day    = args.d if args.d is not None else day
+    time   = args.t if args.t is not None else time
+    series = args.s if args.s is not None else day + '_' + time
+    power  = args.p if args.p is not None else power
 
     show_plots = args.show if args.show is not None else show_plots
     
