@@ -98,7 +98,7 @@ def get_input_files(series_str):
     return vna_file_list
 
 def fit_single_file(file_name):
-    raw_f, raw_VNA, amplitude = puf.read_vna(fname)
+    raw_f, raw_VNA, amplitude = puf.read_vna(file_name)
     #power = -14 + 20*np.log10(amplitude)
 
     temp = fname.split('_')[1][1:]
