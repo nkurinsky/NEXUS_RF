@@ -29,8 +29,8 @@ dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
 show_plots = False
 
 ## Series identifier
-day    = '20220216'
-time   = '123052'
+day    = '20220419'
+time   = '112746'
 series = day + '_' + time
 
 ## Path to VNA data
@@ -75,8 +75,12 @@ def create_dirs():
 
 def get_input_files(series_str):
 
+    ## Get all folders in date
+    datePath    = os.path.join(dataPath, day)
+    series_list = glob(datePath+"/"+day+"_*")
+
     ## Define the series path from the series
-    srPath = dataPath + series_str.split("_")[0] + '/' + series_str + '/'
+    srPath = os.path.join(datePath, day+"_*")
 
     ## File string format
     fn_prefix = "Psweep_P"
@@ -86,7 +90,7 @@ def get_input_files(series_str):
     print("Searching for files in:", srPath)
     print(" with prefix:", fn_prefix)
     print(" and  suffix:", fn_suffix)
-    vna_file_list = glob(srPath+fn_prefix+str(power)'*'+fn_suffix)
+    vna_file_list = glob(os.path.join(srPath,fn_prefix+str(power)'*'+fn_suffix))
     vna_file_list.sort(key=os.path.getmtime)
     print("Using files:")
     for fname in vna_file_list:
