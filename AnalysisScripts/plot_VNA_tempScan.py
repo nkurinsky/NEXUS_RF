@@ -98,52 +98,53 @@ def get_input_files(series_str):
     return vna_file_list
 
 def fit_single_file(file_name):
-    raw_f, raw_VNA, amplitude = puf.read_vna(file_name)
+    # raw_f, raw_VNA, amplitude = puf.read_vna(file_name)
     #power = -14 + 20*np.log10(amplitude)
 
+    ## Open the h5 file for this power and extract the class
+    sweep = decode_hdf5(file_name)
+    # sweep.show()
+
+    ## Extract the RF power from the h5 file
+    print("Extracting data for power:",sweep.power,"dBm")
+    power_list.append(sweep.power)
+
+    ## Parse the file, get a complex S21 and frequency in GHz
+    f = sweep.frequencies / 1.0e9
+    z = sweep.S21realvals + 1j*sweep.S21imagvals
+
+    ## Create an instance of a file fit result class
+    this_f_r = fitclass.SingleFileResult(file_name)
+    this_f_r.power = sweep.power
+    this_f_r.start_T = sweep.start_T
+    this_f_r.final_T = sweep.final_T
+
+    ## Fit this data file
+    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
+
+    if (len(fr) > 1):
+        fr = fr[0]
+        Qr = Qr[0]
+        Qc = Qc[0]
+        Qi = Qi[0]
+
+    ## Show the results of the fit
+    this_f_r.show_fit_results()
+
+    ## Get the color for this spectrum
     temp = fname.split('_')[1][1:]
     color = cm.jet(norm(float(temp)))
     
     plt.figure(2,figsize=(8,6))
-    plt.plot(raw_f,20*np.log10(abs(raw_VNA)),label=temp+' mK',color=color)
-
-    # ## Open the h5 file for this power and extract the class
-    # sweep = decode_hdf5(file_name)
-    # sweep.show()
-
-    # ## Extract the RF power from the h5 file
-    # print("Extracting data for power:",sweep.power,"dBm")
-    # power_list.append(sweep.power)
-
-    # ## Parse the file, get a complex S21 and frequency in GHz
-    # f = sweep.frequencies / 1.0e9
-    # z = sweep.S21realvals + 1j*sweep.S21imagvals
-
-    # ## Create an instance of a file fit result class
-    # this_f_r = fitclass.SingleFileResult(file_name)
-    # this_f_r.power = sweep.power
-    # this_f_r.start_T = sweep.start_T
-    # this_f_r.final_T = sweep.final_T
-
-    # ## Fit this data file
-    # fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
-
-    # if (len(fr) > 1):
-    #     fr = fr[0]
-    #     Qr = Qr[0]
-    #     Qc = Qc[0]
-    #     Qi = Qi[0]
-
-    # ## Show the results of the fit
-    # this_f_r.show_fit_results()
+    plt.plot(raw_f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color)
 
     # ## Save the figure
     # plt.gcf()
     # plt.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
     # fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
 
-    # ## Return the fit parameters
-    # return sweep.power, fr, Qr, Qc, Qi, this_f_r
+    ## Return the fit parameters
+    return sweep.power, fr, Qr, Qc, Qi, this_f_r, temp
 
 if __name__ == "__main__":
 
