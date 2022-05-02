@@ -107,7 +107,7 @@ def fit_single_file(file_name):
 
     ## Extract the RF power from the h5 file
     print("Extracting data for power:",sweep.power,"dBm")
-    power_list.append(sweep.power)
+    # power_list.append(sweep.power)
 
     ## Parse the file, get a complex S21 and frequency in GHz
     f = sweep.frequencies / 1.0e9
