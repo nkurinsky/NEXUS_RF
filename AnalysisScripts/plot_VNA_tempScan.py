@@ -78,20 +78,19 @@ def get_input_files(series_str):
 
     ## Get all folders in date
     datePath    = os.path.join(dataPath, day)
-    series_list = glob(datePath+"/"+day+"_*")
 
     ## Define the series path from the series
     srPath = os.path.join(datePath, day+"_*")
 
     ## File string format
-    fn_prefix = "Psweep_P"
+    fn_prefix = "Psweep_P%.1f" % power
     fn_suffix = "_" + series_str + ".h5"
 
     ## Find and sort the relevant directories in the series
     print("Searching for files in:", srPath)
     print(" with prefix:", fn_prefix)
     print(" and  suffix:", fn_suffix)
-    vna_file_list = glob(os.path.join(srPath,fn_prefix+str(power)+'*'+fn_suffix))
+    vna_file_list = glob(os.path.join(srPath,fn_prefix+'*'+fn_suffix))
     vna_file_list.sort(key=os.path.getmtime)
     print("Using files:")
     for fname in vna_file_list:
