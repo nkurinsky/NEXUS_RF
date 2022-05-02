@@ -43,6 +43,15 @@ out_path = '/data/ProcessedOutputs/out_' + series
 power=-20
 norm = plt.Normalize(vmin=10,vmax=350)
 
+## Create a figure for the spectra
+fig_main = plt.figure(200,figsize=(8,6))
+plt.title(('MKID Frequency Sweep at ' +str(power)+' dBm'), fontdict = {'fontsize': 18})
+plt.xlabel('f [GHz]', fontdict = {'fontsize': 18})
+plt.ylabel('|S21| [dB]', fontdict = {'fontsize': 18})
+cbar=plt.colorbar(cm.ScalarMappable(cmap=cm.jet, norm=norm),shrink=0.8)
+cbar.set_label('Temperature [mK]', size=16)
+#plt.legend(loc='center left',bbox_to_anchor=(1.,0.5))
+
 def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Plot and Fit the data acquired in a VNA power scan')
@@ -111,38 +120,37 @@ def fit_single_file(file_name):
     f = sweep.frequencies / 1.0e9
     z = sweep.S21realvals + 1j*sweep.S21imagvals
 
-    # ## Create an instance of a file fit result class
-    # this_f_r = fitclass.SingleFileResult(file_name)
-    # this_f_r.power = sweep.power
-    # this_f_r.start_T = sweep.start_T
-    # this_f_r.final_T = sweep.final_T
+    ## Create an instance of a file fit result class
+    this_f_r = fitclass.SingleFileResult(file_name)
+    this_f_r.power = sweep.power
+    this_f_r.start_T = sweep.start_T
+    this_f_r.final_T = sweep.final_T
 
-    # ## Fit this data file
-    # fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
+    ## Fit this data file
+    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0],stop_f=f[-1])
 
-    # if (len(fr) > 1):
-    #     fr = fr[0]
-    #     Qr = Qr[0]
-    #     Qc = Qc[0]
-    #     Qi = Qi[0]
+    if (len(fr) > 1):
+        fr = fr[0]
+        Qr = Qr[0]
+        Qc = Qc[0]
+        Qi = Qi[0]
 
-    # ## Show the results of the fit
-    # this_f_r.show_fit_results()
+    ## Show the results of the fit
+    this_f_r.show_fit_results()
 
     ## Get the color for this spectrum
     temp = file_name.split('/')[-1].split('_')[1][1:]
     color = cm.jet(norm(float(temp)))
     
-    plt.figure(2,figsize=(8,6))
-    plt.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color, alpha=0.25)
+    fig_main.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color, alpha=0.25)
 
-    # ## Save the figure
-    # plt.gcf()
-    # plt.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
-    # fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
+    ## Save the figure
+    plt.gcf()
+    plt.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
+    fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
 
     ## Return the fit parameters
-    # return sweep.power, fr, Qr, Qc, Qi, this_f_r, temp
+    return sweep.power, fr, Qr, Qc, Qi, this_f_r, temp
 
 if __name__ == "__main__":
 
@@ -164,53 +172,26 @@ if __name__ == "__main__":
     vna_files = get_input_files(series)
 
     ## Create a class instance containing the fit results for this series
-    # result = fitres.SeriesFitResult(day,series)
-    # result.resize_file_fits(len(vna_files))
+    result = fitres.SeriesFitResult(day,series)
+    result.resize_file_fits(len(vna_files))
 
     for i in np.arange(len(vna_files)):
         ## Fit this data file
-        # pwr, fr, Qr, Qc, Qi, res = 
-        fit_single_file(vna_files[i])
-        # result.file_fits[i] = res 
-        # result.powers[i] = pwr
-        # result.fit_fr[i] = fr
-        # result.fit_Qr[i] = Qr
-        # result.fit_Qi[i] = Qc
-        # result.fit_Qc[i] = Qi
+        pwr, fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
+        result.file_fits[i] = res 
+        result.powers[i] = pwr
+        result.fit_fr[i] = fr
+        result.fit_Qr[i] = Qr
+        result.fit_Qi[i] = Qc
+        result.fit_Qc[i] = Qi
 
-        # ## Store the fit results
-        # fr_list.append(fr); Qr_list.append(Qr)
-        # Qc_list.append(Qc); Qi_list.append(Qi)
+        ## Store the fit results
+        fr_list.append(fr); Qr_list.append(Qr)
+        Qc_list.append(Qc); Qi_list.append(Qi)
 
     ## Store the fit results
-    # result.save_to_file(out_path)
-
-    plt.title(('MKID Frequency Sweep at ' +str(power)+' dBm'), fontdict = {'fontsize': 18})
-    plt.figure(2)
-    plt.xlabel('f [GHz]', fontdict = {'fontsize': 18})
-    plt.ylabel('S21 [dB]', fontdict = {'fontsize': 18})
-    cbar=plt.colorbar(cm.ScalarMappable(cmap=cm.jet, norm=norm),shrink=0.8)
-    cbar.set_label('Temperature [mK]', size=16)
-    #plt.legend(loc='center left',bbox_to_anchor=(1.,0.5))
-    plt.tight_layout()
+    result.save_to_file(out_path)
 
     if (show_plots):
+        plt.tight_layout()
         plt.show()
-
-
-
-
-plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
