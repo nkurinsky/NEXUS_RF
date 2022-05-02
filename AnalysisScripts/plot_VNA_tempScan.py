@@ -90,7 +90,7 @@ def get_input_files(series_str):
     print("Searching for files in:", srPath)
     print(" with prefix:", fn_prefix)
     print(" and  suffix:", fn_suffix)
-    vna_file_list = glob(os.path.join(srPath,fn_prefix+'*'+fn_suffix))
+    vna_file_list = glob(os.path.join(srPath,fn_prefix+fn_suffix))
     vna_file_list.sort(key=os.path.getmtime)
     print("Using files:")
     for fname in vna_file_list:
