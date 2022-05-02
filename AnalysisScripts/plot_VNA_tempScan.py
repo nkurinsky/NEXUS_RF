@@ -83,7 +83,7 @@ def get_input_files(series_str):
     srPath = os.path.join(datePath, day+"_*")
 
     ## File string format
-    fn_prefix = "Psweep_P%.1f" % power
+    fn_prefix = "TPsweep_T*_P%.1f" % power
     fn_suffix = "_" + series_str + ".h5"
 
     ## Find and sort the relevant directories in the series
