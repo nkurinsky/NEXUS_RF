@@ -35,37 +35,37 @@ except ImportError:
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.0
-LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
-# LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
+# LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
+LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set some VNA sweep parameters
-f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
-f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
+# f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
+# f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 # f0      = -7e6          ## (Nb 7) [Hz], relative to LO=4.25e9
 # f1      = -2e6          ## (Nb 7) [Hz], relative to LO=4.25e9
-# f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
-# f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
+f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
+f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 points  =  1e5
 duration = 10           ## [Sec]
 
 ## Set Resonator parameters
-res     = 4.242170      ## Al   [GHz]
+# res     = 4.242170      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
-# res     = 4.202830      ## Nb 6 [GHz]
+res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set the non-resonator tracking tones
-tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
+# tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
 # tracking_tones = np.array([4.240e9,4.260e9]) ## (Nb 7)  In Hz a.k.a. cleaning tones to remove correlated noise
-# tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
+tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-26])
+powers = np.array([-40])
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
 ## These deltas are fractions of the central frequency
 ## This can be used to do a pseudo-VNA post facto
-cal_deltas = [0] # np.linspace(start=-0.05, stop=0.05, num=3)
+cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
 
 ## File handling options
