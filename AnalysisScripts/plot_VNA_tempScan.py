@@ -40,7 +40,7 @@ dataPath = '/data/TempSweeps/VNA/'
 out_path = '/data/ProcessedOutputs/out_' + series
 
 ## Which power to look at
-power='-50'
+power=-50
 norm = plt.Normalize(vmin=10,vmax=350)
 
 def parse_args():
