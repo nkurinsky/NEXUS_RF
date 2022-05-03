@@ -110,9 +110,9 @@ def fit_single_file(file_name):
     #power = -14 + 20*np.log10(amplitude)
 
     ## Get the color for this spectrum
-    temp = file_name.split('/')[-1].split('_')[1][1:]
-    color = cm.jet(norm(float(temp)))
-    if (temp<300):
+    temp = float( file_name.split('/')[-1].split('_')[1][1:] )
+    color = cm.jet(norm(temp))
+    if (float(temp)<300):
         return None, None, None, None, None, None, None
 
 
@@ -146,7 +146,7 @@ def fit_single_file(file_name):
     ## Show the results of the fit
     this_f_r.show_fit_results()
     
-    ax_main.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color, alpha=0.25)
+    ax_main.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=str(temp)+' mK',color=color, alpha=0.25)
 
     ## Save the figure
     plt.gcf()
