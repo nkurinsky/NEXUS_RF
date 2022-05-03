@@ -190,7 +190,7 @@ if __name__ == "__main__":
         result.fit_Qc[i] = Qi
 
     ## Store the fit results
-    result.save_to_file(out_path)
+    # result.save_to_file(out_path)
 
     if (show_plots):
         plt.tight_layout()
