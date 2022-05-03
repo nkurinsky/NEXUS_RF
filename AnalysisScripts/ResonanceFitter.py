@@ -584,6 +584,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
     if (len(peaklist) > 10):
         # peaklist = np.array([ np.argmax(20*np.log10(abs(np.array(z)))) ])
         peaklist = np.array([ np.argmax(mfz) ])
+        # peaklist = np.array([ np.argmin(20*np.log10(np.array(z))) ])
 
     ## add the manually entered frequencies to peaklist
     for added in additions:
