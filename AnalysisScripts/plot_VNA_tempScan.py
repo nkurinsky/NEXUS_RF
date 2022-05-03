@@ -24,6 +24,7 @@ plt.rcParams.update({'font.size': 12})
 #plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 dfc = plt.rcParams['axes.prop_cycle'].by_key()['color']
+norm = plt.Normalize(vmin=10,vmax=350)
 
 ## Flag to display plots
 show_plots = False
@@ -41,7 +42,6 @@ out_path = '/data/ProcessedOutputs/out_' + series
 
 ## Which power to look at
 power=-20
-norm = plt.Normalize(vmin=10,vmax=350)
 
 ## Create a figure for the spectra
 fig_main = plt.figure(200,figsize=(8,6))
@@ -58,7 +58,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Plot and Fit the data acquired in a VNA power scan')
 
     # Power scan optional arguments
-    parser.add_argument('-p', type=float, default=-50,
+    parser.add_argument('-p', type=float, default=power,
                         help='RF power to plot at each T')
     parser.add_argument('-d', type=str,
                         help='Date of data acquisition [YYYYMMDD]')
@@ -109,6 +109,13 @@ def fit_single_file(file_name):
     # raw_f, raw_VNA, amplitude = puf.read_vna(file_name)
     #power = -14 + 20*np.log10(amplitude)
 
+    ## Get the color for this spectrum
+    temp = file_name.split('/')[-1].split('_')[1][1:]
+    color = cm.jet(norm(float(temp)))
+    if (temp<300):
+        return None, None, None, None, None, None, None
+
+
     ## Open the h5 file for this power and extract the class
     sweep = decode_hdf5(file_name)
     # sweep.show()
@@ -138,10 +145,6 @@ def fit_single_file(file_name):
 
     ## Show the results of the fit
     this_f_r.show_fit_results()
-
-    ## Get the color for this spectrum
-    temp = file_name.split('/')[-1].split('_')[1][1:]
-    color = cm.jet(norm(float(temp)))
     
     ax_main.plot(f,20*np.log10(abs(np.sqrt(z*z))),label=temp+' mK',color=color, alpha=0.25)
 
@@ -185,7 +188,7 @@ if __name__ == "__main__":
         result.fit_Qr[i] = Qr
         result.fit_Qi[i] = Qc
         result.fit_Qc[i] = Qi
-        
+
     ## Store the fit results
     result.save_to_file(out_path)
 
