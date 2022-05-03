@@ -135,7 +135,7 @@ def fit_single_file(file_name):
     this_f_r.final_T = sweep.final_T
 
     ## Fit this data file
-    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0]*1.2,stop_f=f[-1]*0.8)
+    fr, Qr, Qc, Qi, fig = fitres.sweep_fit(f,z,this_f_r,start_f=f[0]*1.1,stop_f=f[-1]*0.9)
 
     if (len(fr) > 1):
         fr = fr[0]
