@@ -19,8 +19,8 @@ rate    = 100e6     ## samples per second
 tx_gain =  0
 rx_gain = 17.5
 LO      =  4.250e9  ## [Hz] Nice round numbers, don't go finer than 50 MHz
-f0      = -0.750e9  ## [Hz], relative to LO -- 3.5 GHz
-f1      =  0.500e9  ## [Hz], relative to LO -- 4.75 GHz
+f0      = -0.250e9  ## [Hz], relative to LO -- 4.0 GHz
+f1      =  0.150e9  ## [Hz], relative to LO -- 4.4 GHz
 points  =  1.00e5
 lapse   = 10        ## [Sec]
                        
@@ -112,9 +112,9 @@ def parse_args():
         u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f0/1e6))
 
     if np.abs(args.f1)>args.rate/2:
-        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1,args.rate))
+        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1/1e6,args.rate/1e6))
         args.f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
-        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1))
+        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1/1e6))
 
     return args
 
