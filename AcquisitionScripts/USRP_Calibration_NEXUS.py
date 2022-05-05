@@ -19,8 +19,8 @@ rate    = 100e6     ## samples per second
 tx_gain =  0
 rx_gain = 17.5
 LO      =  4.250e9  ## [Hz] Nice round numbers, don't go finer than 50 MHz
-f0      = -0.250e9  ## [Hz], relative to LO -- 4.0 GHz
-f1      =  0.150e9  ## [Hz], relative to LO -- 4.4 GHz
+f0      = -1.000e7  ## [Hz], relative to LO
+f1      = -0.000e7  ## [Hz], relative to LO
 points  =  1.00e5
 lapse   = 10        ## [Sec]
                        
