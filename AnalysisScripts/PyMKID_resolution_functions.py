@@ -845,7 +845,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         plt.figure(noise_data_file + '_raw_S21')
         plt.plot(time_no_pulse,radius_no_pulse[:,0],color='C0')
         for f_idx in range(1,num_freqs):
-            plt.plot(time,radius[:,f_idx] + visual_separation[f_idx],color=c_wheel_0[f_idx])
+            plt.plot(time,timestreams['radius'][:,f_idx] + visual_separation[f_idx],color=c_wheel_0[f_idx])
         plt.plot(chunked_time[:,bad_chunks,0],\
                  radius_data[:,bad_chunks,0],color='r')
         plt.title('radius timestream')
