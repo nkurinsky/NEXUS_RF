@@ -34,6 +34,7 @@ def discrete_IFT(data,axis=0):
 def electronics_basis(noise_timestream,axis_option=0):
     """
     input: a noise timestream that comes from the a "USRP_Noise_*" file
+            S21 value in complex form
     output: timestreams of the radius and arc length directions
     """
     if axis_option == 'multiple freqs':
@@ -42,17 +43,35 @@ def electronics_basis(noise_timestream,axis_option=0):
     elif axis_option == 0:
         axis_average = 0
     # print(noise_timestream)
+
+    ## This takes the magnitude of a+ib --> sqrt(a*a + b*b)
     full_radius_timestream = abs(noise_timestream)
     # print(full_radius_timestream)
+
+    ## Now we find the mean radius direction value for the full timestream from the magnitude of S21
     radius = np.mean(full_radius_timestream,axis=axis_average,dtype=np.float64)
     # print(full_radius_timestream.shape,axis_average)
     # print(radius)
+
+    ## Subtract off the average
     radius_timestream = full_radius_timestream - radius
+
+    ## Find the mean of the baseline subtraced noise 
     mean = np.mean(noise_timestream,axis=axis_average,dtype=complex)
+
+    ## Take the arctan2 of the complex mean
     angle = np.angle(mean)
+
+    ## Apply a phase rotation to the noise timestram
     noise_timestream_rotated = noise_timestream*np.exp(-1j*angle)
+
+    ## Pull the phase angle of the time stream
     angle_timestream = np.angle(noise_timestream_rotated)
+
+    ## Convert from an angle to an arc length
     arc_length_timestream = angle_timestream*radius
+
+    ## Return the radial direction timestream, arclength direction time stream, radius average, and phase average
     return radius_timestream, arc_length_timestream, radius, angle
 
 def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z):
@@ -66,7 +85,17 @@ def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z):
     readout_index = PUf.find_closest(VNA_f,readout_f)
     MKID_f = VNA_f[max(readout_index-index_range,0):min(readout_index+index_range,len(VNA_f))]
     MKID_z = VNA_z[max(readout_index-index_range,0):min(readout_index+index_range,len(VNA_f))]
-    fit_fr, fit_Qr, fit_Qc_hat, fit_a, fit_phi, fit_tau, fit_Qc, _ = fitres.finefit(MKID_f, MKID_z, readout_f)
+    fine_pars, fine_errs = fitres.finefit(MKID_f, MKID_z, readout_f)
+
+    ## Unpack the dictionaries from fine fit result
+    fit_fr = fine_pars["f0"]
+    fit_Qr = fine_pars["Qr"]
+    fit_Qc_hat = fine_pars["QcHat"]
+    fit_a   = fine_pars["zOff"]
+    fit_phi = fine_pars["phi"]
+    fit_tau = fine_pars["tau"]
+    fit_Qc  = fine_pars["Qc"]
+
     fit_Qi = fit_Qr*fit_Qc/(fit_Qc-fit_Qr)
     # print(fit_Qr,fit_Qc)
 
@@ -287,16 +316,22 @@ def noise_removal(coherent_data,removal_decimation=1,rejects=[],verbose=False):
             off_tone_data = np.delete(coherent_data,[0, t],axis=0)
 
         print(off_tone_data.shape)
-        template = np.mean(off_tone_data,axis=0,dtype=np.float64) #take the mean of all other tones at every sample #len = number of samples in data_noise
+
+        ## Take the mean of all other tones at every sample #len = number of samples in data_noise
+        template = np.mean(off_tone_data,axis=0,dtype=np.float64) 
         # print(template.shape)
+
+        ## Pull a z score from the template
         template_zscores =  stats.zscore(template)
-        template_norm = template_zscores/np.max(template_zscores) #rescales to max = 1 and mean~0
+
+        ## Rescales to max = 1 and mean~0
+        template_norm = template_zscores/np.max(template_zscores) 
         # print(np.max(stats.zscore(template)))
         template_ratio = template_norm/template
         # print(template_ratio[0:10])
         norm_scaling = 1/np.std(template)/np.max(template_zscores)
 
-        #decimate template and data to get coeff
+        ## Decimate template and data to get coeff
         template_decimated = average_decimate(template_norm,removal_decimation)
         # print(template_decimated.shape)
         coherent_data_decimated = average_decimate(coherent_data[t],removal_decimation)
@@ -305,9 +340,8 @@ def noise_removal(coherent_data,removal_decimation=1,rejects=[],verbose=False):
         a1 = a_estimator(template_decimated,coherent_data_decimated) #compute the amplitude coefficient
         a1_not_norm = a_estimator(template,coherent_data[t])
 
-        #clean undecimated data
+        ## Clean undecimated data
         coherent_data_clean[t] = coherent_data[t] - a1*template_norm
-
 
         coefficients_tone={}
         coefficients_tone['normalized'] = a1*norm_scaling
@@ -520,9 +554,13 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
     timestreams = {}
 
+    ## Pull the raw data from VNA file for this acquisiton
+    ## VNA_f is in MHz ; VNA_z is S21 in complex form 
     VNA_f, VNA_z = PUf.read_vna(VNA_file)
     # Plan to modify this for more than two tones eventually
     # print(noise_data_file)
+
+    ## Get the raw noise timestream data and pull some metadata
     data_noise, data_info = PUf.unavg_noi(noise_data_file)
     data_freqs = data_info['search freqs']
     time = data_info['time']
@@ -542,10 +580,13 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
     fs = int(1./time_correction)
     print("sampling frequency plugged into welch is " + str(fs))
-    # find events
+    
+
+    ## Search the timestream for pulses, break into events, save them to the same file
     pulse_times = storeEvents(noise_data_file,trig_th=4.5,trig_channel='radius')
     print('found ' + str(len(pulse_times)) + ' pulses')
 
+    ## Break data up from a 2D array into an array of 2D arrays, each of a fixed size
     chunk_len = int(len(data_noise) / num_chunks)
     all_chunks = range(num_chunks)
     chunked_timestreams = create_chunks(data_noise,num_chunks)
@@ -555,68 +596,80 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
     print('chunked data into '+  str(num_chunks) + ' timestreams')
 
+    ## Check for any chunks that contain a pulse
     bad_chunks = identify_bad_chunks(chunked_time,pulse_times)
     bad_chunks += range(blank_chunks)
 
+    ## Remove the set of bad chunks from the set of all chunks to get good chunks
     good_chunks = list(set(all_chunks)-set(bad_chunks))
     num_good_chunks = len(good_chunks)
     num_bad_chunks = len(bad_chunks)
-    radius, arc, _, _ = electronics_basis(data_noise,'multiple freqs')
 
+    # ## Now convert the data into the electronics basis: radius & arclength
+    # radius, arc, _, _ = electronics_basis(data_noise,'multiple freqs')
 
-    # Converting to absolute and arc-length units
+    ## Converting to absolute radius and arc-length units
     radius_data, arc_data, radius_average, angle_average = electronics_basis(chunked_timestreams,'multiple freqs')
     print('computed electronics basis')
 
+    ## Separate only the good chunks out of the chunked timestream
     timestreams_good_chunks = chunked_timestreams[:,good_chunks,:]
     radius_good_chunks = radius_data[:,good_chunks,:]
     arc_good_chunks = arc_data[:,good_chunks,:]
     time_good_chunks = chunked_time[:,good_chunks,:]
 
+    ## Reshape the timestreams to be flat 2D, with chunks containing pulses removed
     radius_no_pulse = np.reshape(radius_good_chunks,(num_good_chunks*chunk_len,num_freqs),order='F')
     arc_no_pulse = np.reshape(arc_good_chunks,(num_good_chunks*chunk_len,num_freqs),order='F')
     time_no_pulse = np.reshape(time_good_chunks,num_good_chunks*chunk_len,order='F')
     timestreams_no_pulse = np.reshape(timestreams_good_chunks,(num_good_chunks*chunk_len,num_freqs),order='F')
 
+    ## Remove the noise from each of the two timestream directions
     print('cleaning...')
     radius_clean, rad_coeff = noise_removal(radius_no_pulse,removal_decimation=removal_decimation)
     arc_clean, arc_coeff = noise_removal(arc_no_pulse,removal_decimation=removal_decimation)
 
-    radius_clean_simple, simp_rad_coeff = noise_removal_simple(radius_no_pulse[:,0],radius_no_pulse[:,1],radius_average[0],radius_average[1])
-    arc_clean_simple, simp_arc_coeff = noise_removal_simple(arc_no_pulse[:,0],arc_no_pulse[:,1],radius_average[0],radius_average[1])
+    # ## Do a simpler cleaning too for some reason?
+    # radius_clean_simple, simp_rad_coeff = noise_removal_simple(radius_no_pulse[:,0],radius_no_pulse[:,1],radius_average[0],radius_average[1])
+    # arc_clean_simple, simp_arc_coeff = noise_removal_simple(arc_no_pulse[:,0],arc_no_pulse[:,1],radius_average[0],radius_average[1])
 
+    ## Store the timestreams and cleaning coefficients in a dictionary
     timestreams['time'] = time_no_pulse
     timestreams['radius'] = radius_clean
     timestreams['arc'] = arc_clean
     timestreams['radius uncleaned'] = radius_no_pulse
     timestreams['arc uncleaned'] = arc_no_pulse
-    timestreams['radius simple clean'] = radius_clean_simple
-    timestreams['arc simple clean'] = arc_clean_simple
+    # timestreams['radius simple clean'] = radius_clean_simple
+    # timestreams['arc simple clean'] = arc_clean_simple
     timestreams['radius coefficient'] = rad_coeff
     timestreams['arc coefficient'] = arc_coeff
-    timestreams['simple radius coefficient'] = simp_rad_coeff
-    timestreams['simple arc coefficient'] = simp_arc_coeff
-
+    # timestreams['simple radius coefficient'] = simp_rad_coeff
+    # timestreams['simple arc coefficient'] = simp_arc_coeff
 
     # print(radius_clean.shape,arc_clean.shape)
 
+    ## Save the cleaned timestreams to a new file
     timestreams_clean = save_clean_timestreams(noise_data_file,radius_average,angle_average,radius_clean,arc_clean,fs,cd1_coeff=rad_coeff,cd2_coeff=arc_coeff,override=True)
     # timestreams_clean_simple = save_clean_timestreams(noise_data_file,data_noise,radius_clean_simple,arc_clean_simple,fs,override=False)
 
 
     print('number of chunks used to average is ' + str(num_good_chunks))
 
-    f,P_radius_avg = welch(radius_no_pulse,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
-    f,P_arc_avg = welch(arc_no_pulse,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
-    f,P_radius_clean_avg = welch(radius_clean,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
-    f,P_arc_clean_avg = welch(arc_clean,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
+    ## Do a welch signal processing
+    f,P_radius_avg       = welch(radius_no_pulse,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
+    f,P_arc_avg          = welch(arc_no_pulse,   fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
+    f,P_radius_clean_avg = welch(radius_clean,   fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
+    f,P_arc_clean_avg    = welch(arc_clean,      fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
 
     PSDs_radius = np.zeros(P_radius_clean_avg.shape)
     PSDs_radius[:,0] = P_radius_clean_avg[:,0]
     PSDs_radius[:,1] = P_radius_avg[:,1]
+
     PSDs_arc = np.zeros(P_arc_clean_avg.shape)
     PSDs_arc[:,0] = P_arc_clean_avg[:,0]
     PSDs_arc[:,1] = P_arc_avg[:,1]
+
+    ## Create and fill a dictionary for the PSD values
     PSDs = {}
     PSDs['f'] = f
     PSDs['radius'] = PSDs_radius
@@ -627,6 +680,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
     PSDs['fractional radius'] = PSDs['radius']/np.mean(abs(timestreams_clean),dtype=np.float64)**2
     PSDs['fractional arc'] = PSDs['arc']/np.mean(abs(timestreams_clean),dtype=np.float64)**2
 
+    ## If we have provided char_fs and char_zs, we can do the resonator transformation
     if resonator:
         frequency, dissipation, ideal, res \
                           = resonator_basis(timestreams_no_pulse[:,0],\
@@ -666,6 +720,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         # timestreams['dissipation simple clean'] = dissipation_clean_simple
         # timestreams['frequency simple clean'] = frequency_clean_simple
 
+        ## If we have provided MB fit results, we can do the quasiparticle transformation
         if quasiparticle:
             P_k1_clean, P_k2_clean = quasiparticle_basis(data_T=0.07,\
                                                          dissipation=np.sqrt(P_dissipation_clean),\
@@ -1059,6 +1114,8 @@ def pulseFromTemplate(template,noisepsd,fs):
 
     return template,[phi,norm,resolution]
 
+## Searches a given channel in a given file for pulses. Saves a list of pulse times
+## back to that same file, overwriting what's there if desired
 def storeEvents(filename,override=True,trig_th=4,trig_channel='arc length'):
     res = getEvents(filename,trig_th=trig_th,trig_channel=trig_channel)
     pulse_times = res['trigtime']
