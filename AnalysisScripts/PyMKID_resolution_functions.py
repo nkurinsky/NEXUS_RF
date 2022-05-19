@@ -486,7 +486,7 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
         ymax = 10**-9
     elif savefig == 'nqp':
         ymin = 10**-7
-        ymax = 10**0
+        ymax = 10**2
     elif savefig[:3] == 'res':
         ymin = 10**-22
         ymax = 10**-16
