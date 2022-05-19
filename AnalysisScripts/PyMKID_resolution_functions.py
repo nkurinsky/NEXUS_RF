@@ -928,7 +928,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
             if quasiparticle:
                 plot_PSDs(f,P_k1,P_k2,\
                   noise_data_file,directions=['kappa1','kappa2'],\
-                  units=['d(k1)','d(k2)'],savefig='nqp',data_freqs=[data_freqs[0]],\
+                  units=['um^-3','um^-3'],savefig='nqp',data_freqs=[data_freqs[0]],\
                   title='',P_1_clean=P_k1_clean,P_2_clean=P_k2_clean)
 
     if resonator:
