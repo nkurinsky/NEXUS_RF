@@ -546,11 +546,13 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         resonator = False
     else:
         resonator = True
+        print("Will convert to resonator basis!")
 
     if type(MB_results) == type(None):
         quasiparticle = False
     else:
         quasiparticle = True
+        print("Will convert to quasiparticle basis!")
 
     timestreams = {}
 
@@ -722,12 +724,12 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
         ## If we have provided MB fit results, we can do the quasiparticle transformation
         if quasiparticle:
-            P_k1_clean, P_k2_clean = quasiparticle_basis(data_T=0.07,\
+            P_k1_clean, P_k2_clean = quasiparticle_basis(data_T=0.011,\
                                                          dissipation=np.sqrt(P_dissipation_clean),\
                                                          frequency=np.sqrt(P_frequency_clean),\
                                                          MB_results=MB_results,\
                                                          readout_f=data_freqs[0])
-            P_k1, P_k2 = quasiparticle_basis(data_T=0.07,\
+            P_k1, P_k2 = quasiparticle_basis(data_T=0.011,\
                                                          dissipation=np.sqrt(P_dissipation),\
                                                          frequency=np.sqrt(P_frequency),\
                                                          MB_results=MB_results,\
@@ -740,13 +742,13 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
             PSDs['kappa_1 uncleaned'] = P_k1**2
             PSDs['kappa_2 uncleaned'] = P_k2**2
 
-            k1_timestream_clean, k2_timestream_clean = quasiparticle_basis(data_T=0.07,\
+            k1_timestream_clean, k2_timestream_clean = quasiparticle_basis(data_T=0.011,\
                                                          dissipation=dissipation_clean,\
                                                          frequency=frequency_clean,\
                                                          MB_results=MB_results,\
                                                          readout_f=data_freqs[0])
 
-            # k1_timestream_clean_simple, k2_timestream_clean_simple = quasiparticle_basis(data_T=0.07,\
+            # k1_timestream_clean_simple, k2_timestream_clean_simple = quasiparticle_basis(data_T=0.011,\
             #                                              dissipation=dissipation_clean_simple,\
             #                                              frequency=frequency_clean_simple,\
             #                                              MB_results=MB_results,\
