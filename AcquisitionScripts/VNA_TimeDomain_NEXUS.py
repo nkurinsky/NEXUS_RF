@@ -134,8 +134,7 @@ def run_scan():
 
 if __name__ == "__main__":
     ## Initialize the NEXUS temperature servers
-    nf1 = NEXUSTemps(server_ip="192.168.0.31",server_port=11031)
-    nf2 = NEXUSTemps(server_ip="192.168.0.32",server_port=11032)
+    nf1 = NEXUSHeater(server_ip="192.168.0.34",server_port=11034)
 
     ## Initialize the VNA
     v = VNA()
