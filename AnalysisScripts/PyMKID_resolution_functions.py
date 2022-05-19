@@ -684,6 +684,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
     ## If we have provided char_fs and char_zs, we can do the resonator transformation
     if resonator:
+        print("Converting to resonator basis!")
         frequency, dissipation, ideal, res \
                           = resonator_basis(timestreams_no_pulse[:,0],\
                                                             data_freqs[0],\
@@ -724,6 +725,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
         ## If we have provided MB fit results, we can do the quasiparticle transformation
         if quasiparticle:
+            print("Converting to quasiparticle basis!")
             P_k1_clean, P_k2_clean = quasiparticle_basis(data_T=0.011,\
                                                          dissipation=np.sqrt(P_dissipation_clean),\
                                                          frequency=np.sqrt(P_frequency_clean),\
@@ -922,6 +924,12 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
                   noise_data_file,directions=['dissipation','frequency'],\
                   units=['d(1/Q)','df/f'],savefig='resonator',data_freqs=[data_freqs[0]],\
                   title='',P_1_clean=P_dissipation_clean,P_2_clean=P_frequency_clean)
+
+            if quasiparticle:
+                plot_PSDs(f,P_k1,P_k2,\
+                  noise_data_file,directions=['kappa1','kappa2'],\
+                  units=['d(k1)','d(k2)'],savefig='nqp',data_freqs=[data_freqs[0]],\
+                  title='',P_1_clean=P_k1_clean,P_2_clean=P_k2_clean)
 
     if resonator:
         return powers, PSDs, res, timestreams
