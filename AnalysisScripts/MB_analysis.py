@@ -110,6 +110,13 @@ def plot_res(fname, sweepnum, pickedres=None, title1='', show=True):
 
         for Tn in range(len(MCTemps1)):
             params = param_array[Tn][1:]
+            # p0 -> fr
+            # p1 -> Qr
+            # p2 -> Qc
+            # p3 -> a_real+1j*a_img
+            # p4 -> phi
+            # p5 -> tau+1j*imtau
+            # p6 -> Qchatmag
             temperature_Tn = MCTemps1[Tn]
             df1 = pd.read_hdf(fname, key='tempsweep/'+chosen_tempsweep+'/'+temperature_Tn)
 
