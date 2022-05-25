@@ -66,6 +66,9 @@ ax30.set_ylabel(r'Resonator Quality Factor $Q$')
 n_sers = len(series_list)
 
 ## Check how many powers are in the first series
+## This needs to be determined for each of the 
+## different series because they could potentially
+## have different power scan settings
 powers = np.arange(start=-50,stop=-20+2,step=2)
 n_pwrs = len(powers)
 

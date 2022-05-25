@@ -144,6 +144,8 @@ if __name__ == "__main__":
     out_path = '/data/ProcessedOutputs/out_' + series
 
     ## Define all the lists in which we'll store fit parameters
+    ## Make these fixed size arrays or delete completely since it seems
+    ## to be a little redundant
     fr_list = []; Qr_list = []; Qc_list = []; Qi_list = []; power_list = []
     
     ## Create somewhere for the output
