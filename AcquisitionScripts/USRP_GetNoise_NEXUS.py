@@ -88,8 +88,8 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Acquire a noise timestream with the USRP using the GPU_SDR backend.')
 
-    # parser.add_argument('--power'    , '-P' , nargs='+' , default = powers, 
-    #     help='RF power applied in dBm. (default '+str([-25.0])+' dBm)')
+    parser.add_argument('--power'    , '-P' , type=float, default = powers[0], 
+        help='RF power applied in dBm. (default '+powers[0]+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain'   , '-rx', type=float, default = rx_gain, 
@@ -133,20 +133,20 @@ def parse_args():
 
     ## Do some conditional checks
 
-    # if (args.power is not None):
-    #     print("Power(s):", args.power, type(args.power))
+    if (args.power is not None):
+        print("Power(s):", args.power, type(args.power))
 
-    #     powers = np.array(args.power)
-    #     n_pwrs = len(powers)
+        powers[0] = args.power
+        n_pwrs = len(powers)
 
-    #     for i in np.arange(n_pwrs):
-    #         if (powers[i] < -70):
-    #             print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
-    #             powers[i] = -70.0
+        for i in np.arange(n_pwrs):
+            if (powers[i] < -70):
+                print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
+                powers[i] = -70.0
 
-    #         if (powers[i] > -25):
-    #             print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
-    #             powers[i] = -25.0
+            if (powers[i] > -25):
+                print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
+                powers[i] = -25.0
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
