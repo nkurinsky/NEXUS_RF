@@ -1,5 +1,7 @@
 ## To Do:
 ## - Implement arguments for tracking tones, etc
+## - DONE: Implement a shorter time for the calibration deltas, no tracking tones for cal deltas
+## - DONE: Auto-delete the cal delta h5 files after determining means
 
 ## Import the relevant modules
 import sys, os
@@ -35,28 +37,28 @@ except ImportError:
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.0
-# LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
-LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
+LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
+# LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set some VNA sweep parameters
-# f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
-# f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
+f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
+f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 # f0      = -7e6          ## (Nb 7) [Hz], relative to LO=4.25e9
 # f1      = -2e6          ## (Nb 7) [Hz], relative to LO=4.25e9
-f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
-f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
+# f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
+# f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 points  =  1e5
 duration = 10           ## [Sec]
 
 ## Set Resonator parameters
-# res     = 4.242170      ## Al   [GHz]
+res     = 4.242170      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
-res     = 4.202830      ## Nb 6 [GHz]
+# res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set the non-resonator tracking tones
-# tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
+tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
 # tracking_tones = np.array([4.240e9,4.260e9]) ## (Nb 7)  In Hz a.k.a. cleaning tones to remove correlated noise
-tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
+# tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
 powers = np.array([-40])
@@ -67,6 +69,7 @@ n_pwrs = len(powers)
 ## This can be used to do a pseudo-VNA post facto
 cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
+cal_lapse_sec = 10.
 
 ## File handling options
 filename=None
@@ -302,17 +305,26 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Pick this calibration delta
         delta = cal_deltas[j]
 
+        ## For nonzero cal deltas, run them shorter in time
+        if not (delta ==0) and (lapse_noise > cal_lapse_sec):
+            lapse_noise = cal_lapse_sec
+
         ## Check this appending
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
         readout_tones  = np.around(readout_tones, decimals=0)
 
-        ## Split the power evenly across two tones
+        ## Split the power evenly across the tones
         amplitudes     = 1./ntones * np.ones(n_ro_tones)
 
         relative_tones = np.zeros(n_ro_tones)
         for k in np.arange(n_ro_tones):
             relative_tones[k] = float(readout_tones[k]) - freq
+
+        ## Don't need tracking tones for calibration deltas
+        if not (delta==0):
+            relative_tones = np.array([relative_tones[0]])
+            amplitudes     = np.array([amplitudes[0]])
 
         outfname = "USRP_Noise_"+series+"_delta"+str(int(100.*delta))
 
@@ -361,8 +373,8 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         cal_freqs[j] = frequencies_scanned[0]
         cal_means[j] = noise_mean_scanned[0]
 
-        # if delta != 0:
-        #     os.remove(noise_file)
+        if not (delta == 0):
+            os.remove(noise_file)
 
     return cal_freqs, cal_means
 
