@@ -306,8 +306,11 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         delta = cal_deltas[j]
 
         ## For nonzero cal deltas, run them shorter in time
-        if not (delta ==0) and (lapse_noise > cal_lapse_sec):
-            lapse_noise = cal_lapse_sec
+        #print("For delta=",delta,"(",np.abs(delta),",")
+        #print("Pre adjust:",lapse_noise,"seconds")
+        #if not (np.abs(delta) < 0.005) and (lapse_noise > cal_lapse_sec):
+        #    lapse_noise = cal_lapse_sec
+        #print("Post adjust:",lapse_noise,"seconds")
 
         ## Check this appending
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
@@ -345,7 +348,8 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         print("Starting Noise Run...")
         ## Do a noise run with the USRP
         noise_file = u.get_tones_noise(relative_tones, 
-                                    measure_t  = lapse_noise,  ## passed in sec
+                                    #measure_t  = lapse_noise,  ## passed in sec
+                                    measure_t  = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec,  ## passed in sec
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz
