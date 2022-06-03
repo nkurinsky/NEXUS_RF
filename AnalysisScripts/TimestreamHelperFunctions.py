@@ -116,7 +116,7 @@ def CleanPSDs(ts_file, vna_file, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, ch
 
 def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
 	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15], \
-	q_b_PSDrange = [1e-4,5e1], MB_fit_vals=None):
+	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None):
 
 	## Create the axes
 	fga = plt.figure()
@@ -163,22 +163,23 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
 	fg1 = plt.figure()
 	ax1 = fg1.gca()
 
-	ax1.set_xlabel("Frequency [Hz]")
-	ax1.set_ylabel(r"Kappa1 PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
-	ax1.set_xlim(fHz_range)
-	ax1.set_ylim(q_b_PSDrange)
-	ax1.set_xscale('log')
-	ax1.set_yscale('log')
+	if (MB_fit_result is not None):
+		ax1.set_xlabel("Frequency [Hz]")
+		ax1.set_ylabel(r"Kappa1 PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
+		ax1.set_xlim(fHz_range)
+		ax1.set_ylim(q_b_PSDrange)
+		ax1.set_xscale('log')
+		ax1.set_yscale('log')
 
-	fg2 = plt.figure()
-	ax2 = fg2.gca()
+		fg2 = plt.figure()
+		ax2 = fg2.gca()
 
-	ax2.set_xlabel("Frequency [Hz]")
-	ax2.set_ylabel(r"Kappa2 PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
-	ax2.set_xlim(fHz_range)
-	ax2.set_ylim(q_b_PSDrange)
-	ax2.set_xscale('log')
-	ax2.set_yscale('log')
+		ax2.set_xlabel("Frequency [Hz]")
+		ax2.set_ylabel(r"Kappa2 PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
+		ax2.set_xlim(fHz_range)
+		ax2.set_ylim(q_b_PSDrange)
+		ax2.set_xscale('log')
+		ax2.set_yscale('log')
 
 	## Loop over every series
 	for i in np.arange(len(series_list)):
@@ -189,21 +190,23 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
 		powers, PSDs, res, timestreams = CleanPSDs(tone_files[0], vna_file, f_transient=0.075,
 											   charFs = avg_frqs,
 											   charZs = avg_S21s,
-											   MBresults = MB_fit_vals)
+											   MBresults = MB_fit_result)
 		
 		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=str(powers_list[i])+" dBc")
 		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=str(powers_list[i])+" dBc")
 		axA.plot(PSDs["f"],PSDs['dissipation'],label=str(powers_list[i])+" dBc")
 		axB.plot(PSDs["f"],PSDs['frequency'],label=str(powers_list[i])+" dBc")
-		ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBc")
-		ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBc")
+		if (MB_fit_result is not None):
+			ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBc")
+			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBc")
 		
 	axa.legend(loc='lower right')
 	axb.legend(loc='lower right')
 	axA.legend(loc='lower right')
 	axB.legend(loc='lower right')
-	ax1.legend(loc='lower right')
-	ax2.legend(loc='lower right')
+	if (MB_fit_result is not None):
+		ax1.legend(loc='lower right')
+		ax2.legend(loc='lower right')
 
 	plt.show()
 
