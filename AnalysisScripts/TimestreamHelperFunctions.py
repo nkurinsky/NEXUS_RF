@@ -113,7 +113,10 @@ def CleanPSDs(ts_file, vna_file, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, ch
                                       MB_results = MBresults)
     return p, P, r, t ## powers, PSDs, res, timestreams
 
-def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15], q_b_PSDrange = [1e-4,5e1], MB_fit_vals=None)
+def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
+	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15], \
+	q_b_PSDrange = [1e-4,5e1], MB_fit_vals=None):
+
 	## Create the axes
 	fga = plt.figure()
 	axa = fga.gca()
