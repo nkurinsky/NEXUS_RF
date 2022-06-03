@@ -20,7 +20,7 @@ def timesFromRate(rate, length):
 	return times
 
 ## Find all the uncleaned files that correspond to a specific timestream acquisition
-def GetFiles(series, verbose=False):
+def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans'):
 	data_path = os.path.join(base_path,series.split('_')[0],series)
 	
 	## Grab the file with no calibration offset
