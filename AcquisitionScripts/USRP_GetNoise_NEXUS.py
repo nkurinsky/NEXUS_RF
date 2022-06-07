@@ -144,9 +144,10 @@ def parse_args():
                 print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
                 powers[i] = -70.0
 
-            if (powers[i] > -25):
-                print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
-                powers[i] = -25.0
+            ## Don't need to enforce this because it is used to tune up the tx gain later
+            # if (powers[i] > -25):
+            #     print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
+            #     powers[i] = -25.0
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
