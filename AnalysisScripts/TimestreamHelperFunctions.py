@@ -199,6 +199,10 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
 		if (MB_fit_result is not None):
 			ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBc")
 			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBc")
+
+		del sum_file, dly_file, vna_file, tone_files
+		del metadata, avg_frqs, avg_S21s
+		del powers, res, timestreams
 		
 	axa.legend(loc='lower right')
 	axb.legend(loc='lower right')
