@@ -412,7 +412,7 @@ if __name__ == "__main__":
         ## Due to power splitting across tones
         if power > -25:
             USRP_power   = -25
-            args.tx_gain = power - USRP_power
+            args.txgain = power - USRP_power
         else:
             USRP_power   = power
 
