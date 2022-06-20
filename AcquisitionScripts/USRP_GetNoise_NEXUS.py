@@ -43,8 +43,6 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 ## Set some VNA sweep parameters
 f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
-# f0      = -7e6          ## (Nb 7) [Hz], relative to LO=4.25e9
-# f1      = -2e6          ## (Nb 7) [Hz], relative to LO=4.25e9
 # f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 # f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 points  =  1e5
@@ -57,7 +55,6 @@ res     = 4.242170      ## Al   [GHz]
 
 ## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
-# tracking_tones = np.array([4.240e9,4.260e9]) ## (Nb 7)  In Hz a.k.a. cleaning tones to remove correlated noise
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
@@ -175,9 +172,6 @@ def parse_args():
 
     # if (args.tracktone2 is not None):
     #     args.tracktone2 = args.tracktone2*1e6 ## Store it as Hz not MHz
-
-
-
 
     if(args.f0 is not None and args.f1 is not None):
         if((args.f1 - args.f0) > 1e7):
@@ -308,14 +302,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Pick this calibration delta
         delta = cal_deltas[j]
 
-        ## For nonzero cal deltas, run them shorter in time
-        #print("For delta=",delta,"(",np.abs(delta),",")
-        #print("Pre adjust:",lapse_noise,"seconds")
-        #if not (np.abs(delta) < 0.005) and (lapse_noise > cal_lapse_sec):
-        #    lapse_noise = cal_lapse_sec
-        #print("Post adjust:",lapse_noise,"seconds")
-
-        ## Check this appending
+        ## Make array of tones (fred, fTa, fTb)
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
         readout_tones  = np.around(readout_tones, decimals=0)

@@ -50,26 +50,28 @@ l_Rf    = int(127)      ## [integer]
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.0
-LO      = 4.25e9        ## [Hz] Nice round numbers, don't go finer than 50 MHz
+LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
+# LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set some VNA sweep parameters
-f0      = -10e6         ## (Al)   [Hz], relative to LO
-f1      = -5e6          ## (Al)   [Hz], relative to LO
-# f0      = -7e6          ## (Nb 7) [Hz], relative to LO
-# f1      = -2e6          ## (Nb 7) [Hz], relative to LO
+f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
+f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
+# f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
+# f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 points  =  1e5
 duration = 10           ## [Sec]
 
 ## Set Resonator parameters
 res     = 4.242170      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
+# res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning tones to remove correlated noise
-# tracking_tones = np.array([4.240e9,4.260e9]) ## (Nb 7)  In Hz a.k.a. cleaning tones to remove correlated noise
+# tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-26])
+powers = np.array([-40])
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -77,6 +79,7 @@ n_pwrs = len(powers)
 ## This can be used to do a pseudo-VNA post facto
 cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
+cal_lapse_sec = 10.
 
 ## File handling options
 filename=None
@@ -98,8 +101,8 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Acquire a laser timestream with the USRP using the GPU_SDR backend.')
 
-    # parser.add_argument('--power'    , '-P' , nargs='+' , default = np.array([-25.0]), 
-    #     help='RF power applied in dBm. (default '+np.array([-25.0])+' dBm)')
+    parser.add_argument('--power'    , '-P' , type=float, default = powers[0], 
+        help='RF power applied in dBm. (default '+str(powers[0])+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain'   , '-rx', type=float, default = rx_gain, 
@@ -140,14 +143,23 @@ def parse_args():
 
     # Do some conditional checks
 
-    # if (args.power is not None):
-    #     if(args.power < -70):
-    #         print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
-    #         exit(1)
+    if (args.power is not None):
+        print("Power(s):", args.power, type(args.power))
 
-    #     elif(args.power > 0):
-    #         print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
-    #         exit(1)
+        powers[0] = args.power
+        n_pwrs = len(powers)
+
+        min_pwer = -70.0
+        max_pwer = -15.0
+        for i in np.arange(n_pwrs):
+            if (powers[i] < min_pwer):
+                print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
+                powers[i] = min_pwer
+
+            # Don't need to enforce this because it is used to tune up the tx gain later
+            if (powers[i] > max_pwer):
+                print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
+                powers[i] = max_pwer
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
@@ -243,6 +255,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
     if ntones ==1:
         ntones = None
+    print("Using", ntones, "tones for Multitone_compensation")
 
     outfname = "USRP_VNA_"+series
 
@@ -295,7 +308,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Pick this calibration delta
         delta = cal_deltas[j]
 
-        ## Check this appending
+        ## Make array of tones (fred, fTa, fTb)
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
         readout_tones  = np.around(readout_tones, decimals=0)
@@ -307,6 +320,11 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         for k in np.arange(n_ro_tones):
             relative_tones[k] = float(readout_tones[k]) - freq
 
+        ## Don't need tracking tones for calibration deltas
+        if not (delta==0):
+            relative_tones = np.array([relative_tones[0]])
+            amplitudes     = np.array([amplitudes[0]])
+
         outfname = "USRP_Noise_"+series+"_delta"+str(int(100.*delta))
 
         ## Create a group for the noise scan parameters
@@ -316,7 +334,9 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         gScan.create_dataset("readout_tones",  data=readout_tones)
         gScan.create_dataset("relative_tones", data=relative_tones)
         gScan.create_dataset("amplitudes",     data=amplitudes)
+        gScan.create_dataset("LOfrequency",    data=np.array([freq]))
 
+        print("Readout  tones [Hz]:", readout_tones)
         print("Relative tones [Hz]:", relative_tones)
         print("Amplitudes:         ", amplitudes)
         print("LO Frequency [Hz]:  ", freq)
@@ -328,7 +348,8 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         print("Starting Laser Run...")
         ## Do a noise run with the USRP
         noise_file = u.get_tones_noise(relative_tones, 
-                                    measure_t  = lapse_noise,  ## passed in sec
+                                    #measure_t  = lapse_noise,  ## passed in sec
+                                    measure_t  = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec,  ## passed in sec
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz
@@ -360,8 +381,8 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         cal_freqs[j] = frequencies_scanned[0]
         cal_means[j] = noise_mean_scanned[0]
 
-        # if delta != 0:
-        #     os.remove(noise_file)
+        if not (delta == 0):
+            os.remove(noise_file)
 
     return cal_freqs, cal_means
 
@@ -384,7 +405,6 @@ if __name__ == "__main__":
     time.sleep(0.5)
     print("         Identity:", driver.get_identity())
     
-
     ## Adjust the laser's parameters
     # driver.set_pw( "%.2f" % args.laserPW ) ## micro second
     driver.set_bf( "%.1f" % args.laserBR ) ## Hz
@@ -406,7 +426,7 @@ if __name__ == "__main__":
         ## Due to power splitting across tones
         if power > -25:
             USRP_power   = -25
-            args.tx_gain = power - USRP_power
+            args.txgain = power - USRP_power
         else:
             USRP_power   = power
 
