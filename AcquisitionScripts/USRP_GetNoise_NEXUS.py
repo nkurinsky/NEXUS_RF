@@ -139,15 +139,17 @@ def parse_args():
         powers[0] = args.power
         n_pwrs = len(powers)
 
+        min_pwer = -70.0
+        max_pwer = -15.0
         for i in np.arange(n_pwrs):
-            if (powers[i] < -70):
-                print("Power",args.power,"too Low! Range is -70 to -25 dBm. Adjusting to minimum...")
-                powers[i] = -70.0
+            if (powers[i] < min_pwer):
+                print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
+                powers[i] = min_pwer
 
-            ## Don't need to enforce this because it is used to tune up the tx gain later
-            # if (powers[i] > -25):
-            #     print("Power",args.power,"too High! Range is -70 to -25 dBm. Adjusting to maximum...")
-            #     powers[i] = -25.0
+            # Don't need to enforce this because it is used to tune up the tx gain later
+            if (powers[i] > max_pwer):
+                print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
+                powers[i] = max_pwer
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
