@@ -141,7 +141,6 @@ def parse_args():
                 print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
                 powers[i] = min_pwer
 
-            # Don't need to enforce this because it is used to tune up the tx gain later
             if (powers[i] > max_pwer):
                 print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
                 powers[i] = max_pwer

@@ -77,13 +77,18 @@ def parse_args():
     # Do some conditional checks
 
     if (args.power is not None):
-        if(args.power < -70):
-            print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
-            exit(1)
+        print("Power(s):", args.power, type(args.power))
 
-        elif(args.power > 0):
-            print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
-            exit(1)
+        min_pwer = -70.0
+        max_pwer = -15.0
+
+        if (args.power < min_pwer):
+            print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
+            args.power = min_pwer
+
+        if (args.power > max_pwer):
+            print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
+            args.power = max_pwer
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
@@ -139,7 +144,7 @@ def create_dirs():
 
 ## Function to run a VNA sweep
 def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points, ntones, delay_duration, delay_over=None):
-
+    ## First do a line delay measurement
     if delay_over is not None:
         print("Line delay is user specified:", delay_over, "ns")
         delay = delay_over
@@ -160,7 +165,7 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
                 compensate = True, 
                 duration = delay_duration,
                 output_filename=outfname, 
-                subfolder=seriesPath)
+                subfolder=None)#seriesPath)
             print("Done.")
 
             print("Analyzing line delay file...")
@@ -177,10 +182,9 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
 
     if ntones ==1:
         ntones = None
+    print("Using", ntones, "tones for Multitone_compensation")
 
     outfname = "USRP_VNA_"+series
-
-    print("Starting single VNA run...")
 
     # print("VNA arguments:")
     # print("-    start_f", f0)
@@ -200,6 +204,7 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
     # print("- output_filename", outfname)
     # print("- Multitone_compensation", ntones)
 
+    print("Starting single VNA run...")
     vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
         measure_t = lapse, 
         n_points  = points, 
@@ -227,12 +232,20 @@ if __name__ == "__main__":
 
     ## Create the output directories
     create_dirs()
-    os.chdir(seriesPath)
+    os.chdir(seriesPath) ## When doing this, no need to provide subfolder
 
     ## Connect to GPU SDR server
     if not u.Connect():
         u.print_error("Cannot find the GPU server!")
         exit(1)
+
+    ## Ensure the power doesn't go above -25 dBm
+    ## Due to power splitting across tones
+    if power > -25:
+        USRP_power   = -25
+        args.txgain = power - USRP_power
+    else:
+        USRP_power   = power
 
     ## Calculate some powers
     N_power = np.power(10.,(((-1*args.power)-14)/20.))
