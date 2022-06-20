@@ -1,7 +1,5 @@
 ## To Do:
 ## - Implement arguments for tracking tones, etc
-## - DONE: Implement a shorter time for the calibration deltas, no tracking tones for cal deltas
-## - DONE: Auto-delete the cal delta h5 files after determining means
 
 ## Import the relevant modules
 import sys, os

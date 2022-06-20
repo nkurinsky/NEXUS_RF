@@ -1,7 +1,11 @@
+## Import the relevant modules
 import sys,os
 import time, datetime
 import argparse
 import numpy as np
+
+## Try to read in the USRP modules
+## Exit out if you can't after adjusting path
 try:
     import pyUSRP as u
 except ImportError:
@@ -10,8 +14,7 @@ except ImportError:
         import pyUSRP as u
     except ImportError:
         print("Cannot find the pyUSRP package")
-
-# import PyMKID_USRP_import_functions as puf2
+        exit()
 
 ## Set some VNA parameters
 power   = -20.0     ## [dBm]
@@ -70,13 +73,19 @@ def parse_args():
     # Do some conditional checks
 
     if (args.power is not None):
-        if(args.power < -70):
-            print("Power",args.power,"too Low! Range is -70 to 0 dBm. Exiting...")
-            exit(1)
+        print("Power(s):", args.power, type(args.power))
 
-        elif(args.power > 0):
-            print("Power",args.power,"too High! Range is -70 to 0 dBm. Exiting...")
-            exit(1)
+        min_pwer = -70.0
+        max_pwer = -15.0
+
+        if (args.power < min_pwer):
+            print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
+            args.power = min_pwer
+
+        # Don't need to enforce this because it is used to tune up the tx gain later
+        if (args.power > max_pwer):
+            print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
+            args.power = max_pwer
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
