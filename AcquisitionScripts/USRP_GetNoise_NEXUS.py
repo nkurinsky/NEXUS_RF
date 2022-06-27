@@ -73,11 +73,21 @@ filename=None
 dataPath = '/data/USRP_Noise_Scans'
 
 ## Sub directory definitions
-dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-sweepPath = os.path.join(dataPath,dateStr)
+dateStr   = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+sweepPath = '' # os.path.join(dataPath,dateStr)
 
-series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-seriesPath = os.path.join(sweepPath,series)
+series     = '' # str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+seriesPath = '' # os.path.join(sweepPath,series)
+
+def get_paths():
+    ## Sub directory definitions
+    dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+    sweepPath = os.path.join(dataPath,dateStr)
+
+    series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+    seriesPath = os.path.join(sweepPath,series)
+
+    return dateStr, sweepPath, series, seriesPath
 
 def parse_args():
     # Instantiate the parser
@@ -107,22 +117,6 @@ def parse_args():
         help='Baseband start frequency in MHz, absolute (default '+str(f0/1e6)+' MHz)')
     parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
         help='Baseband end frequency in MHz, absolute (default '+str(f1/1e6)+' MHz)')
-
-    # parser.add_argument('--resf'  , '-rf', type=float, default=res, 
-    #     help='Resonator peak frequency in GHz, absolute (default '+str(res)+' GHz)')
-
-    # parser.add_argument('--tracktone1'  , '-tt1', type=float, default=tracking_tones[0]/1e6, 
-    #     help='Tracking tone 1 frequency in MHz, absolute (default '+str(tracking_tones[0]/1e6)+' MHz)')
-    # parser.add_argument('--tracktone2'  , '-tt2', type=float, default=tracking_tones[1]/1e6, 
-    #     help='Tracking tone 1 frequency in MHz, absolute (default '+str(tracking_tones[1]/1e6)+' MHz)')
-
-
-    
-    # ## Line delay arguments
-    # parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
-    #     help='Duration of the delay measurement (default '+str(delay_duration)+' seconds)')
-    # parser.add_argument('--delay_over'    , '-do', type=float, default=None,
-    #     help='Manually set line delay in nanoseconds. Skip the line delay measure.')
 
     args = parser.parse_args()
 
@@ -162,13 +156,6 @@ def parse_args():
         args.f0 = args.f0*1e6 ## Store it as Hz not MHz
     if (args.f1 is not None):
         args.f1 = args.f1*1e6 ## Store it as Hz not MHz
-
-    # if (args.tracktone1 is not None):
-    #     args.tracktone1 = args.tracktone1*1e6 ## Store it as Hz not MHz
-    # else:
-
-    # if (args.tracktone2 is not None):
-    #     args.tracktone2 = args.tracktone2*1e6 ## Store it as Hz not MHz
 
     if(args.f0 is not None and args.f1 is not None):
         if((args.f1 - args.f0) > 1e7):
@@ -369,79 +356,78 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
     return cal_freqs, cal_means
 
-if __name__ == "__main__":
-
-    ## Parse command line arguments to set parameters
-    args = parse_args()
-    # for i in np.arange(n_pwrs):
-    #     print(powers[i])
-    # exit(1) ## testing for now
+def doRun(this_power):
 
     ## Create the output directories
     create_dirs()
     os.chdir(seriesPath) ## When doing this, no need to provide subfolder
+
+    ## Instantiate an output file
+    fyle = h5py.File(os.path.join(seriesPath,'noise_averages_'+series+'.h5'),'w')
+
+    ## Ensure the power doesn't go above -25 dBm
+    ## Due to power splitting across tones
+    if this_power > -25:
+        USRP_power   = -25
+        args.txgain = this_power - USRP_power
+    else:
+        USRP_power   = this_power
+
+    ## Calculate some derived quantities
+    N_power = np.power(10.,(((-1*USRP_power)-14)/20.))
+    pwr_clc = np.round(-14-20*np.log10(N_power),2)
+
+    print("Initializing Noise Scan...")
+    print(pwr_clc, 'dBm of power')
+    print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
+
+    ## Create an h5 group for this data, store some general metadata
+    gPower = fyle.create_group('Power'+str(i))
+    gPower.attrs.create("power",   USRP_power)
+    gPower.attrs.create("tx_gain", args.txgain)
+    gPower.attrs.create("rx_gain", args.rxgain)
+    gPower.attrs.create("N_power", N_power)
+    gPower.attrs.create("rate",    args.rate)
+    gPower.attrs.create("LOfreq",  args.LOfrq)
+
+    cal_freqs, cal_means = runNoise(
+        tx_gain = args.txgain,
+        rx_gain = args.rxgain,
+        _iter   = args.iter,
+        rate    = args.rate,        ## Passed in Samps/sec
+        freq    = args.LOfrq,       ## Passed in Hz
+        front_end = "A",
+        f0      = args.f0,          ## Passed in Hz, relative to LO
+        f1      = args.f1,          ## Passed in Hz, relative to LO
+        lapse_VNA   = args.timeVNA,   ## Passed in seconds
+        lapse_noise = args.timeNoise, ## Passed in seconds
+        points  = args.points,
+        ntones  = N_power,
+        delay_duration = 0.1, # args.delay_duration,
+        delay_over = None,
+        h5_group_obj = gPower) #args.delay_over)
+
+    ## Store the resulting arrays in this h5 group
+    gPower.create_dataset('freqs',data=cal_freqs)
+    gPower.create_dataset('means',data=cal_means)
+
+    ## Close h5 file for writing
+    fyle.close()
+
+if __name__ == "__main__":
+
+    ## Parse command line arguments to set parameters
+    args = parse_args()
 
     ## Connect to GPU SDR server
     if not u.Connect():
         u.print_error("Cannot find the GPU server!")
         exit(1)
 
-    ## Instantiate an output file
-    fyle = h5py.File(os.path.join(seriesPath,'noise_averages_'+series+'.h5'),'w')
-
-    ## Loop over the powers considered
     for i in np.arange(n_pwrs):
-        ## Pick this power
-        power = powers[i]
+        dateStr, sweepPath, series, seriesPath = get_paths()
 
-        ## Ensure the power doesn't go above -25 dBm
-        ## Due to power splitting across tones
-        if power > -25:
-            USRP_power   = -25
-            args.txgain = power - USRP_power
-        else:
-            USRP_power   = power
-
-        ## Calculate some derived quantities
-        N_power = np.power(10.,(((-1*USRP_power)-14)/20.))
-        pwr_clc = np.round(-14-20*np.log10(N_power),2)
-
-        print("Initializing Noise Scan...")
-        print(pwr_clc, 'dBm of power')
-        print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
-
-        ## Create an h5 group for this data, store some general metadata
-        gPower = fyle.create_group('Power'+str(i))
-        gPower.attrs.create("power",   USRP_power)
-        gPower.attrs.create("tx_gain", args.txgain)
-        gPower.attrs.create("rx_gain", args.rxgain)
-        gPower.attrs.create("N_power", N_power)
-        gPower.attrs.create("rate",    args.rate)
-        gPower.attrs.create("LOfreq",  args.LOfrq)
-
-        cal_freqs, cal_means = runNoise(
-            tx_gain = args.txgain,
-            rx_gain = args.rxgain,
-            _iter   = args.iter,
-            rate    = args.rate,        ## Passed in Samps/sec
-            freq    = args.LOfrq,       ## Passed in Hz
-            front_end = "A",
-            f0      = args.f0,          ## Passed in Hz, relative to LO
-            f1      = args.f1,          ## Passed in Hz, relative to LO
-            lapse_VNA   = args.timeVNA,   ## Passed in seconds
-            lapse_noise = args.timeNoise, ## Passed in seconds
-            points  = args.points,
-            ntones  = N_power,
-            delay_duration = 0.1, # args.delay_duration,
-            delay_over = None,
-            h5_group_obj = gPower) #args.delay_over)
-
-        ## Store the resulting arrays in this h5 group
-        gPower.create_dataset('freqs',data=cal_freqs)
-        gPower.create_dataset('means',data=cal_means)
-
-    ## Close h5 file for writing
-    fyle.close()
+        doRun(powers[i])
 
     ## Disconnect from the USRP server
     u.Disconnect()
