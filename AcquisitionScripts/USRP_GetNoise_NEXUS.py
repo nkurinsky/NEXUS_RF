@@ -56,7 +56,7 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cle
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-40])
+powers = np.array([-60,-50,-40,-30,-20])
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -125,8 +125,9 @@ def parse_args():
     if (args.power is not None):
         print("Power(s):", args.power, type(args.power))
 
+        ## When a power is specified, it only does that one power
         powers[0] = args.power
-        n_pwrs = len(powers)
+        n_pwrs = 1#len(powers)
 
         min_pwer = -70.0
         max_pwer = -15.0
