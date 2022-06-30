@@ -65,7 +65,18 @@ def UnpackSummary(s_file_path, verbose=False):
 		
 	## Should only be one power per file
 	## Open that data member
-	md   = fsum['Power0']
+	md = None
+	try:
+		md   = fsum['Power0']
+	except:
+		for i in np.arange(20):
+			try:
+				md   = fsum['Power'+str(i)]
+			except:
+				continue
+	if md is None:
+		print("Error - Cannot find appropriate power data group.")
+		return None, None, None
 	if verbose:
 		print(md.keys())
 		print(md.attrs.keys())
