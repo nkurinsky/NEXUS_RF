@@ -34,19 +34,19 @@ Temp_step =  10e-3
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
 sleepTime     =  30        ## sec
-stableTime    = 180        ## sec
+stableTime    =  30        ## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
 ## Use this if starting at the top temperature
-Temps = Temps[::-1] 
-if (Temp_base) < Temps[-1]:
-    Temps = np.append(Temps,Temp_base)
+# Temps = Temps[::-1] 
+# if (Temp_base) < Temps[-1]:
+#     Temps = np.append(Temps,Temp_base)
 
 # ## Use this if starting at base temperature
-# if (Temp_base) < Temps[0]:
-#     Temps = np.append(Temp_base,Temps)
+if (Temp_base) < Temps[0]:
+    Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/TempSweeps/VNA'  #VNA subfolder of Tempsweeps
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         run_power_scan(T, seriesPath, nf3, delta_Hz=2.58e6)
 
     ## Go back to base temperature
-    print("Reverting to base temperature of",Temp_base*1e3,"mK")
-    nf3.setSP(Temp_base)
+    # print("Reverting to base temperature of",Temp_base*1e3,"mK")
+    # nf3.setSP(Temp_base)
 
 
