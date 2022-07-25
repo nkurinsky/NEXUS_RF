@@ -69,7 +69,7 @@ class NEXUSHeater:
         except socket.timeout:
             print("Timeout on", self.server_address[0])
             ans = -99.99
-        return 
+        return ans
 
     def setSP(self,sp,scale="K"):
         if(scale == "K"):            
