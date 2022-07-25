@@ -64,7 +64,8 @@ class NEXUSHeater:
 
     def getSP(self):
         try:
-            ans = float(self._getVar(2)) ## K
+            ans = float(self._sendCmd("2;7;2"))
+            # ans = float(self._getVar(2)) ## K
         except socket.timeout:
             print("Timeout on", self.server_address[0])
             ans = -99.99
