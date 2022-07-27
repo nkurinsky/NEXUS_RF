@@ -506,7 +506,7 @@ def sweep_fit_from_file(fname, nsig=3, fwindow=5e-4, chan="S21", h5_rewrite=Fals
             fyle["{}/Qc_list".format(chan)] = Qc_list
             fyle["{}/Qi_list".format(chan)] = Qi_list
 
-def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filename='test', start_f=None, stop_f=None):
+def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, additions=[], filename='test', start_f=None, stop_f=None, verbose=False, show_plots=False):
     """
     sweep_fit fits data to the resonator model described in Jiansong's thesis
 
@@ -592,54 +592,58 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
     addlist = peaklist
 
     peaklist = sorted(peaklist)
-    print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
+    if verbose:
+        print('Position of identified', len(peaklist), 'peaks (index):', peaklist)
     file_fit_obj.resize_peak_fits(len(peaklist))
 
-    ## Create a plot 
-    fig = plt.figure(figsize=(9,7))
+    if show_plots:
+        ## Create a plot 
+        fig = plt.figure(figsize=(9,7))
 
-    # Define the grid
-    gs = GridSpec(2, 1, width_ratios=[1], height_ratios=[1, 1])
-    gs.update(wspace=0.33, hspace=0.30) 
+        # Define the grid
+        gs = GridSpec(2, 1, width_ratios=[1], height_ratios=[1, 1])
+        gs.update(wspace=0.33, hspace=0.30) 
 
-    # Define the plot array
-    ax0 = fig.add_subplot(gs[0])
-    ax1 = fig.add_subplot(gs[1])
+        # Define the plot array
+        ax0 = fig.add_subplot(gs[0])
+        ax1 = fig.add_subplot(gs[1])
 
-    ## Set plot title
-    ax0.set_title('Transmission with Resonance Identification')
+        ## Set plot title
+        ax0.set_title('Transmission with Resonance Identification')
 
-    ## Plot the unaltered transmission on top panel
-    ax0.plot(f, 20*np.log10(abs(np.array(z))))
+        ## Plot the unaltered transmission on top panel
+        ax0.plot(f, 20*np.log10(abs(np.array(z))))
 
-    ## Plot the bottom panel
-    ax1.plot(f, mfz/bstd)
-    
-    ## Make the labels
-    ax1.set_xlabel("Frequency [GHz]")
+        ## Plot the bottom panel
+        ax1.plot(f, mfz/bstd)
+        
+        ## Make the labels
+        ax1.set_xlabel("Frequency [GHz]")
 
-    ax0.set_ylabel(r"|$S_{21}$| [dB]")
-    ax1.set_ylabel(r"|filtered z| [$\sigma$]")
+        ax0.set_ylabel(r"|$S_{21}$| [dB]")
+        ax1.set_ylabel(r"|filtered z| [$\sigma$]")
 
-    ## Set the x-tick markers to be smaller
-    plt.setp(ax0.get_xticklabels(), fontsize=10)
-    plt.setp(ax1.get_xticklabels(), fontsize=10)
+        ## Set the x-tick markers to be smaller
+        plt.setp(ax0.get_xticklabels(), fontsize=10)
+        plt.setp(ax1.get_xticklabels(), fontsize=10)
 
-    ## Draw some lines
-    ax1.axhline(y=nsig, color="red")#, label="nsig = "+str(nsig))
-    ax1.axhline(y=gamma/bstd, color="green")
-    ax1.axvline(x=start_f, color="gray")
-    ax1.axvline(x=stop_f, color="gray")
+        ## Draw some lines
+        ax1.axhline(y=nsig, color="red")#, label="nsig = "+str(nsig))
+        ax1.axhline(y=gamma/bstd, color="green")
+        ax1.axvline(x=start_f, color="gray")
+        ax1.axvline(x=stop_f, color="gray")
 
-    ## Draw a point for each resonance found
-    ax1.plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
+        ## Draw a point for each resonance found
+        ax1.plot(f[peaklist], mfz[peaklist]/bstd, 'gs', label=str(len(peaklist)-len(additions))+" resonances identified")
 
-    ## Draw a point for each resonance added manually
-    if len(additions)>0:
-        ax1.plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
-    
-    ## Draw the legend
-    plt.legend()
+        ## Draw a point for each resonance added manually
+        if len(additions)>0:
+            ax1.plot(f[addlist], mfz[addlist]/bstd, 'ys', label=str(len(addlist))+" resonances manually added")
+        
+        ## Draw the legend
+        plt.legend()
+    else:
+        fig = None
 
     ##Save to pdf if pdf_rewrite == True
     if pdf_rewrite == True:
@@ -692,9 +696,10 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
             Qi_list[i] = 0
 
         ## Now that the subroutines have populated class attributes, let's look at them
-        this_r.show_par_ests()
-        this_r.show_rough_result()
-        this_r.show_fine_result()
+        if verbose:
+            this_r.show_par_ests()
+            this_r.show_rough_result()
+            this_r.show_fine_result()
 
         file_fit_obj.peak_fits[i] = this_r
 
