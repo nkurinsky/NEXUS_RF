@@ -295,7 +295,7 @@ def CalcPulseParams(traces):
         pulse_heights.append(pulse_max)
         pulse_max_idxs = np.argwhere(trace == pulse_max)
         pulse_max_idx = pulse_max_idxs[0][0]
-        trace_after_pulse = trace[pulse_max_idx:pulse_max_idx+1000]
+        trace_after_pulse = trace[pulse_max_idx:-500]
         tau = np.argmin(np.abs(trace_after_pulse - pulse_max/np.e))
         taus.append(tau)
 
