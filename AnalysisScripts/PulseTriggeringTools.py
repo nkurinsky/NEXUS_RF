@@ -232,13 +232,13 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
     for i in range(0,nEvents):
         pulseCount+=1
         trace=events[trig_channel][i]
-        trace -= numpy.mean(trace[0:int(mean_pre_samps)])
+        trace -= np.mean(trace[0:int(mean_pre_samps)])
         traces[pulseCount] = trace
 
     if verbose:
         print("Pulse count:", pulseCount)
 
-    _tint = numpy.arange(-250,traceLength-1750)/1e3
+    _tint = np.arange(-250,traceLength-1750)/1e3
     avg_trace = np.zeros(len(_tint))
     n_traces = 0
 
@@ -253,7 +253,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
             
             ## Line up the traces
             pos_max = np.argmax(trace) if doAlign else 0
-            tidxs = numpy.arange(0,traceLength)
+            tidxs = np.arange(0,traceLength)
             tvals = (tidxs-pos_max)/1e3
             
             if doAlign and (pos_max<500 or pos_max>1500):
