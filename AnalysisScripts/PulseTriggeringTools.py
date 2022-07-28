@@ -217,88 +217,88 @@ def movavg(x,y,side_pts=3):
     return x_pts, y_avg
 
 def GetResponse(trig_channel="Phase", traceLength=4096, trig_th=1.0e4, tauFall=500e-6, 
-	            mean_pre_samps=800, doAlign = True, verbose=False, show_plots=False):
-	
-	## Initialize the pulse trackers
-	pulseCount=0
-	traces = {}
+                mean_pre_samps=800, doAlign = True, verbose=False, show_plots=False):
+    
+    ## Initialize the pulse trackers
+    pulseCount=0
+    traces = {}
 
-	## Get the events for the specified trigger channel
-	events=getEvents(data_path,ds=1,trig_th=trig_th, trace_len = traceLength, 
-		trig_sep = traceLength, tauFall=tauFall)
-	nEvents=len(events[trig_channel])
-	for i in range(0,nEvents):
-	    pulseCount+=1
-	    trace=events[trig_channel][i]
-	    trace -= numpy.mean(trace[0:int(mean_pre_samps)])
-	    traces[pulseCount] = trace
+    ## Get the events for the specified trigger channel
+    events=getEvents(data_path,ds=1,trig_th=trig_th, trace_len = traceLength, 
+        trig_sep = traceLength, tauFall=tauFall)
+    nEvents=len(events[trig_channel])
+    for i in range(0,nEvents):
+        pulseCount+=1
+        trace=events[trig_channel][i]
+        trace -= numpy.mean(trace[0:int(mean_pre_samps)])
+        traces[pulseCount] = trace
 
-	if verbose:
-		print("Pulse count:", pulseCount)
+    if verbose:
+        print("Pulse count:", pulseCount)
 
-	_tint = numpy.arange(-250,traceLength-1750)/1e3
-	avg_trace = np.zeros(len(_tint))
-	n_traces = 0
+    _tint = numpy.arange(-250,traceLength-1750)/1e3
+    avg_trace = np.zeros(len(_tint))
+    n_traces = 0
 
-	if show_plots:
-		plt.figure()
+    if show_plots:
+        plt.figure()
 
-	for pulseNum in traces:
-	    if (pulseNum < 100) or True:
-	        
-	        
-	        trace = traces[pulseNum]
-	        
-	        ## Line up the traces
-	        pos_max = np.argmax(trace) if doAlign else 0
-	        tidxs = numpy.arange(0,traceLength)
-	        tvals = (tidxs-pos_max)/1e3
-	        
-	        if doAlign and (pos_max<500 or pos_max>1500):
-	            continue
-	        
-	        _intp = interp1d(tvals,trace,bounds_error=False,fill_value=0)
-	        _trin = _intp(_tint)
-	        
-	        avg_trace += _intp(_tint)
-	        avg_tvals  = _tint
-	        n_traces  += 1
-	        
-	        if show_plots:
-	        	plt.plot(tvals,trace,alpha=0.25)
+    for pulseNum in traces:
+        if (pulseNum < 100) or True:
+            
+            
+            trace = traces[pulseNum]
+            
+            ## Line up the traces
+            pos_max = np.argmax(trace) if doAlign else 0
+            tidxs = numpy.arange(0,traceLength)
+            tvals = (tidxs-pos_max)/1e3
+            
+            if doAlign and (pos_max<500 or pos_max>1500):
+                continue
+            
+            _intp = interp1d(tvals,trace,bounds_error=False,fill_value=0)
+            _trin = _intp(_tint)
+            
+            avg_trace += _intp(_tint)
+            avg_tvals  = _tint
+            n_traces  += 1
+            
+            if show_plots:
+                plt.plot(tvals,trace,alpha=0.25)
 
     if show_plots:    
-		avg_trace /= n_traces
-		plt.plot(avg_tvals,avg_trace,color='k')
+        avg_trace /= n_traces
+        plt.plot(avg_tvals,avg_trace,color='k')
 
-		# plt.ylabel('magnitude')
-		plt.ylabel('phase (radians)')
-		plt.xlabel('milliseconds')
-		# plt.title('Examples of detected phonon pulses')
-		plt.title('Phase Response')
-		# plt.ylim([-0.30,0.30])
-		# plt.ylim([-0.20,0.40])
-		plt.ylim([-0.60,0.60])
+        # plt.ylabel('magnitude')
+        plt.ylabel('phase (radians)')
+        plt.xlabel('milliseconds')
+        # plt.title('Examples of detected phonon pulses')
+        plt.title('Phase Response')
+        # plt.ylim([-0.30,0.30])
+        # plt.ylim([-0.20,0.40])
+        plt.ylim([-0.60,0.60])
 
-	return pulseCount, traces
+    return pulseCount, traces
 
 def CalcPulseParams(traces):
-	pulse_heights = []
-	taus = []
-	# interestingPulses = []
-	# interestingPulseHeights = []
-	for pulseNum in traces:
-	    trace = traces[pulseNum]
-	    pulse_max = np.amax(trace[1000:2000])
-	    pulse_heights.append(pulse_max)
-	    pulse_max_idxs = np.argwhere(trace == pulse_max)
-	    pulse_max_idx = pulse_max_idxs[0][0]
-	    trace_after_pulse = trace[pulse_max_idx:pulse_max_idx+1000]
-	    tau = np.argmin(np.abs(trace_after_pulse - pulse_max/np.e))
-	    taus.append(tau)
+    pulse_heights = []
+    taus = []
+    # interestingPulses = []
+    # interestingPulseHeights = []
+    for pulseNum in traces:
+        trace = traces[pulseNum]
+        pulse_max = np.amax(trace[1000:2000])
+        pulse_heights.append(pulse_max)
+        pulse_max_idxs = np.argwhere(trace == pulse_max)
+        pulse_max_idx = pulse_max_idxs[0][0]
+        trace_after_pulse = trace[pulse_max_idx:pulse_max_idx+1000]
+        tau = np.argmin(np.abs(trace_after_pulse - pulse_max/np.e))
+        taus.append(tau)
 
         # if tau > 600 and tau < 800:
         #     interestingPulses.append(pulseNum)
         #     interestingPulseHeights.append(pulse_max)
 
-	return pulse_heights, taus
+    return pulse_heights, taus
