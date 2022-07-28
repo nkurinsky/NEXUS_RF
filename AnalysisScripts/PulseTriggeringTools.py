@@ -277,7 +277,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
         plt.ylabel('phase (radians)')
         plt.xlabel('milliseconds')
         # plt.title('Examples of detected phonon pulses')
-        plt.title('Phase Response')
+        plt.title(trig_channel+' Response')
         # plt.ylim([-0.30,0.30])
         # plt.ylim([-0.20,0.40])
         # plt.ylim([-0.60,0.60])
