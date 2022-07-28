@@ -216,8 +216,9 @@ def movavg(x,y,side_pts=3):
     
     return x_pts, y_avg
 
-def GetResponse(trig_channel="Phase", traceLength=4096, trig_th=1.0e4, tauFall=500e-6, 
-                mean_pre_samps=800, doAlign = True, verbose=False, show_plots=False):
+def GetResponse(data_path, trig_channel="Phase", traceLength=4096, trig_th=1.0e4, 
+                tauFall=500e-6, mean_pre_samps=800, doAlign = True, verbose=False, 
+                show_plots=False):
     
     ## Initialize the pulse trackers
     pulseCount=0
