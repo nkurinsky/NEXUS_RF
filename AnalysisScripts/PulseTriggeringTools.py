@@ -280,7 +280,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
         plt.title('Phase Response')
         # plt.ylim([-0.30,0.30])
         # plt.ylim([-0.20,0.40])
-        plt.ylim([-0.60,0.60])
+        # plt.ylim([-0.60,0.60])
 
     return pulseCount, traces
 
