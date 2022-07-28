@@ -263,7 +263,6 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
             _trin = _intp(_tint)
             
             avg_trace += _intp(_tint)
-            avg_tvals  = _tint
             n_traces  += 1
             
             if show_plots:
@@ -271,7 +270,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
 
     if show_plots:    
         avg_trace /= n_traces
-        plt.plot(avg_tvals,avg_trace,color='k')
+        plt.plot(_tint,avg_trace,color='k')
 
         # plt.ylabel('magnitude')
         plt.ylabel('phase (radians)')
