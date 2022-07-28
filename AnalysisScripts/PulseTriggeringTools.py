@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d
 import TimestreamHelperFunctions as Thf
 
 
-def readDataFile(data_path):
+def readDataFile(series):
     sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, verbose=True)
 
     try:
@@ -59,7 +59,7 @@ def pulseFromTemplate(template,noisepsd,fs):
     
     return template,[phi,norm,resolution]
 
-def getEvents(filename, trig_channel='Phase', trig_th = 2.0, rising_edge = True, maxAlign=True,
+def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, maxAlign=True,
               pretrig = 1024, trace_len = 4096, trig_sep = 4096, ds=4, pretrig_template = 1024, 
               tauRise = 20e-6, tauFall = 300e-6, ACcoupled=True, verbose=False, template=None):
     '''
@@ -70,7 +70,7 @@ def getEvents(filename, trig_channel='Phase', trig_th = 2.0, rising_edge = True,
     apropriate template for use with trigger function
     
     '''
-    res=readDataFile(filename)
+    res=readDataFile(series)
     chan_names=res['chan_names']
     number_samples=res['number_samples']
  
@@ -180,7 +180,7 @@ def getEvents(filename, trig_channel='Phase', trig_th = 2.0, rising_edge = True,
         res[ch_str] = np.array(res[ch_str])
  
     res['trigpt'] = trigger_points
-    res['filename'] = np.full(n_trig,filename)
+    res['series'] = np.full(n_trig,series)
     res['trigRate'] = np.full(n_trig,n_trig)
     res['trigPts'] = np.full(n_trig,n_trig_pts)
  
@@ -216,7 +216,7 @@ def movavg(x,y,side_pts=3):
     
     return x_pts, y_avg
 
-def GetResponse(data_path, trig_channel="Phase", traceLength=4096, trig_th=1.0e4, 
+def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4, 
                 tauFall=500e-6, mean_pre_samps=800, doAlign = True, verbose=False, 
                 show_plots=False):
     
@@ -225,7 +225,7 @@ def GetResponse(data_path, trig_channel="Phase", traceLength=4096, trig_th=1.0e4
     traces = {}
 
     ## Get the events for the specified trigger channel
-    events=getEvents(data_path,ds=1,trig_th=trig_th, trace_len = traceLength, 
+    events=getEvents(series,ds=1,trig_th=trig_th, trace_len = traceLength, 
         trig_sep = traceLength, tauFall=tauFall)
     nEvents=len(events[trig_channel])
     for i in range(0,nEvents):
