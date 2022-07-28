@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 # from scipy.signal import periodogram,get_window,coherence
 from scipy.interpolate import interp1d
+from scipy.signal import fftconvolve
 # from scipy.stats import skew
 
 import TimestreamHelperFunctions as Thf
@@ -108,7 +109,7 @@ def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, m
     meanTrace=np.mean(trace.reshape(int(len(trace)/ds),ds),axis=1)
  
     #pulse shaping maintainin correct amplitude
-    filtered_data = scipy.signal.fftconvolve(meanTrace, meanTemplate[::-1], mode="valid")
+    filtered_data = fftconvolve(meanTrace, meanTemplate[::-1], mode="valid")
     #filtered_data = np.correlate(meanTrace,meanTemplate)*meandt
     # plt.plot(filtered_data)
     # plt.show()
