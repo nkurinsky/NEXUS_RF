@@ -297,7 +297,7 @@ def CalcPulseParams(traces, movAvgPts=None):
         trace = traces[pulseNum]
         if movAvgPts is not None:
         	trace = movavg(trace,side_pts=movAvgPts)
-        pulse_max = np.amax(trace[1000:2000])
+        pulse_max = np.amax(trace[800:1800])
         pulse_heights.append(pulse_max)
         pulse_max_idxs = np.argwhere(trace == pulse_max)
         pulse_max_idx = pulse_max_idxs[0][0]
