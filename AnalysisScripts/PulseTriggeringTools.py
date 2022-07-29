@@ -192,7 +192,13 @@ def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, m
  
     return res
 
-def movavg(x,y,side_pts=3):
+def movavg(y,side_pts=3):
+	n_pts = 1 + 2*side_pts
+    # y_avg = np.array([ np.sum(y[i-side_pts:i+side_pts])/n_pts for i in  side_pts+np.arange(lgth-n_pts)])
+    y_avg = np.convolve(y, np.ones(n_pts), 'valid') / n_pts
+    return y_avg
+
+def movavg_xy(x,y,side_pts=3):
     
     lgth = 0
     if not (len(x) == len(y)):
@@ -210,10 +216,7 @@ def movavg(x,y,side_pts=3):
         x = np.array(x)
         
     x_pts = x[side_pts:-side_pts]
-        
-    n_pts = 1 + 2*side_pts
-    # y_avg = np.array([ np.sum(y[i-side_pts:i+side_pts])/n_pts for i in  side_pts+np.arange(lgth-n_pts)])
-    y_avg = np.convolve(y, np.ones(n_pts), 'valid') / n_pts
+    y_avg = movavg(y,side_pts)
     
     return x_pts, y_avg
 
@@ -266,7 +269,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
             n_traces  += 1
             
             if show_plots:
-                av_t, av_w = movavg(tvals,trace,side_pts=50)
+                av_t, av_w = movavg_xy(tvals,trace,side_pts=50)
                 plt.plot(av_t, av_w,alpha=0.25)
                 # plt.plot(tvals,trace,alpha=0.25)
 
