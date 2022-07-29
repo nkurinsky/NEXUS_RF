@@ -213,7 +213,7 @@ def movavg(x,y,side_pts=3):
         
     n_pts = 1 + 2*side_pts
     # y_avg = np.array([ np.sum(y[i-side_pts:i+side_pts])/n_pts for i in  side_pts+np.arange(lgth-n_pts)])
-    y_avg = np.convolve(x, np.ones(n_pts), 'valid') / n_pts
+    y_avg = np.convolve(y, np.ones(n_pts), 'valid') / n_pts
     
     return x_pts, y_avg
 
