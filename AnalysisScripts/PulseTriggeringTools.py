@@ -266,7 +266,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
             n_traces  += 1
             
             if show_plots:
-            	av_t, av_w = movavg(tvals,trace,side_pts=5)
+            	av_t, av_w = movavg(tvals,trace,side_pts=50)
                 plt.plot(av_t, av_w,alpha=0.25)
                 # plt.plot(tvals,trace,alpha=0.25)
 
