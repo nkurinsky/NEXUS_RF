@@ -208,7 +208,7 @@ def movavg_xy(x,y,side_pts=3):
         lgth = len(x)
         
     
-    if (len(x) % 2 == 0 ):
+    if (lgth % 2 == 0 ):
         x = x[:-1]
         y = y[:-1]
     
@@ -250,7 +250,6 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
 
     for pulseNum in traces:
         if (pulseNum < 100) or True:
-            
             
             trace = traces[pulseNum]
             
@@ -296,7 +295,6 @@ def CalcPulseParams(traces, movAvgPts=None):
     for pulseNum in traces:
         trace = traces[pulseNum]
         if movAvgPts is not None:
-        	print("averaging")
         	trace = movavg(trace,side_pts=movAvgPts)
         pulse_max = np.amax(trace[800:1800])
         pulse_heights.append(pulse_max)
