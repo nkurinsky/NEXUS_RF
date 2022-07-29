@@ -288,13 +288,15 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
 
     return pulseCount, traces
 
-def CalcPulseParams(traces):
+def CalcPulseParams(traces, movAvgPts=None):
     pulse_heights = []
     taus = []
     # interestingPulses = []
     # interestingPulseHeights = []
     for pulseNum in traces:
         trace = traces[pulseNum]
+        if movAvgPts is not None:
+        	trace = movavg(trace,side_pts=movAvgPts)
         pulse_max = np.amax(trace[1000:2000])
         pulse_heights.append(pulse_max)
         pulse_max_idxs = np.argwhere(trace == pulse_max)
