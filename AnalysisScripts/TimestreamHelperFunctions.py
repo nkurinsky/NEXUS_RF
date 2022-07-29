@@ -97,7 +97,7 @@ def UnpackSummary(s_file_path, verbose=False):
 
 	return md_dict, mean_frqs, mean_S21s
 
-def CleanPSDs(ts_file, vna_file, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None):
+def CleanPSDs(ts_file, vna_file, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None):
 	PSD_lo_f = int(PSD_lo_f)  ## chunk up to [Hz]
 	PSD_hi_f = int(PSD_hi_f)  ## decimate down to  [Hz]
 	
@@ -122,7 +122,8 @@ def CleanPSDs(ts_file, vna_file, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, ch
 									  removal_decimation = 1,
 									  char_zs = charZs,
 									  char_fs = charFs,
-									  MB_results = MBresults)
+									  MB_results = MBresults,
+									  i=i)
 	return p, P, r, t ## powers, PSDs, res, timestreams
 
 def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \

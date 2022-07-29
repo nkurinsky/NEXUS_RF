@@ -875,7 +875,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         # PUf.plot_noise_and_vna(timestreams_no_pulse,VNA_z,\
         #                        fit_z=None,char_zs=char_zs,alpha=0.05,title='off resonance timestream -- raw S21')
         PUf.plot_noise_and_vna(timestreams_clean[:,0],VNA_z,\
-                               fit_z=None,char_zs=char_zs,alpha=0.05,title=noise_data_file)
+                               fit_z=None,char_zs=char_zs,alpha=0.05,title=str(i))
         # plt.savefig(noise_data_file[:-3]+'_S21.png')
         # timestreams_bad_chunks = chunked_timestreams[:,bad_chunks,:]
         # timestream_bad_chunks = np.reshape(timestreams_bad_chunks,(num_bad_chunks*chunk_len,num_freqs),order='F')
