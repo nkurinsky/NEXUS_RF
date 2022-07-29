@@ -193,7 +193,7 @@ def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, m
     return res
 
 def movavg(y,side_pts=3):
-	n_pts = 1 + 2*side_pts
+    n_pts = 1 + 2*side_pts
     # y_avg = np.array([ np.sum(y[i-side_pts:i+side_pts])/n_pts for i in  side_pts+np.arange(lgth-n_pts)])
     y_avg = np.convolve(y, np.ones(n_pts), 'valid') / n_pts
     return y_avg
@@ -214,7 +214,7 @@ def movavg_xy(x,y,side_pts=3):
     
     if not (type(x) == type(np.array([0]))):
         x = np.array(x)
-        
+    
     x_pts = x[side_pts:-side_pts]
     y_avg = movavg(y,side_pts)
     
