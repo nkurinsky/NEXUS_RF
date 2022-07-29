@@ -537,7 +537,7 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
     fig_0.suptitle(title)
     # plt.show(False)
     # raw_input('press enter to close all plots')
-    plt.savefig(noise_data_file[:-3]+'_'+savefig+'_PSD.png')
+    # plt.savefig(noise_data_file[:-3]+'_'+savefig+'_PSD.png')
     # plt.close()
 
 def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_dec=200,MB_results=None,num_chunks=100,blank_chunks=40,removal_decimation=1,i=0):
