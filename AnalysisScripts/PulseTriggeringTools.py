@@ -221,8 +221,8 @@ def movavg_xy(x,y,side_pts=3):
     return x_pts, y_avg
 
 def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4, 
-                tauFall=500e-6, mean_pre_samps=800, doAlign = True, verbose=False, 
-                show_plots=False):
+                tauFall=500e-6, mean_pre_samps=800, doAlign=True, movAvgPts=50,
+                verbose=False, show_plots=False):
     
     ## Initialize the pulse trackers
     pulseCount=0
@@ -269,7 +269,7 @@ def GetResponse(series, trig_channel="Phase", traceLength=4096, trig_th=1.0e4,
             n_traces  += 1
             
             if show_plots:
-                av_t, av_w = movavg_xy(tvals,trace,side_pts=50)
+                av_t, av_w = movavg_xy(tvals,trace,side_pts=movAvgPts)
                 plt.plot(av_t, av_w,alpha=0.25)
                 # plt.plot(tvals,trace,alpha=0.25)
 
