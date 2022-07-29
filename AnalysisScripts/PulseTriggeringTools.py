@@ -296,6 +296,7 @@ def CalcPulseParams(traces, movAvgPts=None):
     for pulseNum in traces:
         trace = traces[pulseNum]
         if movAvgPts is not None:
+        	print("averaging")
         	trace = movavg(trace,side_pts=movAvgPts)
         pulse_max = np.amax(trace[800:1800])
         pulse_heights.append(pulse_max)
