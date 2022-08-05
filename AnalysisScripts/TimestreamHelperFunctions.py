@@ -97,7 +97,12 @@ def UnpackSummary(s_file_path, verbose=False):
 
 	return md_dict, mean_frqs, mean_S21s
 
-def CleanPSDs(ts_file, vna_file, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None):
+def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None):
+	
+	if series is not None:
+		sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, verbose=True)
+		ts_file = tone_files[0]
+
 	PSD_lo_f = int(PSD_lo_f)  ## chunk up to [Hz]
 	PSD_hi_f = int(PSD_hi_f)  ## decimate down to  [Hz]
 	
