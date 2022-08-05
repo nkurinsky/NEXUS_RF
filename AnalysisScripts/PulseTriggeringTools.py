@@ -443,9 +443,9 @@ def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
     s_samp = start_samp+p_index*samps_btwn_pls
 
     ## Draw the plot
-    ax0.plot(waveform[s_samp:s_samp+window])
+    ax0.plot(wf[s_samp:s_samp+window])
 
-    return waveform[s_samp:s_samp+window]
+    return wf[s_samp:s_samp+window]
 
     
 
