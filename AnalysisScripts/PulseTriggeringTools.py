@@ -10,7 +10,6 @@ from scipy.signal import fftconvolve
 
 import TimestreamHelperFunctions as Thf
 
-
 def readDataFile(series):
     sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, verbose=True)
 
@@ -324,7 +323,7 @@ def CalcPulseParams(traces, movAvgPts=None):
 ##  
 ## INPUTS
 ## -- timestream      1D numpy array    Ordered values of a tone timestream
-##                                      phase or magnitude in which to find
+##                    of float          phase or magnitude in which to find
 ##                                      pulses
 ## -- start_t_sec     float             Point in time (seconds since start)
 ##                                      where pulses should start to be found
@@ -352,8 +351,11 @@ def CalcPulseParams(traces, movAvgPts=None):
 ##                                      windows and the average waveform
 ## OUTPUTS
 ## -- avg_wvfm        1D numpy array    Ordered values of an average pulse with
-##                                      the same length and sampling rate as 
+##                    of float          the same length and sampling rate as 
 ##                                      the input array
+## -- i               int               Number of pulse windows averaged
+## -- baseline        float             The baseline that is found and removed
+## -- window          int               Width of the window in samples
 def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample_rate=1e6, Npulses=None, 
                 bl_subtract=False, show_plots=False):
     ## Convert times to samples
@@ -413,4 +415,45 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
         ax0.plot(avg_wvfm,"k--")
         
     ## Return the averaged waveform
-    return avg_wvfm    
+    return avg_wvfm, i, baseline, window    
+
+def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
+              pulse_rate_Hz=100, win_fac=0.90, sample_rate=1e6,
+              baseline=None, complex=False):
+
+    ## Convert times to samples
+    start_samp     = int(sample_rate * start_t_sec)
+    t_btwn_pulses  = 1./pulse_rate_Hz
+    samps_btwn_pls = int(sample_rate * t_btwn_pulses)
+
+    ## Define the window of interest
+    if win_fac > 0.95:
+        win_fac = 0.95
+    window = int(win_fac * samps_btwn_pls)
+
+    ## Subtract the baseline if provided
+    bl  = 0 if baseline is None else baseline
+    wf  = timestream - bl
+
+    ## Create a plot object
+    fig = plt.figure() if fig_obj is None else fig_obj
+    ax0 = fig.gca()
+
+    ## Determine sample index for the start of the specified window
+    s_samp = start_samp+p_index*samps_btwn_pls
+
+    ## Draw the plot
+    ax0.plot(waveform[s_samp:s_samp+window])
+
+    return waveform[s_samp:s_samp+window]
+
+    
+
+
+
+
+
+
+
+
+    
