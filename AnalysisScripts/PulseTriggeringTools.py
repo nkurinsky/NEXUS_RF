@@ -419,7 +419,7 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
 
 def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
               pulse_rate_Hz=100, win_fac=0.90, sample_rate=1e6,
-              baseline=None, complex=False):
+              baseline=None, complx=False):
 
     ## Convert times to samples
     start_samp     = int(sample_rate * start_t_sec)
@@ -431,21 +431,24 @@ def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
         win_fac = 0.95
     window = int(win_fac * samps_btwn_pls)
 
+    ## Determine sample index for the start of the specified window
+    s_samp = start_samp+p_index*samps_btwn_pls
+
     ## Subtract the baseline if provided
     bl  = 0 if baseline is None else baseline
-    wf  = timestream - bl
+    wf  = timestream[s_samp:s_samp+window] - bl
 
     ## Create a plot object
     fig = plt.figure() if fig_obj is None else fig_obj
     ax0 = fig.gca()
 
-    ## Determine sample index for the start of the specified window
-    s_samp = start_samp+p_index*samps_btwn_pls
-
     ## Draw the plot
-    ax0.plot(wf[s_samp:s_samp+window])
+    if complx:
+        ax0.scatter(wf.real(),wf.imag(),alpha=0.2)
+    else:
+        ax0.plot(wf)
 
-    return wf[s_samp:s_samp+window]
+    return wf
 
     
 
