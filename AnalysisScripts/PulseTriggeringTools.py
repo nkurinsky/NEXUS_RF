@@ -444,7 +444,7 @@ def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
 
     ## Draw the plot
     if complx:
-        ax0.scatter(wf.real(),wf.imag(),alpha=0.2)
+        ax0.scatter(np.real(wf),np.imag(wf),alpha=0.2)
     else:
         ax0.plot(wf)
 
