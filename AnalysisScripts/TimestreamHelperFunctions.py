@@ -103,6 +103,10 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 		sum_file, dly_file, vna_file, tone_files = GetFiles(series, verbose=True)
 		ts_file = tone_files[0]
 
+		metadata, avg_frqs, avg_S21s = Thf.UnpackSummary(sum_file)
+		charZs = avg_frqs
+		charFs = avg_S21s
+
 	PSD_lo_f = int(PSD_lo_f)  ## chunk up to [Hz]
 	PSD_hi_f = int(PSD_hi_f)  ## decimate down to  [Hz]
 	
