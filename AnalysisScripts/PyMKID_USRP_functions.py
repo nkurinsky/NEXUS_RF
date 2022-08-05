@@ -415,7 +415,7 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
     plt.ylabel('ADC units')
     plt.axvline(x=0, color='gray')
     plt.axhline(y=0, color='gray')
-    plt.legend(loc='upper center',bbox_to_anchor=(0.5,-0.05),ncol=4)
+    plt.legend(loc='upper center',bbox_to_anchor=(0.5,-0.15),ncol=3)
 
     return fig
 
