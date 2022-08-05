@@ -100,7 +100,7 @@ def UnpackSummary(s_file_path, verbose=False):
 def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None):
 	
 	if series is not None:
-		sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, verbose=True)
+		sum_file, dly_file, vna_file, tone_files = GetFiles(series, verbose=True)
 		ts_file = tone_files[0]
 
 	PSD_lo_f = int(PSD_lo_f)  ## chunk up to [Hz]
