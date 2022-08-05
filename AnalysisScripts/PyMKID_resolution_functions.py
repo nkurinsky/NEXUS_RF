@@ -1093,204 +1093,204 @@ def coherence_analysis(noise_data_file,extra_dec=None):
     plt.savefig(noise_data_file[:-3]+'_0_coh_b.png')
     plt.close()
 
-def readDataFile(filestr):
-    data, data_info = PUf.unavg_noi(filestr)
-    sampling_period = data_info['sampling period']
-    times = data_info['time']
+# def readDataFile(filestr):
+#     data, data_info = PUf.unavg_noi(filestr)
+#     sampling_period = data_info['sampling period']
+#     times = data_info['time']
 
-    sampling_rate = 1./sampling_period
-    res = dict()
-    radius, arc_length,_,_ = electronics_basis(data[:,0])
-    res['radius']=radius
-    res['arc length'] = arc_length
-    res['Time']=times
-    res['Fs']=sampling_rate
-    res['number_samples']=len(data)
-    res['chan_names']=['radius','arc length']
-    return res
+#     sampling_rate = 1./sampling_period
+#     res = dict()
+#     radius, arc_length,_,_ = electronics_basis(data[:,0])
+#     res['radius']=radius
+#     res['arc length'] = arc_length
+#     res['Time']=times
+#     res['Fs']=sampling_rate
+#     res['number_samples']=len(data)
+#     res['chan_names']=['radius','arc length']
+#     return res
 
-def pulse(x,x0,tau1=20e-6,tau2=200e-6):
-    dx=(x-x0)
-    dx*=np.heaviside(dx,1)
-    return (np.exp(-dx/tau1)-np.exp(-dx/tau2))/(tau1-tau2)*np.heaviside(dx,1)
+# def pulse(x,x0,tau1=20e-6,tau2=200e-6):
+#     dx=(x-x0)
+#     dx*=np.heaviside(dx,1)
+#     return (np.exp(-dx/tau1)-np.exp(-dx/tau2))/(tau1-tau2)*np.heaviside(dx,1)
 
-def pulseFromTemplate(template,noisepsd,fs):
+# def pulseFromTemplate(template,noisepsd,fs):
 
-    # calculate the time-domain optimum filter
-    phi = irfft(rfft(template)/noisepsd).real
-    # calculate the normalization of the optimum filter
-    norm = np.dot(phi, template)
+#     # calculate the time-domain optimum filter
+#     phi = irfft(rfft(template)/noisepsd).real
+#     # calculate the normalization of the optimum filter
+#     norm = np.dot(phi, template)
 
-    # calculate the expected energy resolution
-    resolution = 1.0/(np.dot(phi, template)/fs)**0.5
+#     # calculate the expected energy resolution
+#     resolution = 1.0/(np.dot(phi, template)/fs)**0.5
 
-    template = phi/norm*fs
+#     template = phi/norm*fs
 
-    return template,[phi,norm,resolution]
+#     return template,[phi,norm,resolution]
 
-## Searches a given channel in a given file for pulses. Saves a list of pulse times
-## back to that same file, overwriting what's there if desired
-def storeEvents(filename,override=True,trig_th=4,trig_channel='arc length'):
-    res = getEvents(filename,trig_th=trig_th,trig_channel=trig_channel)
-    pulse_times = res['trigtime']
-    with h5py.File(filename, 'r+') as fyle:
-        if 'pulses' in fyle.keys():
-            print('pulse time data already exists! If you set override=False, nothing will happen.')
-            if override:
-                print('saving pulse time data to {} because override=True!'.format(filename))
-                del fyle['pulses']
-                fyle['pulses'] = pulse_times
-        else:
-            print('saving pulses to {}!'.format(filename))
-            fyle['pulses'] = pulse_times
-    return pulse_times
+# ## Searches a given channel in a given file for pulses. Saves a list of pulse times
+# ## back to that same file, overwriting what's there if desired
+# def storeEvents(filename,override=True,trig_th=4,trig_channel='arc length'):
+#     res = getEvents(filename,trig_th=trig_th,trig_channel=trig_channel)
+#     pulse_times = res['trigtime']
+#     with h5py.File(filename, 'r+') as fyle:
+#         if 'pulses' in fyle.keys():
+#             print('pulse time data already exists! If you set override=False, nothing will happen.')
+#             if override:
+#                 print('saving pulse time data to {} because override=True!'.format(filename))
+#                 del fyle['pulses']
+#                 fyle['pulses'] = pulse_times
+#         else:
+#             print('saving pulses to {}!'.format(filename))
+#             fyle['pulses'] = pulse_times
+#     return pulse_times
 
-def getEvents(filename, trig_channel='arc length', trig_th = 4.0,\
-              rising_edge = True, maxAlign=True, pretrig = 2000,\
-              trace_len=10000,trig_sep=10000,ds=1,\
-              pretrig_template = 2000, tauRise=5e-6,tauFall=50e-6,\
-              ACcoupled=True,verbose=False,template=None):
+# def getEvents(filename, trig_channel='arc length', trig_th = 4.0,\
+#               rising_edge = True, maxAlign=True, pretrig = 2000,\
+#               trace_len=10000,trig_sep=10000,ds=1,\
+#               pretrig_template = 2000, tauRise=5e-6,tauFall=50e-6,\
+#               ACcoupled=True,verbose=False,template=None):
 
-    """
-    finds the pulse events in a timestream on either the arc length or radius channel
+#     """
+#     finds the pulse events in a timestream on either the arc length or radius channel
 
-    input: noise timestream file
-    output: res dictionary which will have the times of the pulses
-
-
-    Below from Noah Kurinsky:
-    This function takes data from continuous DAQ and slices the data into events with a level trigger
-
-    Double exponential template is generated if no template is given. For OF template, run 'pulseFromTemplate' to generate
-    apropriate template for use with trigger function
-    """
-
-    res=readDataFile(filename)
-    chan_names=res['chan_names']
-    number_samples=res['number_samples']
-
-    #make sure trigger channel is valid
-    chan_names = res['chan_names']
-    if(trig_channel not in chan_names):
-        trig_channel='arc length'
-        if(verbose):
-            print('Trigger Channel Defaulting to Phase')
-
-    #setup trigger template
-    fs=res['Fs']
-    dt=1.0/fs
-    if(template is None):
-        #produce shaping template
-        pretrigger=pretrig_template*dt
-        xtemplate=np.arange(0,trace_len)*dt
-        template=pulse(xtemplate,pretrigger,tau1=tauRise,tau2=tauFall)
-    else:
-        oldtl = trace_len
-        trace_len = len(template)
-        if(oldtl == trig_sep):
-            trig_sep = trace_len
-        pretrig_template = np.argmax(template)
-        xtemplate=np.arange(0,trace_len)*dt
-
-    if(ACcoupled): #removes DC component; flat trace gives 0
-        template-=np.mean(template)
-
-    trace=res[trig_channel]
-    #downsample and average template and trace
-    meandt=dt*ds
-    trig_sep_ds = int(trig_sep/ds)
-
-    meanTemplate=np.mean(template.reshape(int(len(template)/ds),ds),axis=1)
-    meanTrace=np.mean(trace.reshape(int(len(trace)/ds),ds),axis=1)
+#     input: noise timestream file
+#     output: res dictionary which will have the times of the pulses
 
 
+#     Below from Noah Kurinsky:
+#     This function takes data from continuous DAQ and slices the data into events with a level trigger
 
-    #pulse shaping maintainin correct amplitude
-    filtered_data = scipy.signal.fftconvolve(meanTrace, meanTemplate[::-1], mode="valid")
+#     Double exponential template is generated if no template is given. For OF template, run 'pulseFromTemplate' to generate
+#     apropriate template for use with trigger function
+#     """
 
-    convolution_mean = np.mean(filtered_data)
-    trigger_std = trig_th*np.std(filtered_data)
-    # filtered_data = np.correlate(meanTrace,meanTemplate)*meandt
-    # plt.plot(res['radius'])
-    # plt.figure()
-    # plt.plot(filtered_data)
-    # plt.show()
+#     res=readDataFile(filename)
+#     chan_names=res['chan_names']
+#     number_samples=res['number_samples']
 
-    if (rising_edge): #rising edge
-        if(verbose):
-            print('Triggering on rising edge')
-        trigA = (filtered_data[0:-1] < convolution_mean + trigger_std)
-        trigB = (filtered_data[1:] > convolution_mean + trigger_std)
-    else: #falling edge
-        if(verbose):
-            print('Triggering on falling edge')
-        trigA = (filtered_data[0:1] > trigger_std)
-        trigB = (filtered_data[1:] < trigger_std)
-    trigger_condition = trigA & trigB
-    trigger_points=np.flatnonzero(trigger_condition)+1
+#     #make sure trigger channel is valid
+#     chan_names = res['chan_names']
+#     if(trig_channel not in chan_names):
+#         trig_channel='arc length'
+#         if(verbose):
+#             print('Trigger Channel Defaulting to Phase')
 
-    rm_index = []
-    n_trig = len(trigger_points)
-    n_trig_pts = n_trig
-    idx = 0
-    alignPreTrig = 200
-    alignPostTrig = 500
-    while (idx < n_trig-2):
+#     #setup trigger template
+#     fs=res['Fs']
+#     dt=1.0/fs
+#     if(template is None):
+#         #produce shaping template
+#         pretrigger=pretrig_template*dt
+#         xtemplate=np.arange(0,trace_len)*dt
+#         template=pulse(xtemplate,pretrigger,tau1=tauRise,tau2=tauFall)
+#     else:
+#         oldtl = trace_len
+#         trace_len = len(template)
+#         if(oldtl == trig_sep):
+#             trig_sep = trace_len
+#         pretrig_template = np.argmax(template)
+#         xtemplate=np.arange(0,trace_len)*dt
 
-        #remove redundant triggers
-        nidx = idx + 1
-        while ( (nidx< n_trig) and ((trigger_points[nidx] - trigger_points[idx])< trig_sep_ds) ):
-            rm_index.append(nidx)
-            nidx += 1
+#     if(ACcoupled): #removes DC component; flat trace gives 0
+#         template-=np.mean(template)
 
-        #update loop
-        idx = nidx
+#     trace=res[trig_channel]
+#     #downsample and average template and trace
+#     meandt=dt*ds
+#     trig_sep_ds = int(trig_sep/ds)
 
-    if(len(rm_index) > 0):
-        rm_index = np.array(rm_index)
-        trigger_points = np.delete(trigger_points, rm_index)
+#     meanTemplate=np.mean(template.reshape(int(len(template)/ds),ds),axis=1)
+#     meanTrace=np.mean(trace.reshape(int(len(trace)/ds),ds),axis=1)
 
-    #align trigger with pulse maximum
-    if(maxAlign):
-        for idx in range(0,len(trigger_points)):
-            trigWindowStart=trigger_points[idx] - int(alignPreTrig/ds)
-            trigWindowEnd=trigger_points[idx] + int(alignPostTrig/ds)
-            if(trigWindowStart > 0 and trigWindowEnd < len(filtered_data)):
-                trigger_points[idx] = np.argmax(filtered_data[trigWindowStart:trigWindowEnd])+trigWindowStart
 
-    if(ds > 1):
-        trigger_points*=ds
-    trigger_points += pretrig_template
-    n_trig = len(trigger_points)
 
-    for ch_str in chan_names:
-        rm_index = []
-        singleTrace=res[ch_str]
-        res[ch_str] = []
-        for i in range(0,len(trigger_points)):
-            trigpt = trigger_points[i]
+#     #pulse shaping maintainin correct amplitude
+#     filtered_data = scipy.signal.fftconvolve(meanTrace, meanTemplate[::-1], mode="valid")
 
-            #avoid traces too close to the edge of the trace
-            trigAreaStart=trigpt - pretrig
-            trigAreaEnd=trigpt + trace_len - pretrig
-            if(trigAreaStart < 0 or trigAreaEnd > len(singleTrace)):
-                rm_index.append(i)
-                continue
-            res[ch_str].append(singleTrace[trigAreaStart:trigAreaEnd])
-        if(len(rm_index) > 0):
-            rm_index = np.array(rm_index)
-            trigger_points = np.delete(trigger_points, rm_index)
-        res[ch_str] = np.array(res[ch_str])
+#     convolution_mean = np.mean(filtered_data)
+#     trigger_std = trig_th*np.std(filtered_data)
+#     # filtered_data = np.correlate(meanTrace,meanTemplate)*meandt
+#     # plt.plot(res['radius'])
+#     # plt.figure()
+#     # plt.plot(filtered_data)
+#     # plt.show()
 
-    res['trigpt'] = trigger_points
-    res['trigtime'] = res['Time'][trigger_points]
-    res['filename'] = np.full(n_trig,filename)
-    res['trigRate'] = np.full(n_trig,n_trig)
-    res['trigPts'] = np.full(n_trig,n_trig_pts)
+#     if (rising_edge): #rising edge
+#         if(verbose):
+#             print('Triggering on rising edge')
+#         trigA = (filtered_data[0:-1] < convolution_mean + trigger_std)
+#         trigB = (filtered_data[1:] > convolution_mean + trigger_std)
+#     else: #falling edge
+#         if(verbose):
+#             print('Triggering on falling edge')
+#         trigA = (filtered_data[0:1] > trigger_std)
+#         trigB = (filtered_data[1:] < trigger_std)
+#     trigger_condition = trigA & trigB
+#     trigger_points=np.flatnonzero(trigger_condition)+1
 
-    del singleTrace
-    del filtered_data
-    del trigger_condition
-    del trigA,trigB
+#     rm_index = []
+#     n_trig = len(trigger_points)
+#     n_trig_pts = n_trig
+#     idx = 0
+#     alignPreTrig = 200
+#     alignPostTrig = 500
+#     while (idx < n_trig-2):
 
-    return res
+#         #remove redundant triggers
+#         nidx = idx + 1
+#         while ( (nidx< n_trig) and ((trigger_points[nidx] - trigger_points[idx])< trig_sep_ds) ):
+#             rm_index.append(nidx)
+#             nidx += 1
+
+#         #update loop
+#         idx = nidx
+
+#     if(len(rm_index) > 0):
+#         rm_index = np.array(rm_index)
+#         trigger_points = np.delete(trigger_points, rm_index)
+
+#     #align trigger with pulse maximum
+#     if(maxAlign):
+#         for idx in range(0,len(trigger_points)):
+#             trigWindowStart=trigger_points[idx] - int(alignPreTrig/ds)
+#             trigWindowEnd=trigger_points[idx] + int(alignPostTrig/ds)
+#             if(trigWindowStart > 0 and trigWindowEnd < len(filtered_data)):
+#                 trigger_points[idx] = np.argmax(filtered_data[trigWindowStart:trigWindowEnd])+trigWindowStart
+
+#     if(ds > 1):
+#         trigger_points*=ds
+#     trigger_points += pretrig_template
+#     n_trig = len(trigger_points)
+
+#     for ch_str in chan_names:
+#         rm_index = []
+#         singleTrace=res[ch_str]
+#         res[ch_str] = []
+#         for i in range(0,len(trigger_points)):
+#             trigpt = trigger_points[i]
+
+#             #avoid traces too close to the edge of the trace
+#             trigAreaStart=trigpt - pretrig
+#             trigAreaEnd=trigpt + trace_len - pretrig
+#             if(trigAreaStart < 0 or trigAreaEnd > len(singleTrace)):
+#                 rm_index.append(i)
+#                 continue
+#             res[ch_str].append(singleTrace[trigAreaStart:trigAreaEnd])
+#         if(len(rm_index) > 0):
+#             rm_index = np.array(rm_index)
+#             trigger_points = np.delete(trigger_points, rm_index)
+#         res[ch_str] = np.array(res[ch_str])
+
+#     res['trigpt'] = trigger_points
+#     res['trigtime'] = res['Time'][trigger_points]
+#     res['filename'] = np.full(n_trig,filename)
+#     res['trigRate'] = np.full(n_trig,n_trig)
+#     res['trigPts'] = np.full(n_trig,n_trig_pts)
+
+#     del singleTrace
+#     del filtered_data
+#     del trigger_condition
+#     del trigA,trigB
+
+#     return res

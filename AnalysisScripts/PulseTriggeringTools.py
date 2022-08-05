@@ -10,6 +10,22 @@ from scipy.signal import fftconvolve
 
 import TimestreamHelperFunctions as Thf
 
+def ReafLegacyDataFile(filestr):
+    data, data_info = PUf.unavg_noi(filestr)
+    sampling_period = data_info['sampling period']
+    times = data_info['time']
+
+    sampling_rate = 1./sampling_period
+    res = dict()
+    radius, arc_length,_,_ = electronics_basis(data[:,0])
+    res['radius']=radius
+    res['arc length'] = arc_length
+    res['Time']=times
+    res['Fs']=sampling_rate
+    res['number_samples']=len(data)
+    res['chan_names']=['radius','arc length']
+    return res
+
 def readDataFile(series):
     sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, verbose=True)
 
@@ -58,6 +74,23 @@ def pulseFromTemplate(template,noisepsd,fs):
     template = phi/norm*fs
     
     return template,[phi,norm,resolution]
+
+## Searches a given channel in a given file for pulses. Saves a list of pulse times
+## back to that same file, overwriting what's there if desired
+def storeEvents(filename,override=True,trig_th=4,trig_channel='arc length'):
+    res = getEvents(filename,trig_th=trig_th,trig_channel=trig_channel)
+    pulse_times = res['trigtime']
+    with h5py.File(filename, 'r+') as fyle:
+        if 'pulses' in fyle.keys():
+            print('pulse time data already exists! If you set override=False, nothing will happen.')
+            if override:
+                print('saving pulse time data to {} because override=True!'.format(filename))
+                del fyle['pulses']
+                fyle['pulses'] = pulse_times
+        else:
+            print('saving pulses to {}!'.format(filename))
+            fyle['pulses'] = pulse_times
+    return pulse_times
 
 def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, maxAlign=True,
               pretrig = 1024, trace_len = 4096, trig_sep = 4096, ds=4, pretrig_template = 1024, 
@@ -112,17 +145,24 @@ def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, m
     #filtered_data = np.correlate(meanTrace,meanTemplate)*meandt
     # plt.plot(filtered_data)
     # plt.show()
+
+    convolution_mean = np.mean(filtered_data)
+    trigger_std      = trig_th*np.std(filtered_data)
  
     if (rising_edge): #rising edge
         if(verbose):
             print('Triggering on rising edge')
         trigA = (filtered_data[0:-1] < trig_th)
         trigB = (filtered_data[1:] > trig_th)
+        # trigA = (filtered_data[0:-1] < convolution_mean + trigger_std)
+        # trigB = (filtered_data[1:] > convolution_mean + trigger_std)
     else: #falling edge
         if(verbose):
             print('Triggering on falling edge')
         trigA = (filtered_data[0:1] > trig_th)
         trigB = (filtered_data[1:] < trig_th)
+        # trigA = (filtered_data[0:1] > trigger_std)
+        # trigB = (filtered_data[1:] < trigger_std)
     trigger_condition = trigA & trigB
     trigger_points=np.flatnonzero(trigger_condition)+1
  
@@ -179,10 +219,11 @@ def getEvents(series, trig_channel='Phase', trig_th = 2.0, rising_edge = True, m
             trigger_points = np.delete(trigger_points, rm_index)
         res[ch_str] = np.array(res[ch_str])
  
-    res['trigpt'] = trigger_points
-    res['series'] = np.full(n_trig,series)
+    res['trigpt']   = trigger_points
+    res['trigtime'] = res['Time'][trigger_points]
+    res['series']   = np.full(n_trig,series)
     res['trigRate'] = np.full(n_trig,n_trig)
-    res['trigPts'] = np.full(n_trig,n_trig_pts)
+    res['trigPts']  = np.full(n_trig,n_trig_pts)
  
     del singleTrace
     del filtered_data
