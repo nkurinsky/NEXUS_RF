@@ -309,3 +309,108 @@ def CalcPulseParams(traces, movAvgPts=None):
         #     interestingPulseHeights.append(pulse_max)
 
     return pulse_heights, taus
+
+## This function is used to stack pulses only based upon the location
+## of the first pulse and the rate of pulse arrival. Used for finding 
+## the average pulse to create a template for triggering in timestreams
+## with irregular arrival times. The wall time values are inferred 
+## from the total number of samples and sampling rate.
+## The pulse rate determines the fixed amount of time and number of
+## samples between KID response pulse rising edges. A window spanning
+## the user-specified start time and the time between pulses is defined
+## by a fraction. That window jumps along the waveform with the step
+## set by the time between pulse arrival. The waveform in each window
+## is stacked, then averaged.
+##  
+## INPUTS
+## -- timestream      1D numpy array    Ordered values of a tone timestream
+##                                      phase or magnitude in which to find
+##                                      pulses
+## -- start_t_sec     float             Point in time (seconds since start)
+##                                      where pulses should start to be found
+##                                      it should be a few tens of samples 
+##                                      before the first rising edge of a 
+##                                      pulse in the timestream (units: seconds)
+## -- pulse_Hz_rate   float/int         [default 100] The rate of arrival of
+##                                      pulses, usually set by the AWG driving
+##                                      the LED or laser supplying the optical
+##                                      photons (units: Hz)
+## -- win_fac         float             [default 0.90] sets the window size as 
+##                                      a fraction of the time between pulses
+## -- sample_rate     float             [default 1e6] sample rate of the data, 
+##                                      used to infer real time 
+##                                      (units: sample per second)
+## -- Npulses         int               [default None] total number of pulse 
+##                                      windows to average - this is needed
+##                                      if there is a pulse-free region at the 
+##                                      end of the timestream, after the LED
+##                                      exposure
+## -- bl_subtract     bool              [default False] subtract off the mean
+##                                      of the 2nd to 6th window in the pre
+##                                      pulse timestream
+## -- show_plots      bool              [default False] create a plot of the  
+##                                      windows and the average waveform
+## OUTPUTS
+## -- avg_wvfm        1D numpy array    Ordered values of an average pulse with
+##                                      the same length and sampling rate as 
+##                                      the input array
+def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample_rate=1e6, Npulses=None, 
+                bl_subtract=False, show_plots=False):
+    ## Convert times to samples
+    start_samp     = int(sample_rate * start_t_sec)
+    t_btwn_pulses  = 1./pulse_rate_Hz
+    samps_btwn_pls = int(sample_rate * t_btwn_pulses)
+    
+    ## Define the window of interest
+    if win_fac > 0.95:
+        win_fac = 0.95
+    window = int(win_fac * samps_btwn_pls)
+    
+    ## Take the average of the second 5 windows in the timestream to determine a baseline
+    baseline = np.mean(timestream[window:6*window])
+    
+    ## Subtract off the baseline from the waveform
+    waveform = timestream 
+    if bl_subtract:
+        waveform-= baseline
+    
+    ## Create a storage container for the averaged waveform
+    avg_wvfm = np.zeros(window)
+    
+    ## Initialize the plot
+    if show_plots:
+        fig = plt.figure()
+        ax0 = fig.gca()
+        
+    ## Start an index counter
+    i = 0
+
+    ## Loop over a fixed number of samples starting at the user-input start time
+    ## until the end of the window is beyond the end of the timestream
+    while start_samp+i*samps_btwn_pls+window < len(timestream)-1:
+
+        ## Add the values of the waveform in the current window to the averaged waveform
+        avg_wvfm +=  waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window]
+        
+        ## Add the waveform in the current window to the plot
+        if show_plots:
+            ax0.plot(waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window], 
+                alpha=0.2)
+
+        ## Increment the index counter
+        i+=1
+        
+        ## Stop after a certain number of pulses
+        if Npulses is not None:
+            if i>Npulses:
+                break
+
+    ## Average the summed waveform
+    avg_wvfm/=i
+
+    ## Draw the average waveform
+    if show_plots:
+        ax0.plot(avg_wvfm,"k--")
+        
+    ## Return the averaged waveform
+    return avg_wvfm    
