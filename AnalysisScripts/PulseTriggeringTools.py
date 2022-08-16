@@ -10,7 +10,7 @@ from scipy.signal import fftconvolve
 
 import TimestreamHelperFunctions as Thf
 
-def ReafLegacyDataFile(filestr):
+def readLegacyDataFile(filestr):
     data, data_info = PUf.unavg_noi(filestr)
     sampling_period = data_info['sampling period']
     times = data_info['time']
@@ -47,13 +47,15 @@ def readDataFile(series):
     phases = np.angle(res_ts)
     
     res = dict()
-    res['Phase']=phases-np.angle(avg_S21s[0])
-    res['Magnitude']=mags-abs(avg_S21s[0])
-    res['Time']=times
-    res['Fs']=1e6
+    res['Phase']     = phases#-np.angle(avg_S21s[0])
+    res['Magnitude'] = mags#-abs(avg_S21s[0])
+    res['Time']      = times
+    res['Fs']        = 1e6
     res['number_samples']=n_pts
-    res['chan_names']=['Phase','Magnitude']
-    res['cut_idx'] = np.argmin(np.abs(times-0.001))
+    res['chan_names']= ['Phase','Magnitude']
+    res['cut_idx']   = np.argmin(np.abs(times-0.001))
+    res['avg_mag']   = np.angle(avg_S21s[0])
+    res['avg_phs']   = abs(avg_S21s[0])
     return res
 
 def pulse(x,x0,tau1=20e-6,tau2=200e-6):
