@@ -31,20 +31,20 @@ except ImportError:
         print("Cannot find the PyMKID_USRP_functions package")
         exit()
 
-try:
-    import laser_driver
-except ImportError:
-    try:
-        sys.path.append('../DeviceControl/LaserDriver')
-        import laser_driver
-    except ImportError:
-        print("Cannot find the laser_driver package")
-        exit()
+# try:
+#     import laser_driver
+# except ImportError:
+#     try:
+#         sys.path.append('../DeviceControl/LaserDriver')
+#         import laser_driver
+#     except ImportError:
+#         print("Cannot find the laser_driver package")
+#         exit()
 
-## Set Laser parameters
-l_pw    =  10.0         ## [us]
-l_bf    = 250.0         ## [Hz]
-l_Rf    = int(127)      ## [integer]
+# ## Set Laser parameters
+# l_pw    =  10.0         ## [us]
+# l_bf    = 250.0         ## [Hz]
+# l_Rf    = int(127)      ## [integer]
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -58,8 +58,8 @@ f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 # f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 # f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
-points  =  1e5
-duration = 10           ## [Sec]
+points  =  1e6
+duration = 30           ## [Sec]
 
 ## Set Resonator parameters
 res     = 4.242170      ## Al   [GHz]
@@ -85,17 +85,27 @@ cal_lapse_sec = 10.
 filename=None
 
 ## Where to save the output data (hdf5 files)
-dataPath = '/data/USRP_Noise_Scans'
+dataPath = '/data/USRP_Laser_Data'
 
 ## Sub directory definitions
-dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-sweepPath = os.path.join(dataPath,dateStr)
+dateStr    = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+sweepPath  = '' # os.path.join(dataPath,dateStr)
 
-series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-seriesPath = os.path.join(sweepPath,series)
+series     = '' # str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+seriesPath = '' # os.path.join(sweepPath,series)
 
-## Create a driver instance
-driver = laser_driver.LaserDriver()
+# ## Create a driver instance
+# driver = laser_driver.LaserDriver()
+
+def get_paths():
+    ## Sub directory definitions
+    dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+    sweepPath = os.path.join(dataPath,dateStr)
+
+    series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+    seriesPath = os.path.join(sweepPath,series)
+
+    return dateStr, sweepPath, series, seriesPath
 
 def parse_args():
     # Instantiate the parser
@@ -110,7 +120,7 @@ def parse_args():
     parser.add_argument('--rate'     , '-R' , type=float, default = rate/1e6, 
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
     parser.add_argument('--points'   , '-p' , type=int  , default=points, 
-        help='Number of points use d in the scan (default '+str(points)+' points)')
+        help='Number of points used in the scan (default '+str(points)+' points)')
     parser.add_argument('--timeVNA'  , '-Tv' , type=float, default=duration, 
         help='Duration of the VNA scan in seconds per iteration (default '+str(duration)+' seconds)')
     parser.add_argument('--timeNoise', '-Tn' , type=float, default=duration, 
@@ -126,12 +136,12 @@ def parse_args():
     parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
         help='Baseband end frequrency in MHz relative to LO (default '+str(f1/1e6)+' MHz)')
 
-    parser.add_argument('--laserPW', '-Pw', type=float, default=l_pw,
-        help='Laser pulse width in microseconds (default '+str(l_pw)+' us)')
-    parser.add_argument('--laserBR', '-Br', type=float, default=l_bf,
-        help='Laser burst rate in Hz (default '+str(l_bf)+' Hz)')
-    parser.add_argument('--laserRR', '-Rr', type=int,   default=l_Rf,
-        help='Laser burst rate in Hz (default '+str(l_Rf)+' Hz)')
+    # parser.add_argument('--laserPW', '-Pw', type=float, default=l_pw,
+    #     help='Laser pulse width in microseconds (default '+str(l_pw)+' us)')
+    # parser.add_argument('--laserBR', '-Br', type=float, default=l_bf,
+    #     help='Laser burst rate in Hz (default '+str(l_bf)+' Hz)')
+    # parser.add_argument('--laserRR', '-Rr', type=int,   default=l_Rf,
+    #     help='Laser burst rate in Hz (default '+str(l_Rf)+' Hz)')
     
     # ## Line delay arguments
     # parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
@@ -168,7 +178,7 @@ def parse_args():
             args.rate = rate
 
     if (args.iter is not None):
-        if (args.iter < 0):
+        if (args.iter < 1):
             args.iter = 1
 
     ## MHz frequencies to Hz
@@ -303,12 +313,12 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     cal_freqs = np.zeros(n_c_deltas)
     cal_means = np.zeros(n_c_deltas, dtype=np.complex_)
 
-    ## For each power, loop over all the calibration offsets
+    ## For each power, loop over all the calibration offsets and take a noise run
     for j in np.arange(n_c_deltas):
         ## Pick this calibration delta
         delta = cal_deltas[j]
 
-        ## Make array of tones (fred, fTa, fTb)
+        ## Make array of tones (fres, fTa, fTb)
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
         readout_tones  = np.around(readout_tones, decimals=0)
@@ -341,11 +351,11 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         print("Amplitudes:         ", amplitudes)
         print("LO Frequency [Hz]:  ", freq)
 
-        ## Turn on the laser
-        print("Enabling laser...")
-        driver.enable_laser(True)
+        # ## Turn on the laser
+        # print("Enabling laser...")
+        # driver.enable_laser(True)
 
-        print("Starting Laser Run...")
+        print("Starting Noise Run...")
         ## Do a noise run with the USRP
         noise_file = u.get_tones_noise(relative_tones, 
                                     #measure_t  = lapse_noise,  ## passed in sec
@@ -366,9 +376,9 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
                                     subfolder  = None,#seriesPath,
                                     output_filename = outfname)
 
-        ## Turn off the laser
-        print("Disabling laser...")
-        driver.enable_laser(False)
+        # ## Turn off the laser
+        # print("Disabling laser...")
+        # driver.enable_laser(False)
 
         ## Add an extension to the file path
         noise_file += '.h5'
@@ -384,99 +394,154 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         if not (delta == 0):
             os.remove(noise_file)
 
+    ## Now take a noise run, with no calibration deltas
+    readout_tones  = np.append([f], tracking_tones)
+    n_ro_tones     = len(readout_tones)
+    readout_tones  = np.around(readout_tones, decimals=0)
+
+    ## Split the power evenly across two tones
+    amplitudes     = 1./ntones * np.ones(n_ro_tones)
+
+    relative_tones = np.zeros(n_ro_tones)
+    for k in np.arange(n_ro_tones):
+        relative_tones[k] = float(readout_tones[k]) - freq
+
+    outfname = "USRP_LaserOn_"+series
+
+    ## Create a group for the noise scan parameters
+    gScan = h5_group_obj.create_group('LaserScan')
+    gScan.attrs.create("file",  outfname+".h5")
+    gScan.create_dataset("readout_tones",  data=readout_tones)
+    gScan.create_dataset("relative_tones", data=relative_tones)
+    gScan.create_dataset("amplitudes",     data=amplitudes)
+    gScan.create_dataset("LOfrequency",    data=np.array([freq]))
+
+    ## Now wait for user input to ensure laser/LED has been enabled
+    input("USER: Enable laser/LED and hit ENTER to continue . . .")
+
+    print("Starting Laser Run...")
+    ## Do a noise run with the USRP
+    laser_file = u.get_tones_noise(relative_tones, 
+                                #measure_t  = lapse_noise,  ## passed in sec
+                                measure_t  = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec,  ## passed in sec
+                                tx_gain    = tx_gain, 
+                                rx_gain    = rx_gain, 
+                                rate       = rate,  ## passed in Hz
+                                decimation = 100, 
+                                RF         = freq,  ## passed in Hz 
+                                Front_end  = front_end,
+                                Device     = None,
+                                amplitudes = amplitudes,
+                                delay      = delay, ## passed in ns
+                                pf_average = 4, 
+                                mode       = "DIRECT", 
+                                trigger    = None, 
+                                shared_lo  = False,
+                                subfolder  = None,#seriesPath,
+                                output_filename = outfname)
+
+    ## Now wait for user input to ensure laser/LED has been enabled
+    input("USER: Disable laser/LED and hit ENTER to continue . . .")
+
+    ## Add an extension to the file path
+    laser_file += '.h5'
+
     return cal_freqs, cal_means
+
+def doRun(this_power):
+
+    ## Create the output directories
+    create_dirs()
+    os.chdir(seriesPath) ## When doing this, no need to provide subfolder
+
+    ## Instantiate an output file
+    fyle = h5py.File(os.path.join(seriesPath,'noise_averages_'+series+'.h5'),'w')
+
+    ## Ensure the power doesn't go above -25 dBm
+    ## Due to power splitting across tones
+    if this_power > -25:
+        USRP_power   = -25
+        args.txgain = this_power - USRP_power
+    else:
+        USRP_power   = this_power
+
+    ## Calculate some derived quantities
+    N_power = np.power(10.,(((-1*USRP_power)-14)/20.))
+    pwr_clc = np.round(-14-20*np.log10(N_power),2)
+
+    print("Initializing Noise Scan...")
+    print(pwr_clc, 'dBm of power')
+    print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
+
+    ## Create an h5 group for this data, store some general metadata
+    gPower = fyle.create_group('Power'+str(0)) #+str(i))
+    gPower.attrs.create("power",   USRP_power)
+    gPower.attrs.create("tx_gain", args.txgain)
+    gPower.attrs.create("rx_gain", args.rxgain)
+    gPower.attrs.create("N_power", N_power)
+    gPower.attrs.create("rate",    args.rate)
+    gPower.attrs.create("LOfreq",  args.LOfrq)
+
+    # gPower.attrs.create("L_pw",  args.laserPW)
+    # gPower.attrs.create("L_br",  args.laserBR)
+    # gPower.attrs.create("L_R" ,  args.laserRR)
+
+    cal_freqs, cal_means = runLaser(
+        tx_gain = args.txgain,
+        rx_gain = args.rxgain,
+        _iter   = args.iter,
+        rate    = args.rate,        ## Passed in Samps/sec
+        freq    = args.LOfrq,       ## Passed in Hz
+        front_end = "A",
+        f0      = args.f0,          ## Passed in Hz, relative to LO
+        f1      = args.f1,          ## Passed in Hz, relative to LO
+        lapse_VNA   = args.timeVNA,   ## Passed in seconds
+        lapse_noise = args.timeNoise, ## Passed in seconds
+        points  = args.points,
+        ntones  = N_power,
+        delay_duration = 0.1, # args.delay_duration,
+        delay_over = None,
+        h5_group_obj = gPower) #args.delay_over)
+
+    ## Store the resulting arrays in this h5 group
+    gPower.create_dataset('freqs',data=cal_freqs)
+    gPower.create_dataset('means',data=cal_means)
+
+    ## Close h5 file for writing
+    fyle.close()
 
 if __name__ == "__main__":
 
     ## Parse command line arguments to set parameters
     args = parse_args()
 
-    ## Create the output directories
-    create_dirs()
-    os.chdir(seriesPath) ## When doing this, no need to provide subfolder
-
     ## Connect to GPU SDR server
     if not u.Connect():
         u.print_error("Cannot find the GPU server!")
         exit(1)
 
-    ## Configure the laser's serial port
-    driver.configure_serial()
-    time.sleep(0.5)
-    print("         Identity:", driver.get_identity())
+    # ## Configure the laser's serial port
+    # driver.configure_serial()
+    # time.sleep(0.5)
+    # print("         Identity:", driver.get_identity())
     
-    ## Adjust the laser's parameters
-    # driver.set_pw( "%.2f" % args.laserPW ) ## micro second
-    driver.set_bf( "%.1f" % args.laserBR ) ## Hz
-    driver.set_lr( "%d"   % args.laserRR ) ## Resistance integer
+    # ## Adjust the laser's parameters
+    # # driver.set_pw( "%.2f" % args.laserPW ) ## micro second
+    # driver.set_bf( "%.1f" % args.laserBR ) ## Hz
+    # driver.set_lr( "%d"   % args.laserRR ) ## Resistance integer
 
-    print(" Pulse Width [us]:", driver.get_pw())
-    print("  Burst Rate [Hz]:", driver.get_bf())
-    print("          Laser R:", driver.get_lr())
-
-    ## Instantiate an output file
-    fyle = h5py.File(os.path.join(seriesPath,'noise_averages_'+series+'.h5'),'w')
+    # print(" Pulse Width [us]:", driver.get_pw())
+    # print("  Burst Rate [Hz]:", driver.get_bf())
+    # print("          Laser R:", driver.get_lr())
 
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
-        ## Pick this power
-        power = powers[i]
+        dateStr, sweepPath, series, seriesPath = get_paths()
 
-        ## Ensure the power doesn't go above -25 dBm
-        ## Due to power splitting across tones
-        if power > -25:
-            USRP_power   = -25
-            args.txgain = power - USRP_power
-        else:
-            USRP_power   = power
+        doRun(powers[i])
 
-        ## Calculate some derived quantities
-        N_power = np.power(10.,(((-1*USRP_power)-14)/20.))
-        pwr_clc = np.round(-14-20*np.log10(N_power),2)
-
-        print("Initializing Noise Scan...")
-        print(pwr_clc, 'dBm of power')
-        print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
-
-        ## Create an h5 group for this data, store some general metadata
-        gPower = fyle.create_group('Power'+str(i))
-        gPower.attrs.create("power",   USRP_power)
-        gPower.attrs.create("tx_gain", args.txgain)
-        gPower.attrs.create("rx_gain", args.rxgain)
-        gPower.attrs.create("N_power", N_power)
-        gPower.attrs.create("rate",    args.rate)
-        gPower.attrs.create("LOfreq",  args.LOfrq)
-
-        gPower.attrs.create("L_pw",  args.laserPW)
-        gPower.attrs.create("L_br",  args.laserBR)
-        gPower.attrs.create("L_R" ,  args.laserRR)
-
-        cal_freqs, cal_means = runLaser(
-            tx_gain = args.txgain,
-            rx_gain = args.rxgain,
-            _iter   = args.iter,
-            rate    = args.rate,        ## Passed in Samps/sec
-            freq    = args.LOfrq,       ## Passed in Hz
-            front_end = "A",
-            f0      = args.f0,          ## Passed in Hz, relative to LO
-            f1      = args.f1,          ## Passed in Hz, relative to LO
-            lapse_VNA   = args.timeVNA,   ## Passed in seconds
-            lapse_noise = args.timeNoise, ## Passed in seconds
-            points  = args.points,
-            ntones  = N_power,
-            delay_duration = 0.1, # args.delay_duration,
-            delay_over = None,
-            h5_group_obj = gPower) #args.delay_over)
-
-        ## Store the resulting arrays in this h5 group
-        gPower.create_dataset('freqs',data=cal_freqs)
-        gPower.create_dataset('means',data=cal_means)
-
-    ## Close h5 file for writing
-    fyle.close()
-
-    ## Disconnect from the laser driver COM port
-    driver.close()
+    # ## Disconnect from the laser driver COM port
+    # driver.close()
 
     ## Disconnect from the USRP server
     u.Disconnect()

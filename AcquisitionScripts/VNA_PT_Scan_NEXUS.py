@@ -199,7 +199,7 @@ def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
 
 if __name__ == "__main__":
     ## Initialize the NEXUS MGC3 servers
-    nf3 = NEXUSHeater(server_ip="192.168.0.34",server_port=11034)
+    nf3 = NEXUSHeater()#server_ip="192.168.0.34",server_port=11034)
 
     ## Initialize the VNA
     v = VNA()

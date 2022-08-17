@@ -361,6 +361,7 @@ def resfunc8(f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau):
     imag_S21[f_proj<0] = 0
     return real_S21 + imag_S21
 
+## Note that fine fit fits for Qr and Qc, from which Qi is calculated
 def finefit(f, z, fr_0, fit_res_obj=None, plot=False):
     """
     finefit fits f and z to the resonator model described in Jiansong's thesis
@@ -574,7 +575,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                     peaklist  = np.append(peaklist , peak_pos)
                     lookformax = False
             else:
-##                if cp > delta and f[i] > (min(f)+2*fwindow):
+                # if cp > delta and f[i] > (min(f)+2*fwindow):
                 if cp > delta:
                     mx = cp
                     mx_pos = i

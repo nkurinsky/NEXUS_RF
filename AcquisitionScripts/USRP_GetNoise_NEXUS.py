@@ -43,8 +43,8 @@ f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 # f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 # f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
-points  =  1e5
-duration = 10           ## [Sec]
+points  =  1e6
+duration = 30           ## [Sec]
 
 ## Set Resonator parameters
 res     = 4.242170      ## Al   [GHz]
@@ -76,8 +76,8 @@ filename=None
 dataPath = '/data/USRP_Noise_Scans'
 
 ## Sub directory definitions
-dateStr   = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-sweepPath = '' # os.path.join(dataPath,dateStr)
+dateStr    = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+sweepPath  = '' # os.path.join(dataPath,dateStr)
 
 series     = '' # str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
 seriesPath = '' # os.path.join(sweepPath,series)
@@ -105,7 +105,7 @@ def parse_args():
     parser.add_argument('--rate'     , '-R' , type=float, default = rate/1e6, 
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
     parser.add_argument('--points'   , '-p' , type=int  , default=points, 
-        help='Number of points use d in the scan (default '+str(points)+' points)')
+        help='Number of points used in the scan (default '+str(points)+' points)')
     parser.add_argument('--timeVNA'  , '-Tv' , type=float, default=duration, 
         help='Duration of the VNA scan in seconds per iteration (default '+str(duration)+' seconds)')
     parser.add_argument('--timeNoise', '-Tn' , type=float, default=duration, 
@@ -129,6 +129,7 @@ def parse_args():
         print("Power(s):", args.power, type(args.power))
 
         powers[0] = args.power
+        n_pwrs = len(powers)
 
         min_pwer = -70.0
         max_pwer = -15.0
@@ -148,7 +149,7 @@ def parse_args():
             args.rate = rate
 
     if (args.iter is not None):
-        if (args.iter < 0):
+        if (args.iter < 1):
             args.iter = 1
 
     ## MHz frequencies to Hz
@@ -288,7 +289,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Pick this calibration delta
         delta = cal_deltas[j]
 
-        ## Make array of tones (fred, fTa, fTb)
+        ## Make array of tones (fres, fTa, fTb)
         readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
         n_ro_tones     = len(readout_tones)
         readout_tones  = np.around(readout_tones, decimals=0)
@@ -426,6 +427,7 @@ if __name__ == "__main__":
         u.print_error("Cannot find the GPU server!")
         exit(1)
 
+    ## Loop over the powers considered
     for i in np.arange(n_pwrs):
         dateStr, sweepPath, series, seriesPath = get_paths()
 
