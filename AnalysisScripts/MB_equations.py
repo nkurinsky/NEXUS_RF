@@ -17,37 +17,53 @@ Planck_h = 4.135667662E-15 # eV*s
 def signed_log10(x):
     return np.log10(np.abs(x)) * x/np.abs(x)
 
+## Mazin thesis, equation 2.3: The density of thermally-excited quasiparticles
 def n_qp(T, Delta0):
     # [K, eV]
     return 2.*N_0*np.sqrt(2.*np.pi*Boltz_k*T*Delta0)*np.exp(-1.*Delta0/(Boltz_k*T))
 
-def f_T(T, f0, Delta0, alpha_f):
-    # [K, Hz, eV, _]
-    xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
-    return -1.*alpha_f/(4.*Delta0*N_0) * ( 1. + np.sqrt((2.*Delta0)/(np.pi*Boltz_k*T)) * np.exp(-1.*xi) * spec.i0(xi) ) * n_qp(T,Delta0) * f0 + f0
-
-def Qi_T(T, f0, Qi0, Delta0, alpha_Q):
-    xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
-    return ( alpha_Q/(np.pi*N_0) * np.sqrt(2./(np.pi*Boltz_k*T*Delta0)) * np.sinh(xi) * spec.k0(xi) * n_qp(T,Delta0) + 1./Qi0 )**-1.
-
+## Siegel thesis, equation 2.43
 def kappa_1(T, f0, Delta0):
     xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
-    return (1/(np.pi*N_0))*np.sqrt(2./(np.pi*Boltz_k*T*Delta0))*np.sinh(xi)*spec.k0(xi)
+    # return (1/(np.pi*N_0))*np.sqrt(2./(np.pi*Boltz_k*T*Delta0))*np.sinh(xi)*spec.k0(xi)
+    return (1/(np.pi*Delta0*N_0))*np.sqrt((2.*Delta0)/(np.pi*Boltz_k*T))*np.sinh(xi)*spec.k0(xi)
 
+## Siegel thesis, equation 2.44
 def kappa_2(T, f0, Delta0):
     xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
     return (1/(2.*Delta0*N_0))*(1.+np.sqrt((2.*Delta0)/(np.pi*Boltz_k*T))*np.exp(-1.*xi)*spec.i0(xi))
 
+## Siegel thesis, equation 2.59
+def f_T(T, f0, Delta0, alpha_f):
+    # [K, Hz, eV, _]
+    # xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
+    # return -1.*alpha_f/(4.*Delta0*N_0) * ( 1. + np.sqrt((2.*Delta0)/(np.pi*Boltz_k*T)) * np.exp(-1.*xi) * spec.i0(xi) ) * n_qp(T,Delta0) * f0 + f0
+    return f0 * (1 - 0.5 * alpha_f * kappa_2(T, f0, Delta0) * n_qp(T,Delta0))
+
+## Siegel thesis, equation 2.60
+def Qi_T(T, f0, Qi0, Delta0, alpha_Q):
+    # xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
+    # return ( alpha_Q/(np.pi*N_0) * np.sqrt(2./(np.pi*Boltz_k*T*Delta0)) * np.sinh(xi) * spec.k0(xi) * n_qp(T,Delta0) + 1./Qi0 )**-1.
+    return 1./( alpha_Q * kappa_1(T, f0, Delta0) * n_qp(T,Delta0) + 1./Qi0)
+
+def Qr_T(T, f0, Qi0, Delta0, alpha_Q):
+    Qi = Qi_T(T, f0, Qi0, Delta0, alpha_Q)
+    Qc = Qc_T(T, f0, Qi0, Delta0, alpha_Q)
+    return (1./Qi) + (1./Qc)
+
+## 2 * Delta * N0 * k1
 def S_1(fr,T,Delta):
     # [Hz, K, eV]
     xi = 1./2.*(Planck_h*fr)/(Boltz_k*T)
     return (2/np.pi)*np.sqrt(2*Delta/(np.pi*Boltz_k*T))*np.sinh(xi)*spec.k0(xi) # unitless
 
+## 2 * Delta * N0 * k2
 def S_2(fr,T,Delta):
     # [Hz, K, eV]
     xi = 1./2.*(Planck_h*fr)/(Boltz_k*T)
     return 1+np.sqrt(2*Delta/(np.pi*Boltz_k*T))*np.exp(-1*xi)*spec.i0(xi) # unitless
 
+## Fits to Qi, all parameters free
 def MB_fitter(T_fit, Qi_fit, f_fit):
 
     fit_result = []
@@ -95,10 +111,60 @@ def MB_fitter(T_fit, Qi_fit, f_fit):
 
     return f0/1.e9, Delta0*1000., alpha, Qi0, chi_sq_dof
 
+## Fits to Qr rather than Qi
+def MB_fitter_Qr(Tvals_K, Qr_fit, Fr_fit):
+    fit_result = []
 
-def MB_fitter2(T_fit, Qi_fit, f_fit,added_points=11):
+    def chisq(f0, D0, a, Qr0):
+        ## Variances of input (f,Qi) vs T values to fit
+        var_Qr = np.var(Qr_fit)
+        var_fr = np.var(Fr_fit)
+
+        ## First term in the chisq expression
+        x2_t1 = np.power(Qr_T(Tvals_K, f0, Qr0, D0, a) - Qr_fit, 2) / var_Qr
+
+        ## Second term in the chisq expression
+        x2_t2 = np.power(f_T( Tvals_K, f0,      D0, a) - Fr_fit, 2) / var_fr 
+
+        ## Calculate and return chi-squared
+        x2 = np.sum( x2_t1 + x2_t2 )
+        return x2
+
+    ## Initialize parameters with a guess
+    f0_in  = Fr_fit[0]
+    D0_in  = 0.17e-3 ## eV
+    a_in   = 0.03801 ## frac
+    Qr0_in = Qr_fit[0]
+
+    ## Do the minimization problem for 500 iterations
+    for j in range(500):
+        minimizer = iminuit.Minuit(chisq, 
+            f0=f0_in, D0=D0_in, a=alpha_in, Qr0=Qr0_in, 
+            limit_f0  = (Fr_fit[0]/1.1,Fr_fit[0]*1.1), 
+            limit_D0  = (1.2e-4,2.2e-4), 
+            limit_a   = (0.002,0.05), 
+            limit_Qr0 = (1.e2,1.e7), 
+            pedantic=False, print_level=-1)
+
+        f0_in  = minimizer.values["f0"]
+        D0_in  = minimizer.values["D0"]
+        a_in   = minimizer.values["a"]
+        Qr0_in = minimizer.values["Qr0"]
+
+        minimizer.migrad()
+
+    ## Extract the final values from the minimization problem
+    f0_out  = minimizer.values["f0"]
+    D0_out  = minimizer.values["D0"]
+    a_out   = minimizer.values["a"]
+    Qr0_out = minimizer.values["Qr0"]
+    red_x2  = chisq(f0_out, D0_out, a_out, Qr0_out)/4.
+
+    ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
+    return f0_out/1.e9, D0_out*1000., a_out, Qr0_out, red_x2
+
 #appends caltech data for f0 to higher temp vals. doesn't really work, too much of a jump
-
+def MB_fitter2(T_fit, Qi_fit, f_fit,added_points=11):
     fit_result = []
     added_points=10
     def chisq_f(f0, Delta0, alpha):
@@ -158,8 +224,8 @@ def MB_fitter2(T_fit, Qi_fit, f_fit,added_points=11):
 
     return f0/1.e9, Delta0*1000., alpha, Qi0, chi_sq_dof
 
-def MB_fitter3(T_fit, Qi_fit, f_fit):
 #fixes alpha to 3.801%
+def MB_fitter3(T_fit, Qi_fit, f_fit):
     fit_result = []
     alpha = 0.03801
     def chisq(f0, Delta0, Qi0):
@@ -200,8 +266,9 @@ def MB_fitter3(T_fit, Qi_fit, f_fit):
 
     return f0/1.e9, Delta0*1000., alpha, Qi0, chi_sq_dof
 
-def MB_fitter4(T_fit, Qi_fit, f_fit):
 #fixes Delta0 to 0.17 meV
+def MB_fitter4(T_fit, Qi_fit, f_fit):
+
     fit_result = []
     Delta0=1.7e-4
     def chisq(f0, alpha, Qi0):
