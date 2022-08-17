@@ -66,49 +66,46 @@ def S_2(fr,T,Delta):
 ## Fits to Qi, all parameters free
 def MB_fitter(T_fit, Qi_fit, f_fit):
 
-    fit_result = []
-
+    ## Define the chi-squared expression
     def chisq(f0, Delta0, alpha, Qi0):
-        alpha_Q = alpha
-        alpha_f = alpha
-
+        ## Variances of input (f,Qi) vs T values to fit
         var_Qi = np.var(Qi_fit)
-        var_f = np.var(f_fit)
+        var_f  = np.var(f_fit)
 
-        return sum( (Qi_T(T_fit, f0, Qi0, Delta0, alpha_Q) - Qi_fit)**2./var_Qi + (f_T(T_fit, f0, Delta0, alpha_f) - f_fit)**2./var_f )
+        ## First term in x^2 expression
+        x2_t1 = (Qi_T(T_fit, f0, Qi0, Delta0, alpha_Q) - Qi_fit)**2./var_Qi
+
+        ## Second term in x^2 expression
+        x2_t2 = (f_T(T_fit, f0, Delta0, alpha_f) - f_fit)**2./var_f
+
+        return sum( x2_t1 +  x2_t2 )
         #return sum((f_T(T_fit, f0, Delta0, alpha_f) - f_fit)**2./var_f )
 
-    def fit_chisq_test(T_fit, f_fit, Qi_fit, f0, Delta0, alpha, Qi0):
-        var_Qi = np.var(Qi_fit)
-        var_f = np.var(f_fit)
-
-        return sum( (Qi_T(T_fit, f0, Qi0, Delta0, alpha) - Qi_fit)**2./var_Qi + (f_T(T_fit, f0, Delta0, alpha) - f_fit)**2./var_f )/4.
-
-    f0_in = f_fit[0]
+    ## Initialize parameters with a guess
+    f0_in     = f_fit[0]
     Delta0_in = 4.e-4
-    alpha_in = 0.03801
-    Qi0_in = Qi_fit[0]
+    alpha_in  = 0.03801
+    Qi0_in    = Qi_fit[0]
 
+    ## Do the minimization problem for 500 iterations
     for j in range(500):
         minimizer = iminuit.Minuit(chisq, f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, limit_f0=(f_fit[0]/1.1,f_fit[0]*1.1), limit_Delta0=(1.2e-4,2.2e-4), limit_alpha=(0.002,0.05), limit_Qi0=(1.e2,1.e7), pedantic=False, print_level=-1)
 
-        f0_in = minimizer.values["f0"]
+        f0_in     = minimizer.values["f0"]
         Delta0_in = minimizer.values["Delta0"]
-        alpha_in = minimizer.values["alpha"]
-        Qi0_in =minimizer.values["Qi0"]
+        alpha_in  = minimizer.values["alpha"]
+        Qi0_in    = minimizer.values["Qi0"]
 
         minimizer.migrad()
 
-    f0 = minimizer.values["f0"]
+    ## Extract the final values from the minimization problem
+    f0     = minimizer.values["f0"]
     Delta0 = minimizer.values["Delta0"]
-    alpha = minimizer.values["alpha"]
-    Qi0 =minimizer.values["Qi0"]
-    chi_sq_dof = fit_chisq_test(T_fit, f_fit, Qi_fit, f0, Delta0, alpha, Qi0)
+    alpha  = minimizer.values["alpha"]
+    Qi0    = minimizer.values["Qi0"]
+    chi_sq_dof = chisq(f0, Delta0, alpha, Qi0)/4.
 
-    fit_result.append([f0/1.e9,Delta0*1000,alpha,Qi0,chi_sq_dof])
-
-    T_smooth = np.linspace(T_fit[0],T_fit[-1],10000)
-
+    ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
     return f0/1.e9, Delta0*1000., alpha, Qi0, chi_sq_dof
 
 ## Fits to Qr rather than Qi
