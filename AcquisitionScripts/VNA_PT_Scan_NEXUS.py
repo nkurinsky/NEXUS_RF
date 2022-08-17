@@ -23,7 +23,7 @@ freqmax = 4.24293e9 # 4.244936e9   ## Hz
 n_samps = 15e3
 
 ## How many readings to take at each step of the sweep
-n_avs = 5
+n_avs = 20
 
 ## Temperature scan settings [K]
 Temp_base =  11e-3
@@ -40,13 +40,13 @@ stableTime    =  30        ## sec
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
 ## Use this if starting at the top temperature
-# Temps = Temps[::-1] 
-# if (Temp_base) < Temps[-1]:
-#     Temps = np.append(Temps,Temp_base)
+Temps = Temps[::-1] 
+if (Temp_base) < Temps[-1]:
+    Temps = np.append(Temps,Temp_base)
 
 # ## Use this if starting at base temperature
-if (Temp_base) < Temps[0]:
-    Temps = np.append(Temp_base,Temps)
+# if (Temp_base) < Temps[0]:
+#    Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/TempSweeps/VNA'  #VNA subfolder of Tempsweeps
