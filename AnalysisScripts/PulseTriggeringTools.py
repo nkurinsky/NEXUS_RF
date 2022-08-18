@@ -469,7 +469,7 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
 
 def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
               pulse_rate_Hz=100, win_fac=0.90, sample_rate=1e6,
-              baseline=None, complx=False):
+              baseline=None, complx=False, plot_time=False):
 
     ## Convert times to samples
     start_samp     = int(sample_rate * start_t_sec)
@@ -496,7 +496,10 @@ def PlotPulse(timestream, start_t_sec, p_index=0, fig_obj=None,
     if complx:
         ax0.scatter(np.real(wf),np.imag(wf),alpha=0.2)
     else:
-        ax0.plot(wf)
+        if plot_time:
+            ax0.plot(np.arange(len(wf))/sample_rate,wf)
+        else:
+            ax0.plot(wf)
 
     return wf
 
