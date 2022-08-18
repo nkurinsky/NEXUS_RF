@@ -400,7 +400,7 @@ def CalcPulseParams(traces, movAvgPts=None):
 ## -- baseline        float             The baseline that is found and removed
 ## -- window          int               Width of the window in samples
 def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample_rate=1e6, Npulses=None, 
-                bl_subtract=False, show_plots=False):
+                bl_subtract=False, show_plots=False, plot_time=False):
     ## Convert times to samples
     start_samp     = int(sample_rate * start_t_sec)
     t_btwn_pulses  = 1./pulse_rate_Hz
@@ -439,8 +439,12 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
         
         ## Add the waveform in the current window to the plot
         if show_plots:
-            ax0.plot(waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window], 
-                alpha=0.2)
+            if plot_time:
+                ax0.plot(np.arange(window)/sample_rate,waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window], 
+                    alpha=0.2)
+            else:
+                ax0.plot(waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window], 
+                    alpha=0.2)
 
         ## Increment the index counter
         i+=1
@@ -455,7 +459,10 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
 
     ## Draw the average waveform
     if show_plots:
-        ax0.plot(avg_wvfm,"k--")
+        if plot_time:
+            ax0.plot(np.arange(len(avg_wvfm))/sample_rate,avg_wvfm,"k--")
+        else:
+            ax0.plot(avg_wvfm,"k--")
         
     ## Return the averaged waveform
     return avg_wvfm, i, baseline, window    
