@@ -339,7 +339,7 @@ def fit_poly(x,y,order=1):
     coefficients = np.linalg.solve(np.matmul(A.T,A),np.matmul(A.T,b))
     return coefficients
 
-def plot_VNA(filename):
+def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     f, z = read_vna(filename)
     crop = 1000
     f = f[crop:-crop]*1e-3
@@ -357,15 +357,21 @@ def plot_VNA(filename):
             near_res = near_this_res
         else:
             near_res = np.logical_or(near_res,near_this_res)
-    plt.figure()
-    plt.plot(np.real(z[near_res]),np.imag(z[near_res]),color = 'red',marker ='.',linestyle='',markersize=2)
-    plt.plot(np.real(z[np.logical_not(near_res)]),np.imag(z[np.logical_not(near_res)]),marker = '.',linestyle = '',markersize=2)
-    plt.title(filename)
-    plt.figure()
-    plt.plot(f[near_res], 20*np.log10(abs(z[near_res])),color = 'red',marker ='.',linestyle='',markersize=2)
-    plt.plot(f[np.logical_not(near_res)],20*np.log10(abs(z[np.logical_not(near_res)])),marker='.',linestyle='',markersize=2)
-    plt.title(filename)
-    plt.show()
+    
+    if fig_obj1 is None:
+        fig_obj1 = plt.figure()
+    ax0 = fig_obj1.gca()
+    ax0.plot(np.real(z[near_res]),np.imag(z[near_res]),color = 'red',marker ='.',linestyle='',markersize=2)
+    ax0.plot(np.real(z[np.logical_not(near_res)]),np.imag(z[np.logical_not(near_res)]),marker = '.',linestyle = '',markersize=2)
+    ax0.set_title(filename)
+
+    if fig_obj2 is None:
+        fig_obj2 = plt.figure()
+    ax1 = fig_obj1.gca()
+    ax1.plot(f[near_res], 20*np.log10(abs(z[near_res])),color = 'red',marker ='.',linestyle='',markersize=2)
+    ax1.plot(f[np.logical_not(near_res)],20*np.log10(abs(z[np.logical_not(near_res)])),marker='.',linestyle='',markersize=2)
+    ax1.title(filename)
+    # plt.show()
 
 def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None):
     if fig_obj == None:
