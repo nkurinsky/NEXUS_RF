@@ -20,8 +20,6 @@ import MB_analysis as MBa
 #import scipy.signal as sig
 #import time
 
-
-
 c_wheel_0 = ['C0','C1','C2','C3','C4','C5','C6','C8','C9','C7']
 c_wheel_1 = ['deepskyblue','sandybrown','lightgreen','lightcoral','mediumorchid','peru','lightpink','khaki','paleturquoise','silver']
 
@@ -30,6 +28,18 @@ def discrete_FT(data,axis=0):
 
 def discrete_IFT(data,axis=0):
     return (len(data))*fft.ifft(data,axis=axis)
+
+def build_t_and_f(N,sampling_rate):
+    time = np.linspace(0,(N-1)/sampling_rate,N)
+    T = N/sampling_rate
+    lowest_freq = 1./T
+    highest_freq = sampling_rate/2
+    if N % 2 == 0:
+        f_pos = np.linspace(lowest_freq,highest_freq,N//2)
+        f_neg = np.linspace(-(highest_freq-lowest_freq),-lowest_freq,N//2-1)
+
+        f = np.concatenate(([0],f_pos,f_neg))
+    return time,f
 
 def electronics_basis(noise_timestream,axis_option=0):
     """
@@ -74,7 +84,7 @@ def electronics_basis(noise_timestream,axis_option=0):
     ## Return the radial direction timestream, arclength direction time stream, radius average, and phase average
     return radius_timestream, arc_length_timestream, radius, angle
 
-def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z):
+def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z,plot_title=None):
 
     def rotate_to_ideal(z,f,fr,a,tau,phi):
         return 1-((1-z/(a*np.exp(-2j*np.pi*(f-fr)*tau)))*(np.cos(phi)/np.exp(1j*phi)))
@@ -176,39 +186,21 @@ def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z):
     resonator['Qr'] = fit_Qr
     resonator['Qc'] = fit_Qc
     resonator['a'] = fit_a
+    resonator['phi'] = fit_phi
 
-    if False:
-        # PUf.plot_noise_and_vna(noise_timestream,MKID_z,f_idx=res_f_idx,char_zs=char_z,title='S21')
-
-        PUf.plot_noise_and_vna(timestream_rotated_ideal,MKID_z_ideal,\
-                               f_idx=res_f_idx,char_zs=char_z_rotated_ideal,title='ideal space')
-        plt.show(False)
-        # plt.pause(5)
-        raw_input('press enter to close all plots')
-        plt.close('all')
-
-        # plt.figure(2)
-        # fit_fr_idx = PUf.find_closest(MKID_f,fit_fr)
-        # # Plotting the corrected data (moved to ideal S21 space)
-        # plt.gca().set_aspect('equal', adjustable='box')
-        # plt.axvline(x=0,c='k')
-        # plt.axhline(y=0,c='k')
-        # plt.plot(MKID_z_ideal.real,MKID_z_ideal.imag,label='ideal space vna')
-        # plt.plot(char_z_rotated_ideal.real,char_z_rotated_ideal.imag,label='calibrated calibration data')
-        # plt.plot(MKID_z_ideal[res_f_idx].real,MKID_z_ideal[res_f_idx].imag,'o',label='vna closest to readout frequency')
-        # plt.plot(MKID_z_ideal[fit_fr_idx].real,MKID_z_ideal[fit_fr_idx].imag,'o',label='vna closest to new fr')
-        # plt.plot(timestream_rotated_ideal[::10].real,timestream_rotated_ideal[::10].imag,ls='',marker='.')
-        # # plt.legend()
-        # plt.show()
+    if plot_title is not None:
+        PUf.plot_noise_and_vna(timestream_rotated_ideal,MKID_z_ideal,
+                               fit_z=fit_z_ideal, f_idx=res_f_idx,
+                               char_zs=char_z_rotated_ideal,title='ideal space')
 
     return frequency, dissipation, ideal, resonator
 
 def quasiparticle_basis(frequency,dissipation,data_T,MB_results,readout_f):
 
-    MB_f0 = MB_results[0]*1e3
-    MB_Delta = MB_results[1] # meV
+    MB_f0    = MB_results[0]*1e3    ## MHz
+    MB_Delta = MB_results[1]        ## meV
     MB_alpha = MB_results[2]
-    MB_Qi0 = MB_results[3]
+    MB_Qi0   = MB_results[3]
 
     k1 = MBe.kappa_1(data_T, readout_f*1e6, MB_Delta*1e-3)*1e6*1e6*1e6 # um^3
     k2 = MBe.kappa_2(data_T, readout_f*1e6, MB_Delta*1e-3)*1e6*1e6*1e6
@@ -369,8 +361,8 @@ def save_clean_timestreams(h5_file,radius,angle,cd1_clean,cd2_clean,fs,cd1_coeff
     # print(cd1_coeff)
 
     data_clean_average = np.mean(data_clean,dtype='complex128')
-    print(abs(data_clean_average))
-    print(np.angle(data_clean_average))
+    # print(abs(data_clean_average))
+    # print(np.angle(data_clean_average))
 
     cleaned_filename = h5_file[:-3]+'_cleaned.h5'
 
@@ -394,37 +386,6 @@ def save_clean_timestreams(h5_file,radius,angle,cd1_clean,cd2_clean,fs,cd1_coeff
             for i in range(len(cd1_coeff)):
                 fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
                 fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
-
-
-    # with h5py.File(cleaned_filename, 'w') as fyle:
-    #     print(fyle.keys())
-    #     if 'cleaned_data' in fyle.keys() and 'radius cleaning coefficient' in fyle.keys():
-    #         print('cleaned_data already exists! If you set override=False, nothing will happen.')
-    #         if override==True:
-    #             print('saving clean_data to {} because override=True!'.format(h5_file))
-    #             del fyle['cleaned_data']
-    #             del fyle['radius cleaning coefficient']
-    #             del fyle['arc cleaning coefficient']
-    #             fyle['cleaned_data'] = data_clean
-    #             for i in range(len(cd1_coeff)):
-    #                 fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
-    #                 fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
-    #     elif 'cleaned_data' in fyle.keys() and not 'radius cleaning coefficient' in fyle.keys():
-    #         if 'cleaned_data' in fyle.keys() and 'radius cleaning coefficient' in fyle.keys():
-    #             print('cleaned_data already exists! If you set override=False, nothing will happen.')
-    #             if override==True:
-    #                 print('saving clean_data to {} because override=True!'.format(h5_file))
-    #                 del fyle['cleaned_data']
-    #                 fyle['cleaned_data'] = data_clean
-    #                 for i in range(len(cd1_coeff)):
-    #                     fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
-    #                     fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
-    #     else:
-    #         print('saving clean_data to {}!'.format(h5_file))
-    #         fyle['cleaned_data'] = data_clean
-    #         for i in range(len(cd1_coeff)):
-    #             fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
-    #             fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
 
     return data_clean
 
@@ -726,12 +687,12 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         ## If we have provided MB fit results, we can do the quasiparticle transformation
         if quasiparticle:
             print("Converting to quasiparticle basis!")
-            P_k1_clean, P_k2_clean = quasiparticle_basis(data_T=0.011,\
+            P_k1_clean, P_k2_clean = quasiparticle_basis(data_T=0.01,\
                                                          dissipation=np.sqrt(P_dissipation_clean),\
                                                          frequency=np.sqrt(P_frequency_clean),\
                                                          MB_results=MB_results,\
                                                          readout_f=data_freqs[0])
-            P_k1, P_k2 = quasiparticle_basis(data_T=0.011,\
+            P_k1, P_k2 = quasiparticle_basis(data_T=0.01,\
                                                          dissipation=np.sqrt(P_dissipation),\
                                                          frequency=np.sqrt(P_frequency),\
                                                          MB_results=MB_results,\
@@ -744,7 +705,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
             PSDs['kappa_1 uncleaned'] = P_k1**2
             PSDs['kappa_2 uncleaned'] = P_k2**2
 
-            k1_timestream_clean, k2_timestream_clean = quasiparticle_basis(data_T=0.011,\
+            k1_timestream_clean, k2_timestream_clean = quasiparticle_basis(data_T=0.01,\
                                                          dissipation=dissipation_clean,\
                                                          frequency=frequency_clean,\
                                                          MB_results=MB_results,\
@@ -761,85 +722,6 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
             timestreams['k2'] = k2_timestream_clean
             # timestreams['k1 simple clean'] = k1_timestream_clean_simple
             # timestreams['k2 simple clean'] = k2_timestream_clean_simple
-
-    if False:
-
-        # print(radius_data.shape,arc_data.shape)
-        # Calculating PSDs before and after cleaning by iterating
-        # over chunks
-        # num_good_chunks = 0
-        # PSD_length = int(len(chunked_timestreams)/2+1)
-        # P_radius_sum = np.zeros((PSD_length,num_freqs))
-        # P_arc_sum = np.zeros((PSD_length,num_freqs))
-        # P_radius_clean_sum = np.zeros((PSD_length,num_freqs))
-        # P_arc_clean_sum = np.zeros((PSD_length,num_freqs))
-        # chunk_time = time[-1]/num_chunks
-        # radius_no_pulse = np.array([[],[]])
-        # arc_no_pulse = np.array([[],[]])
-        # time_no_pulse = np.array([[],[]])
-        # f = fft.fftfreq(int(len(data_noise)/num_chunks),d=time_correction)
-        # iter = 0
-        # for chunk in good_chunks:
-        #
-        #     radius_chunk = np.squeeze(radius_data[:,chunk,:])
-        #     arc_chunk = np.squeeze(arc_data[:,chunk,:])
-        #     time_chunk = np.squeeze(chunked_time[:,chunk,:])
-        #
-        #     if iter == 0:
-        #         radius_no_pulse = radius_chunk
-        #         arc_no_pulse = arc_chunk
-        #         time_no_pulse = time_chunk
-        #     else:
-        #         radius_no_pulse = np.concatenate((radius_no_pulse,radius_chunk),axis=0)
-        #         arc_no_pulse = np.concatenate((arc_no_pulse,arc_chunk),axis=0)
-        #         time_no_pulse = np.concatenate((time_no_pulse,time),axis=0)
-        #     iter += 1
-            # print(radius_chunk.shape,arc_chunk.shape)
-
-
-            # f, P_radius = periodogram(radius_chunk,fs=fs,axis=0)
-            # _, P_arc = periodogram(arc_chunk,fs=fs,axis=0)
-
-            # radius_chunk_clean = noise_removal(radius_chunk,removal_decimation=50)
-            # arc_chunk_clean = noise_removal(arc_chunk,removal_decimation=50)
-            #
-            # _, P_radius_clean = periodogram(radius_chunk_clean,fs=fs,axis=0)
-            # _, P_arc_clean = periodogram(arc_chunk_clean,fs=fs,axis=0)
-            #
-            # radius_clean = np.concatenate(radius_clean,radius_chunk_clean,axis=1)
-            # arc_clean = np.concatenate(arc_clean,arc_chunk_clean,axis=1)
-            # time_clean = np.concatenate(time_clean,time_chunk,axis=1)
-
-            # P_radius_sum += CSD(chunk_time,radius_chunk,radius_chunk).real[f>=0]
-            # P_arc_sum += CSD(chunk_time,arc_chunk,arc_chunk).real[f>=0]
-            #
-            # P_radius_clean_sum += CSD(chunk_time,radius_chunk_clean,radius_chunk_clean).real[f>=0]
-            # P_arc_clean_sum += CSD(chunk_time,arc_chunk_clean,arc_chunk_clean).real[f>=0]
-
-            # P_radius_sum += P_radius
-            # P_arc_sum += P_arc
-
-            # P_radius_clean_sum += P_radius_clean
-            # P_arc_clean_sum += P_arc_clean
-
-            # num_good_chunks += 1
-            # if chunk % 10 == 0:
-            #     print('finished chunk ' + str(chunk))
-
-
-        # with h5py.File(noise_data_file, 'r+') as fyle:
-        #     fyle["cleaned_data"] =
-
-
-        # P_radius_avg = P_radius_sum / num_good_chunks
-        # P_arc_avg = P_arc_sum / num_good_chunks
-
-        # P_radius_clean_avg = P_radius_clean_sum / num_good_chunks
-        # P_arc_clean_avg = P_arc_clean_sum / num_good_chunks
-
-
-        # And a bunch of plots
-        filler = False
 
     timestream_plot = True
     if timestream_plot:
@@ -869,38 +751,18 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         plt.ylabel('ADC units')
         plt.xlabel('time (s)')
 
-        VNA_f, VNA_z = PUf.read_vna(VNA_file)
+        # VNA_f, VNA_z = PUf.read_vna(VNA_file)
         f_idx = PUf.find_closest(VNA_f,data_freqs[0])
-        # print VNA_f, data_freqs[0], f_idx
-        # PUf.plot_noise_and_vna(timestreams_no_pulse,VNA_z,\
-        #                        fit_z=None,char_zs=char_zs,alpha=0.05,title='off resonance timestream -- raw S21')
         PUf.plot_noise_and_vna(timestreams_clean[:,0],VNA_z,\
-                               fit_z=None,char_zs=char_zs,alpha=0.05,title=str(i))
-        # plt.savefig(noise_data_file[:-3]+'_S21.png')
-        # timestreams_bad_chunks = chunked_timestreams[:,bad_chunks,:]
-        # timestream_bad_chunks = np.reshape(timestreams_bad_chunks,(num_bad_chunks*chunk_len,num_freqs),order='F')
-        # PUf.plot_noise_and_vna(timestream_bad_chunks,VNA_z,f_idx=f_idx,char_zs=char_zs,alpha=1)
-        # plt.show()
-        # plt.show(False)
-        # plt.pause(5)
-        # raw_input('press enter to close all plots')
-        # plt.close('all')
+                               fit_z=ideal_clean['fit z'],char_zs=char_zs,alpha=0.05,title=str(i))
+
 
     resonator_timestream_plot = True
     if resonator_timestream_plot and resonator:
-        # plt.plot(time_no_pulse,frequency)
-        # plt.plot(time_no_pulse,frequency_clean+10*np.std(frequency))
-        # plt.title('df/f timestream')
-        # plt.figure()
-        # plt.plot(time_no_pulse,dissipation)
-        # plt.plot(time_no_pulse,dissipation_clean+10*np.std(dissipation))
-        #
-        # plt.title('d(1/Q) timestream')
-
         f_idx = PUf.find_closest(ideal_clean['f'],data_freqs[0])
 
-        PUf.plot_noise_and_vna(ideal_clean['timestream'],ideal_clean['z'],\
-                               char_zs=ideal_clean['char z'],title=str(i)+'_ideal')#,i=i)
+        PUf.plot_noise_and_vna(ideal_clean['timestream'],ideal_clean['z'],fit_z=ideal_clean['fit z'],
+                               char_zs=ideal_clean['char z'],title=noise_data_file+'_ideal',i=i)
         # plt.show()
         # plt.show(False)
         # plt.pause(5)
