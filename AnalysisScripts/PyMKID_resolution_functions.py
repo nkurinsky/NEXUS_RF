@@ -520,6 +520,8 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
     ## Pull the raw data from VNA file for this acquisiton
     ## VNA_f is in MHz ; VNA_z is S21 in complex form 
     VNA_f, VNA_z = PUf.read_vna(VNA_file)
+    VNA_f *= 1e-3
+    char_fs *= 1e-3
     # Plan to modify this for more than two tones eventually
     # print(noise_data_file)
 
