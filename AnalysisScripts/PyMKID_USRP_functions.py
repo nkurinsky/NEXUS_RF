@@ -404,14 +404,14 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
             near_res = np.logical_or(near_res,near_this_res)
     
     if fig_obj1 is None:
-        fig_obj1 = plt.figure()
+        fig_obj1 = plt.figure(figsize=(3,3),dpi=300)
     ax0 = fig_obj1.gca()
     ax0.plot(np.real(z[near_res]),np.imag(z[near_res]),color = 'red',marker ='.',linestyle='',markersize=2)
     ax0.plot(np.real(z[np.logical_not(near_res)]),np.imag(z[np.logical_not(near_res)]),marker = '.',linestyle = '',markersize=2)
     ax0.set_title(filename)
 
     if fig_obj2 is None:
-        fig_obj2 = plt.figure()
+        fig_obj2 = plt.figure(figsize=(3,3),dpi=300)
     ax1 = fig_obj1.gca()
     ax1.plot(f[near_res], 20*np.log10(abs(z[near_res])),color = 'red',marker ='.',linestyle='',markersize=2)
     ax1.plot(f[np.logical_not(near_res)],20*np.log10(abs(z[np.logical_not(near_res)])),marker='.',linestyle='',markersize=2)
@@ -420,7 +420,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
 
 def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None,save_directory=None):
     if fig_obj == None:
-        fig = plt.figure('noise and vna ' + title,figsize=(3,3),dpi=150)
+        fig = plt.figure('noise and vna ' + title,figsize=(3,3),dpi=300)
     else:
         fig = fig_obj
     fig.gca();
