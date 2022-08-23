@@ -762,7 +762,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         f_idx = PUf.find_closest(ideal_clean['f'],data_freqs[0])
 
         PUf.plot_noise_and_vna(ideal_clean['timestream'],ideal_clean['z'],fit_z=ideal_clean['fit z'],
-                               char_zs=ideal_clean['char z'],title=noise_data_file+'_ideal',i=i)
+                               char_zs=ideal_clean['char z'],title=noise_data_file+'_ideal'+str(i))#,i=i)
         # plt.show()
         # plt.show(False)
         # plt.pause(5)
