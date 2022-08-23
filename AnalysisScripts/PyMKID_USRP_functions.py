@@ -1,14 +1,15 @@
-from __future__ import division
-import os
-import matplotlib as mpl
-##if os.environ.get('DISPLAY','') == '':
-##    print('no display found. Using non-interactive Agg backend')
-##    mpl.use('Agg')
-import numpy as np
-import h5py
-import ResonanceFitter as fitres
-import matplotlib.pyplot as plt
+import os, sys
+import time
 import glob
+import h5py
+
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+import ResonanceFitter as fitres
+
+
 # import PyMKID_resolution_functions as prf
 
 #print fyle["raw_data0/A_RX2"].attrs.keys()
@@ -133,14 +134,19 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
     VNA_f, VNA_z = read_vna(filename, decimation=1)
     VNA_f = VNA_f*1e-3 #VNA_f in units of GHz after this line
 
+    df = VNA_f[1] - VNA_f[0]
+    frequency_range = 1e-3
+    index_range = int(frequency_range / df / 2)
+
     frs = np.zeros(len(pickedres))
     Qrs = np.zeros(len(pickedres))
+    Qcs = np.zeros(len(pickedres))
     for MKIDnum in range(len(pickedres)):
-        window_f = (pickedres[MKIDnum] + 10*pickedres[MKIDnum]/3e5)
-        print(VNA_f, window_f)
-        window_index = np.argmin(abs(VNA_f-window_f))
+        # window_f = (pickedres[MKIDnum] + 10*pickedres[MKIDnum]/3e5)
+        # print(VNA_f, window_f)
+        # window_index = np.argmin(abs(VNA_f-window_f))
         MKID_index = np.argmin(abs(VNA_f-pickedres[MKIDnum]))
-        index_range = window_index-MKID_index
+        # index_range = window_index-MKID_index
         MKID_f = VNA_f[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         MKID_z = VNA_z[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         # frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau, Qc = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum])
@@ -151,18 +157,25 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
         a = res_pars["zOff"]
         phi = res_pars["phi"]
         tau = res_pars["tau"]
-        Qc = res_pars["Qc"]
+        Qcs[MKIDnum] = res_pars["Qc"]
 
         if show:
             fit_z = fitres.resfunc3(MKID_f, frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau)
             #MKID_z_corrected = 1-((1-MKID_z/(a*np.exp(-2j*np.pi*(MKID_f-frs[MKIDnum])*tau)))*(np.cos(phi)/np.exp(1j*phi)))
             #fit_z_corrected = 1-(Qrs[MKIDnum]/Qc)/(1+2j*Qrs[MKIDnum]*(MKID_f-frs[MKIDnum])/frs[MKIDnum])
+            fr_idx = find_closest(MKID_f,frs[MKIDnum])
             plt.figure('how does the fit look')
-            plt.plot(MKID_f,20*np.log10(abs(MKID_z)))
-            plt.plot(MKID_f,20*np.log10(abs(fit_z)))
-            plt.show()
-            raw_input('press enter to move on')
-            plt.close('all')
+            plt.plot(MKID_z.real,MKID_z.imag,ls='',marker='.')
+            plt.plot(fit_z.real,fit_z.imag,color='lightgrey')
+            plt.plot(fit_z[fr_idx].real,fit_z[fr_idx].imag,marker='*')
+            # plt.plot(MKID_f,20*np.log10(abs(MKID_z)))
+            # plt.plot(MKID_f,20*np.log10(abs(fit_z)))
+
+            plt.gca().set_aspect('equal', adjustable='box')
+            plt.xlabel('ADC units')
+            plt.ylabel('ADC units')
+            plt.axvline(x=0, color='gray')
+            plt.axhline(y=0, color='gray')
         if save:
             fit_z = fitres.resfunc3(MKID_f, frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau)
             #MKID_z_corrected = 1-((1-MKID_z/(a*np.exp(-2j*np.pi*(MKID_f-frs[MKIDnum])*tau)))*(np.cos(phi)/np.exp(1j*phi)))
@@ -175,14 +188,27 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
     return frs, Qrs, Qc_hat, a, phi, tau, Qc
 
 def get_raw(openfile):
-    raw_data = np.array(openfile["raw_data0/A_RX2/data"])
+    try:
+        raw_data = np.array(openfile["raw_data0/B_RX2/data"])
+    except:
+        raw_data = np.array(openfile["raw_data0/A_RX2/data"])
     return np.transpose(raw_data)
 
 def clean_noi(file):
     with h5py.File(file, "r") as fyle:
         cleaned_data = np.array(fyle["cleaned_data"])
-        sampling_rate = fyle["sampling_rate"]
-    return cleaned_data, sampling_rate
+        data_info = {}
+        # print(fyle['radius cleaning coefficient'])
+        # print(fyle.keys())
+        data_info['sampling_rate'] = fyle["sampling_rate"][()]
+        data_info['radius'] = fyle["radius"][()]
+        data_info['angle'] = fyle['angle'][()]
+        data_info['radius cleaning coefficient'] = {}
+        data_info['arc cleaning coefficient'] = {}
+        for key in fyle['radius cleaning coefficient'].keys():
+            data_info['radius cleaning coefficient'][float(key)] = fyle['radius cleaning coefficient'][key][()]
+            data_info['arc cleaning coefficient'][float(key)] = fyle['arc cleaning coefficient'][key][()]
+    return cleaned_data, data_info
 
 def read_vna(filename, decimation=1,verbose=False):
     #Dt_tm = filename.split('.')[0].split('_')[2] + '_' + filename.split('.')[0].split('_')[3]
@@ -208,7 +234,7 @@ def read_vna(filename, decimation=1,verbose=False):
     eff_rate = rate/decimation
 
     if verbose:
-        #print( "\n\nData taken "+str(Dt_tm))
+        print( "\n\nData taken "+str(Dt_tm))
         print( "Reported LO is "+str(LO*1e-6)+" MHz")
         print( "Reported rate is %f MHz"%(rate/1e6))
         print( "Entered decimation is %d"%(decimation))
@@ -223,13 +249,22 @@ def read_vna(filename, decimation=1,verbose=False):
 def avg_noi(filename,time_threshold=0.05,verbose=False):
     Dt_tm = filename.split('.')[0].split('_')[2] + '_' + filename.split('.')[0].split('_')[3]
 
-    with h5py.File(filename, "r") as fyle:
-        raw_noise = get_raw(fyle)
-        amplitude = fyle["raw_data0/A_TXRX"].attrs.get('ampl')
-        rate = fyle["raw_data0/A_RX2"].attrs.get('rate')
-        LO = fyle["raw_data0/A_RX2"].attrs.get('rf')
-        search_freqs = fyle["raw_data0/A_RX2"].attrs.get('rf') + fyle["raw_data0/A_RX2"].attrs.get('freq')
-        decimation = fyle["raw_data0/A_RX2"].attrs.get('decim')
+    try:
+        with h5py.File(filename, "r") as fyle:
+            raw_noise = get_raw(fyle)
+            amplitude = fyle["raw_data0/A_TXRX"].attrs.get('ampl')
+            rate = fyle["raw_data0/A_RX2"].attrs.get('rate')
+            LO = fyle["raw_data0/A_RX2"].attrs.get('rf')
+            search_freqs = fyle["raw_data0/A_RX2"].attrs.get('rf') + fyle["raw_data0/A_RX2"].attrs.get('freq')
+            decimation = fyle["raw_data0/A_RX2"].attrs.get('decim')
+    except:
+        with h5py.File(filename, "r") as fyle:
+            raw_noise = get_raw(fyle)
+            amplitude = fyle["raw_data0/B_TXRX"].attrs.get('ampl')
+            rate = fyle["raw_data0/B_RX2"].attrs.get('rate')
+            LO = fyle["raw_data0/B_RX2"].attrs.get('rf')
+            search_freqs = fyle["raw_data0/B_RX2"].attrs.get('rf') + fyle["raw_data0/B_RX2"].attrs.get('freq')
+            decimation = fyle["raw_data0/B_RX2"].attrs.get('decim')
 
     eff_rate = rate/decimation
     if verbose:
@@ -257,14 +292,24 @@ def unavg_noi(filename,verbose=False):
 
     data_info = {}
 
-    with h5py.File(filename, "r") as fyle:
-        raw_noise = get_raw(fyle)
-        amplitudes = fyle["raw_data0/A_TXRX"].attrs.get('ampl')
-        tx_gain = fyle["raw_data0/A_TXRX"].attrs.get('gain')
-        rate = fyle["raw_data0/A_RX2"].attrs.get('rate')
-        LO = fyle["raw_data0/A_RX2"].attrs.get('rf')
-        search_freqs = fyle["raw_data0/A_RX2"].attrs.get('rf') + fyle["raw_data0/A_RX2"].attrs.get('freq')
-        decimation = fyle["raw_data0/A_RX2"].attrs.get('decim')
+    try:
+        with h5py.File(filename, "r") as fyle:
+            raw_noise = get_raw(fyle)
+            amplitudes = fyle["raw_data0/B_TXRX"].attrs.get('ampl')
+            tx_gain = fyle["raw_data0/B_TXRX"].attrs.get('gain')
+            rate = fyle["raw_data0/B_RX2"].attrs.get('rate')
+            LO = fyle["raw_data0/B_RX2"].attrs.get('rf')
+            search_freqs = fyle["raw_data0/B_RX2"].attrs.get('rf') + fyle["raw_data0/B_RX2"].attrs.get('freq')
+            decimation = fyle["raw_data0/B_RX2"].attrs.get('decim')
+    except:
+        with h5py.File(filename, "r") as fyle:
+            raw_noise = get_raw(fyle)
+            amplitudes = fyle["raw_data0/A_TXRX"].attrs.get('ampl')
+            tx_gain = fyle["raw_data0/A_TXRX"].attrs.get('gain')
+            rate = fyle["raw_data0/A_RX2"].attrs.get('rate')
+            LO = fyle["raw_data0/A_RX2"].attrs.get('rf')
+            search_freqs = fyle["raw_data0/A_RX2"].attrs.get('rf') + fyle["raw_data0/A_RX2"].attrs.get('freq')
+            decimation = fyle["raw_data0/A_RX2"].attrs.get('decim')
 
     data_info['rate'] = rate
     data_info['LO'] = LO
@@ -373,23 +418,28 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     ax1.title(filename)
     # plt.show()
 
-def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None):
+def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None,save_directory=None):
     if fig_obj == None:
-        fig = plt.figure('noise and vna ' + title)
+        fig = plt.figure('noise and vna ' + title,figsize=(3,3),dpi=150)
     else:
         fig = fig_obj
     fig.gca();
 
-    plt.title('noise and vna ' + title)
+    plt.title(title + ' complex $S_{21}$')
 
-    plt.plot(noise.real,noise.imag,\
-             alpha = alpha,marker='.',ls='',label='noise timestream')
+    ## Plot the VNA result in complex S21
+    plt.plot(VNA_z.real,VNA_z.imag,'k',ls='',marker='.',label='VNA',markersize=1)
+
+    ## Plot the noise points
+    plt.plot(noise.real,noise.imag,alpha=alpha,marker='.',ls='',label='noise timestream')
+    
+
     if type(char_zs) != type(None):
         plt.plot(char_zs.real,char_zs.imag,\
-                 marker='.',ls='',markersize=10,color='g',label='calibration timestreams')
+                 marker='.',ls='--',markersize=10,color='y',label='calibration timestreams')
     if type(fit_z) != type(None):
-        plt.plot(fit_z.real,fit_z.imag,ls='--',color='k',label='resonance fit')
-    plt.plot(VNA_z.real,VNA_z.imag,'k',ls='-',marker='.',label='VNA')
+        plt.plot(fit_z.real,fit_z.imag,ls='-',color='r',label='resonance fit')
+    
     if f_idx:
         plt.plot(VNA_z[f_idx].real,VNA_z[f_idx].imag,\
                  ls = '',marker='.',color='r',markersize=10,label='VNA closest to readout frequency')
@@ -397,18 +447,19 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
     real_mean = np.mean(noise.real,axis=0,keepdims=True)
     imag_mean = np.mean(noise.imag,axis=0,keepdims=True)
 
-    if title != 'ideal space':
+    if title[-5:] != 'ideal':
         radius_mean = np.sqrt(real_mean**2 + imag_mean**2)
 
         angles = np.angle(real_mean + 1j*imag_mean)
 
-        dtheta = 0.1
+        dtheta = 0.2
 
         for idx in range(len(angles)):
             theta_plot = np.linspace(angles[idx] - dtheta,angles[idx] + dtheta, 100)
             x_plot = radius_mean[idx]*np.cos(theta_plot)
             y_plot = radius_mean[idx]*np.sin(theta_plot)
             plt.plot(x_plot,y_plot,color='k',alpha = 0.6,label='arc length direction')
+
             radius_plot = np.linspace(0.95*radius_mean[idx],1.05*radius_mean[idx],100)
             x_plot = radius_plot*np.cos(angles[idx])
             y_plot = radius_plot*np.sin(angles[idx])
@@ -422,6 +473,10 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
     plt.axvline(x=0, color='gray')
     plt.axhline(y=0, color='gray')
     plt.legend(loc='upper center',bbox_to_anchor=(0.5,-0.15),ncol=3)
+
+    if type(save_directory) != type(None):
+        plt.tight_layout()
+        plt.savefig(save_directory + title + ' noise and vna.png')
 
     return fig
 
