@@ -465,7 +465,7 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
             y_plot = radius_plot*np.sin(angles[idx])
             plt.plot(x_plot,y_plot,ls='-.',color='k',alpha=0.6,label='radius direction')
 
-    plt.plot(real_mean,imag_mean,'y',markersize=10,marker='*',ls='',label='timestream average')
+    plt.plot(real_mean,imag_mean,'g',markersize=10,marker='*',ls='',label='timestream average')
 
     plt.gca().set_aspect('equal', adjustable='box')
     plt.xlabel('ADC units')
