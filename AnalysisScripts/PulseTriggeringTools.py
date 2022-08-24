@@ -418,10 +418,13 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
     waveform = timestream 
     if bl_subtract:
         waveform-= baseline
+
+    ## Check the incoming data type
+    d_type = type(timestream[0])
+    complx = d_type == np.complex128
     
     ## Create a storage container for the averaged waveform
-    avg_wvfm = np.zeros(window, dtype=type(timestream[0]))
-    print(type(timestream[0]))
+    avg_wvfm = np.zeros(window, dtype=d_type)
     
     ## Initialize the plot
     if show_plots:
@@ -440,7 +443,9 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
         
         ## Add the waveform in the current window to the plot
         if show_plots:
-            ypts = np.real(waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window])
+            ypts = waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window]
+            if complx:
+                ypts = np.angle(ypts)
             if plot_time:
                 ax0.plot(np.arange(window)/sample_rate,ypts, alpha=0.2)
             else:
@@ -460,7 +465,10 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
     ## Draw the average waveform
     if show_plots:
         if plot_time:
-            ax0.plot(np.arange(len(avg_wvfm))/sample_rate,avg_wvfm,"k--")
+            if complx:
+                ax0.plot(np.arange(len(avg_wvfm))/sample_rate,np.angle(avg_wvfm),"k--")
+            else:
+                ax0.plot(np.arange(len(avg_wvfm))/sample_rate,avg_wvfm,"k--")
         else:
             ax0.plot(avg_wvfm,"k--")
         
