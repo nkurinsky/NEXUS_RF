@@ -440,12 +440,11 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
         
         ## Add the waveform in the current window to the plot
         if show_plots:
+            ypts = np.real(waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window])
             if plot_time:
-                ax0.plot(np.arange(window)/sample_rate,waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window], 
-                    alpha=0.2)
+                ax0.plot(np.arange(window)/sample_rate,ypts, alpha=0.2)
             else:
-                ax0.plot(waveform[start_samp+i*samps_btwn_pls:start_samp+i*samps_btwn_pls+window], 
-                    alpha=0.2)
+                ax0.plot(ypts, alpha=0.2)
 
         ## Increment the index counter
         i+=1
