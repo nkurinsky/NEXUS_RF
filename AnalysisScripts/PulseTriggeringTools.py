@@ -420,7 +420,8 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
         waveform-= baseline
     
     ## Create a storage container for the averaged waveform
-    avg_wvfm = np.zeros(window)
+    avg_wvfm = np.zeros(window, dtype=type(timestream[0]))
+    print(type(timestream[0]))
     
     ## Initialize the plot
     if show_plots:
