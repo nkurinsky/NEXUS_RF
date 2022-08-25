@@ -8,7 +8,7 @@ def circ(x,r,x0,y0):
 def circ2(x,r,x0,y0):
     return y0 - np.sqrt(np.power(r,2) - np.power(x-x0,2))
 
-def generate_random_arc_data(n_pts_gen=100, r_avg=2.0, x0_avg=5.0, y0_avg=5.0, max_deg=15.0, show=False):
+def generate_random_arc_data(n_pts_gen=100, r_avg=2.0, x0_avg=5.0, y0_avg=5.0, rad_flucts=1e-3, max_deg=15.0, show=False):
 	## Define the true parameters
 	x0_true = x0_avg * 2.*(np.random.rand()-0.5)
 	y0_true = y0_avg * 2.*(np.random.rand()-0.5)
@@ -18,7 +18,6 @@ def generate_random_arc_data(n_pts_gen=100, r_avg=2.0, x0_avg=5.0, y0_avg=5.0, m
 	phi_min_rad = np.random.rand() * 2.*np.pi 
 	phi_max_rad = (max_deg/360.0)* 2.*np.pi  + phi_min_rad
 	rand_phis   = phi_min_rad + (phi_max_rad-phi_min_rad)*np.random.rand(int(n_pts_gen))
-	rad_flucts  = 1e-3
 	rand_rads   = r_true + rad_flucts * (np.random.rand(int(n_pts_gen))-0.5)
 
 	## Sort the array by angle
@@ -41,25 +40,26 @@ def plot_sim_data(x_data, y_data, truth=None, fig_obj=None):
 		truth = None
 
 	if fig_obj is None:
-		fig_obj = plt.figure()
+		fig_obj = plt.figure("Simulated Data and Truth")
 	ax  = fig_obj.gca()
 
-	ax.scatter(x_data,y_data)
+	ax.scatter(x_data,y_data,label="Data")
 	ax.set_aspect('equal','box')
 
 	if truth is not None:
-		circ_xvals_true = np.linspace(start=x0_true-r_true, stop=x0_true+r_true, num=1000)
-		circ_yvals_true = circ(circ_xvals_true,r_true,x0_true,y0_true)
-		circ_yvals_true_n = circ2(circ_xvals_true,r_true,x0_true,y0_true)
+		circ_xvals_true = np.linspace(start=truth[1]-truth[0], stop=truth[1]+truth[0], num=1000)
+		circ_yvals_true = circ(circ_xvals_true,truth[0],truth[1],truth[2])
+		circ_yvals_true_n = circ2(circ_xvals_true,truth[0],truth[1],truth[2])
 		
 		xlims = ax.get_xlim()
 		ylims = ax.get_ylim()
-		ax.plot(circ_xvals_true,circ_yvals_true,'k--')
+		ax.plot(circ_xvals_true,circ_yvals_true,'k--', label="Truth")
 		ax.plot(circ_xvals_true,circ_yvals_true_n,'k--')
 		ax.set_xlim(xlims)
 		ax.set_ylim(ylims)
-
-	return fig
+	
+	plt.legend(loc='best')
+	return fig_obj
 
 def estimate_circ_params(x_data, y_data, show=False):
 	
@@ -123,7 +123,7 @@ def estimate_circ_params(x_data, y_data, show=False):
 
 	## Make a plot if requested
 	if show:
-		fig_obj = plt.figure(figsize=(8,6))
+		fig_obj = plt.figure("Parameter Estimation",figsize=(8,6))
 		ax = fig_obj.gca()
 
 		ax.plot(x_data,y_data,color='steelblue',marker='o',markersize=5,ls='-')
@@ -132,8 +132,7 @@ def estimate_circ_params(x_data, y_data, show=False):
 		ax.scatter([xstar],[ystar],marker="v",color='r',zorder=100)
 		ax.scatter([x_data[idx1]],[y_data[idx1]],marker="^",color='r',zorder=100)
 		ax.scatter([x_data[idx2]],[y_data[idx2]],marker="^",color='g',zorder=100)
-		ax.scatter([est_vals[1]],[est_vals[2]],marker="*",color='k',zorder=100)
-		ax.plot([np.max(x_data),x_med],[np.min(y_data),y_med],'g--')
+		ax.scatter([x0_est],[y0_est],marker="*",color='k',zorder=100)
 
 		ax.set_aspect('equal','box')
 
@@ -142,7 +141,7 @@ def estimate_circ_params(x_data, y_data, show=False):
 def fit_data_circle(x_data, y_data, est_vals):
 	## Based on where the estimated center is relative to the data,
 	## fit to a specific half of the circle
-	check_above = np.median(y_data) > y0_est
+	check_above = np.median(y_data) > est_vals[2]
 
 	if check_above: 
 	    ## If your data is above your median (vertically), fit to the top half of the circle
@@ -156,18 +155,17 @@ def fit_data_circle(x_data, y_data, est_vals):
 def plot_data_est_fit(x_data, y_data, est_vals=None, fit_vals=None, truth=None, fig_obj=None):
 
 	if fig_obj is None:
-		fig_obj = plt.figure(figsize=(8,6))
+		fig_obj = plt.figure("Data vs Estimate vs Fit vs Truth",figsize=(8,6))
 	ax = fig_obj.gca()
 
 	## First plot the data 
 	ax.plot(x_data,y_data,color='steelblue',marker='o',markersize=5,ls='-',label="Data")
 
-	## Generate a range over which to plot circles
-	x_range_ = np.linspace(start=x0_est-r_est,stop=x0_est+r_est,num=1000)
-
 	## Now plot the guess
 	if est_vals is not None:
 		if len(est_vals) == 3:
+			x_range_ = np.linspace(start=est_vals[1]-est_vals[0],stop=est_vals[1]+est_vals[0],num=1000)
+
 			y_vals_g  = circ( x_range_, est_vals[0], est_vals[1], est_vals[2])
 			y_vals_g2 = circ2(x_range_, est_vals[0], est_vals[1], est_vals[2])
 
@@ -175,9 +173,13 @@ def plot_data_est_fit(x_data, y_data, est_vals=None, fit_vals=None, truth=None, 
 			ax.plot(x_range_, y_vals_g,  color='orange', ls='--', label="Guess")
 			ax.plot(x_range_, y_vals_g2, color='orange', ls='--')
 
+			print("Estimated values: r=", est_vals[0], "x0=", est_vals[1], "y0=", est_vals[2])
+
 	## Now plot the fit result
 	if fit_vals is not None:
 		if len(fit_vals) == 3:
+			x_range_ = np.linspace(start=fit_vals[1]-fit_vals[0],stop=fit_vals[1]+fit_vals[0],num=1000)
+
 			y_vals_f  = circ( x_range_, fit_vals[0], fit_vals[1], fit_vals[2])
 			y_vals_f2 = circ2(x_range_, fit_vals[0], fit_vals[1], fit_vals[2])
 
@@ -185,29 +187,52 @@ def plot_data_est_fit(x_data, y_data, est_vals=None, fit_vals=None, truth=None, 
 			ax.plot(x_range_, y_vals_f,  color='purple', ls='-',  label="Fit")
 			ax.plot(x_range_, y_vals_f2, color='purple', ls='-')
 
+			print("Optml fit values: r=", fit_vals[0], "x0=", fit_vals[1], "y0=", fit_vals[2])
+
 	## Now plot the truth
 	if truth is not None:
 		if len(truth) == 3:
+			x_range_ = np.linspace(start=truth[1]-truth[0],stop=truth[1]+truth[0],num=1000)
+
 			y_vals_t  = circ( x_range_, truth[0], truth[1], truth[2])
 			y_vals_t2 = circ2(x_range_, truth[0], truth[1], truth[2])
 
 			ax.scatter([truth[1]],[truth[2]],marker="*",color='green')
 			plt.plot(x_range_, y_vals_t,  color='green',  ls=':',  label="Truth")
 			plt.plot(x_range_, y_vals_t2, color='green', ls=':')
-	
-	
-	plt.legend(loc='best')
-	ax.set_aspect('equal','box')
 
-	print("Radius - fit:", popt[0], "guess", pguess[0], "true", r_true,  "% error", 100.0*(popt[0]-r_true)/r_true )
-	print("x0     - fit:", popt[1], "guess", pguess[1], "true", x0_true, "% error", 100.0*(popt[1]-x0_true)/x0_true )
-	print("y0     - fit:", popt[2], "guess", pguess[2], "true", y0_true, "% error", 100.0*(popt[2]-y0_true)/y0_true )
+			print("MC truth values:  r=", truth[0], "x0=", truth[1], "y0=", truth[2])
+			if fit_vals is not None:
+				if len(fit_vals) == 3:
+					print("Error percent:    r=", 100.0*(fit_vals[0]-truth[0])/truth[0], 
+						                   "x0=", 100.0*(fit_vals[1]-truth[1])/truth[1], 
+						                   "x0=", 100.0*(fit_vals[2]-truth[2])/truth[2])
+	
+	
+	plt.legend(loc='lower right')
+	ax.set_aspect('equal','box')
 
 	return fig_obj
 
-def plot_fit_residuals(x_data, y_data, fit_vals,check_above):
+def plot_fit_residuals(x_data, y_data, fit_vals, check_above):
 	residuals = y_data - ( circ(x_data, fit_vals[0], fit_vals[1], fit_vals[2]) if check_above else circ2(x_data, fit_vals[0], fit_vals[1], fit_vals[2]) )
 	f_resdls  = residuals/y_data
 
-	plt.figure()
+	plt.figure("Residual Histogram")
+	plt.title("Distribution of fit residuals")
 	plt.hist(100.0*f_resdls,bins=50)
+
+if __name__ == "__main__":
+	x_data, y_data, truth = generate_random_arc_data(show=True)
+
+	plot_sim_data(x_data, y_data, truth=truth)
+
+	par_est = estimate_circ_params(x_data, y_data, show=True)
+
+	par_fit, pcov_fit, circ_ch = fit_data_circle(x_data, y_data, par_est)
+
+	plot_data_est_fit(x_data, y_data, est_vals=par_est, fit_vals=par_fit, truth=truth)
+
+	plot_fit_residuals(x_data, y_data, par_fit, circ_ch)
+
+	plt.show()
