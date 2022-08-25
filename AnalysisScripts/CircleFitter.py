@@ -220,6 +220,7 @@ def plot_fit_residuals(x_data, y_data, fit_vals, check_above):
 
 	plt.figure("Residual Histogram")
 	plt.title("Distribution of fit residuals")
+	plt.xlabe("Residuals [%]")
 	plt.hist(100.0*f_resdls,bins=50)
 
 if __name__ == "__main__":
