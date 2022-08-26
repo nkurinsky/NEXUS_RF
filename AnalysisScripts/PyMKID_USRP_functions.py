@@ -185,7 +185,8 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
             plt.savefig(filename[:-3]+'_res'+str(MKIDnum)+'.png')
             plt.close()
 
-    return frs, Qrs, Qc_hat, a, phi, tau, Qcs
+    # return frs, Qrs, Qc_hat, a, phi, tau, Qcs
+    return frs, Qrs, Qcs
 
 def get_raw(openfile):
     try:
@@ -393,7 +394,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     z = z[::5]
 
 
-    resonances, _ = vna_file_fit(filename,[4.24218])#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
+    resonances, _, _ = vna_file_fit(filename,[4.24218])#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
     near = .0007
     near_res = []
     for resonance in resonances:
