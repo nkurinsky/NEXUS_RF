@@ -393,7 +393,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     z = z[::5]
 
 
-    resonances, _ = vna_file_fit(filename,[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
+    resonances, _ = vna_file_fit(filename,[4.24218])#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
     near = .0007
     near_res = []
     for resonance in resonances:
