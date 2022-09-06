@@ -1,7 +1,15 @@
 import socket
+import datetime
+import pandas as pd
 from time import sleep
 
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from   pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
 ## Use this class to interface with the thermometer boxes (MGC3)
+## This is used for live polling/setting of parameters on the heaters
 class NEXUSHeater:
 
     def __init__(self,server_ip="192.168.0.34",server_port=11034):
@@ -88,6 +96,7 @@ class NEXUSHeater:
         return
 
 ## Use this class to interface with the thermometer boxes (MMR3)
+## This is used for live polling/setting of parameters on the thermometers
 class NEXUSThermometer:
 
     ## By default this connects to the second box, where channel 0 is MC
@@ -149,3 +158,51 @@ class NEXUSThermometer:
             ans = -99.99
         return ans
 
+
+## Pull the actual data from the file
+def read_data(date_series, offset):
+     datalist=[]
+     for iseries in date_series:
+         data = pd.read_csv("/gpfs/slac/staas/fs1/g/supercdms/www/nexus/fridge/files/MACRT_"+iseries+".csv", delimiter = ';') 
+         data['ctime'] = [datetime.datetime.strptime(elem, '%m/%d/%Y %I:%M:%S %p')+offset for elem in data['Date']]
+         datalist.append(data)
+     result = pd.concat(datalist)
+     return result
+
+## Give the date string and the number of days to create an array to read in 
+## all required files
+def create_date_range(date_str, num_days):
+     a = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+     print('The starting date is: ')
+     print(a)
+     dateList = []
+     for x in range (0, num_days):
+         a_date = a + datetime.timedelta(days = x)
+         dateList.append( a_date.strftime("%Y-%m-%d"))
+     return dateList
+
+## Example polling and plotting of data
+def poll_and_plot(date_str, num_days):
+    precool_series = create_date_range(date_str, num_days)
+    offset         = datetime.timedelta(days=0, hours=0, minutes=0)
+    precool        = read_data(precool_series_nr7, offset_nr7)
+    
+    #Example of plotting
+    f = plt.figure(figsize = (12,4))
+    a = plt.gca()
+
+    a.plot(precool_nr7['ctime'], result_nr7['MIXING CHAMB_Conv'], label='Mixing Chamber NR7', color='dodgerblue')
+    a.set_xlabel('Time')
+    a.set_ylabel('Temp [K]')
+
+    plt.grid()
+    plt.legend(loc="best")
+    f.autofmt_xdate()
+    myFmt = mdates.DateFormatter('%m-%d %H:%M:%S')
+    a.xaxis.set_major_formatter(myFmt)
+    return f
+
+if __name__ == "__main__":
+    f = poll_and_plot('2020-10-28',5)
+    a = f.gca()
+    a.set_title("Nexus Run 7 Cooldown Curve")
