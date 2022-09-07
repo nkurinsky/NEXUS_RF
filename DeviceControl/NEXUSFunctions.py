@@ -177,7 +177,7 @@ class NEXUSThermometer:
             return ans
             
         try:
-            ans = float(self._getVar(ch)) ## K
+            ans = float(self._getVar(idx)) ## K
         except socket.timeout:
             print("Timeout on", self.server_address[0])
         return ans
