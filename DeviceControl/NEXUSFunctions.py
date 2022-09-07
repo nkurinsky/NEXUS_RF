@@ -60,7 +60,10 @@ class NEXUSHeater:
     def showAllVars(self):
         vnames = self._getAllVars()
         for i in range(len(vnames)):
-            print(vnames[i], ":", self._getVar(i))   
+            try: 
+                print(vnames[i], ":", self._getVar(i))
+            except socket.timeout:
+                print(vnames[i], ":", "Timeout on", self.server_address[0])
 
     def getTemp(self):
         try:
@@ -148,7 +151,10 @@ class NEXUSThermometer:
     def showAllVars(self):
         vnames = self._getAllVars()
         for i in range(len(vnames)):
-            print(vnames[i], ":", self._getVar(i))    
+            try: 
+                print(vnames[i], ":", self._getVar(i))
+            except socket.timeout:
+                print(vnames[i], ":", "Timeout on", self.server_address[0])
 
     def getResistance(self):
         try:
@@ -156,6 +162,24 @@ class NEXUSThermometer:
         except socket.timeout:
             print("Timeout on", self.server_address[0])
             ans = -99.99
+        return ans
+
+    def getTemperature(self, ch=1):
+        ans = -99.99
+        idx = 0
+        if ch==1:
+            idx = 5
+        if ch==2:
+            idx = 16
+        if ch==3:
+            idx = 27
+        if idx==0:
+            return ans
+            
+        try:
+            ans = float(self._getVar(ch)) ## K
+        except socket.timeout:
+            print("Timeout on", self.server_address[0])
         return ans
 
 
