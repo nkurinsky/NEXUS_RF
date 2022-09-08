@@ -73,7 +73,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
         var_f  = np.var(f_fit)
 
         ## First term in x^2 expression
-        x2_t1 = (Qi_T(T_fit, f0, Qi0, Delta0, alpha_Q) - Qi_fit)**2./var_Qi
+        x2_t1 = (Qi_T(T_fit, f0, Qi0, Delta0, alpha) - Qi_fit)**2./var_Qi
 
         ## Second term in x^2 expression
         x2_t2 = (f_T(T_fit, f0, Delta0, alpha_f) - f_fit)**2./var_f
