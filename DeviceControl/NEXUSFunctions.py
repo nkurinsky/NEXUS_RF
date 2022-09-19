@@ -184,7 +184,7 @@ class NEXUSThermometer:
 
 
 ## Pull the actual data from the file
-def read_data(date_series, offset):
+def read_MACRT_data(date_series, offset):
      datalist=[]
      for iseries in date_series:
          data = pd.read_csv("/gpfs/slac/staas/fs1/g/supercdms/www/nexus/fridge/files/MACRT_"+iseries+".csv", delimiter = ';') 
@@ -207,9 +207,9 @@ def create_date_range(date_str, num_days):
 
 ## Example polling and plotting of data
 def poll_and_plot(date_str, num_days):
-    precool_series = create_date_range(date_str, num_days)
-    offset         = datetime.timedelta(days=0, hours=0, minutes=0)
-    precool        = read_data(precool_series_nr7, offset_nr7)
+    series  = create_date_range(date_str, num_days)
+    offset  = datetime.timedelta(days=0, hours=0, minutes=0)
+    precool = read_MACRT_data(series, offset)
     
     #Example of plotting
     f = plt.figure(figsize = (12,4))
