@@ -71,7 +71,7 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-40])
+powers = np.array([-30])
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -433,10 +433,8 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
                     keep_going = False;
                     break
 
-        ## Show the user the voltage
+        ## Show the user the voltage then update the output file
         print("Using an LED voltage of:",V_led,"V")
-
-
         outfname = "USRP_LaserOn_"+V_led+"_"+series
 
         ## Create a group for the noise scan parameters
@@ -446,10 +444,8 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         gScan.create_dataset("relative_tones", data=relative_tones)
         gScan.create_dataset("amplitudes",     data=amplitudes)
         gScan.create_dataset("LOfrequency",    data=np.array([freq]))
-
-        ## Now wait for user input to ensure laser/LED has been enabled
+        gScan.create_dataset("LEDvoltage",     data=np.array([V_led]))
         
-
         print("Starting Laser/LED Run...")
         ## Do a noise run with the USRP
         laser_file = u.get_tones_noise(relative_tones, 
