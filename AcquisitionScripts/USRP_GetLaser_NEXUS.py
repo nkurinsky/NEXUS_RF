@@ -399,52 +399,83 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     n_ro_tones     = len(readout_tones)
     readout_tones  = np.around(readout_tones, decimals=0)
 
-    ## Split the power evenly across two tones
+    ## Split the power evenly across the tones
     amplitudes     = 1./ntones * np.ones(n_ro_tones)
 
     relative_tones = np.zeros(n_ro_tones)
     for k in np.arange(n_ro_tones):
         relative_tones[k] = float(readout_tones[k]) - freq
 
-    outfname = "USRP_LaserOn_"+series
+    ## Loop until the user opts to quit
+    keep_going = True
+    while(keep_going):
 
-    ## Create a group for the noise scan parameters
-    gScan = h5_group_obj.create_group('LaserScan')
-    gScan.attrs.create("file",  outfname+".h5")
-    gScan.create_dataset("readout_tones",  data=readout_tones)
-    gScan.create_dataset("relative_tones", data=relative_tones)
-    gScan.create_dataset("amplitudes",     data=amplitudes)
-    gScan.create_dataset("LOfrequency",    data=np.array([freq]))
+        ## Tell the user to prepare the optical source
+        print("USER: Enable laser/LED and hit ENTER to continue . . .")
+        print("To stop acquisition, enter 'X'")
+        resp = input("Enter current LED voltage [V]: ")
 
-    ## Now wait for user input to ensure laser/LED has been enabled
-    input("USER: Enable laser/LED and hit ENTER to continue . . .")
+        V_led = 0.0
+        ## Now parse the user input
+        if resp.upper() == "X":
+            keep_going = False;
+            break
+        else:
+            try:
+                V_led = float(resp)
+            except ValueError:
+                print("Please enter a decimal number...")
+                resp = input("Enter current LED voltage [V]: ")
+                try:
+                    V_led = float(resp)
+                except ValueError:
+                    print("Stop giving me nonsense. Stopping acquisition...")
+                    keep_going = False;
+                    break
 
-    print("Starting Laser Run...")
-    ## Do a noise run with the USRP
-    laser_file = u.get_tones_noise(relative_tones, 
-                                #measure_t  = lapse_noise,  ## passed in sec
-                                measure_t  = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec,  ## passed in sec
-                                tx_gain    = tx_gain, 
-                                rx_gain    = rx_gain, 
-                                rate       = rate,  ## passed in Hz
-                                decimation = 100, 
-                                RF         = freq,  ## passed in Hz 
-                                Front_end  = front_end,
-                                Device     = None,
-                                amplitudes = amplitudes,
-                                delay      = delay, ## passed in ns
-                                pf_average = 4, 
-                                mode       = "DIRECT", 
-                                trigger    = None, 
-                                shared_lo  = False,
-                                subfolder  = None,#seriesPath,
-                                output_filename = outfname)
+        ## Show the user the voltage
+        print("Using an LED voltage of:",V_led,"V")
+
+
+        outfname = "USRP_LaserOn_"+V_led+"_"+series
+
+        ## Create a group for the noise scan parameters
+        gScan = h5_group_obj.create_group('LaserScan')
+        gScan.attrs.create("file",  outfname+".h5")
+        gScan.create_dataset("readout_tones",  data=readout_tones)
+        gScan.create_dataset("relative_tones", data=relative_tones)
+        gScan.create_dataset("amplitudes",     data=amplitudes)
+        gScan.create_dataset("LOfrequency",    data=np.array([freq]))
+
+        ## Now wait for user input to ensure laser/LED has been enabled
+        
+
+        print("Starting Laser/LED Run...")
+        ## Do a noise run with the USRP
+        laser_file = u.get_tones_noise(relative_tones, 
+                                    #measure_t  = lapse_noise,  ## passed in sec
+                                    measure_t  = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec,  ## passed in sec
+                                    tx_gain    = tx_gain, 
+                                    rx_gain    = rx_gain, 
+                                    rate       = rate,  ## passed in Hz
+                                    decimation = 100, 
+                                    RF         = freq,  ## passed in Hz 
+                                    Front_end  = front_end,
+                                    Device     = None,
+                                    amplitudes = amplitudes,
+                                    delay      = delay, ## passed in ns
+                                    pf_average = 4, 
+                                    mode       = "DIRECT", 
+                                    trigger    = None, 
+                                    shared_lo  = False,
+                                    subfolder  = None,#seriesPath,
+                                    output_filename = outfname)
+
+        ## Add an extension to the file path
+        laser_file += '.h5'
 
     ## Now wait for user input to ensure laser/LED has been enabled
     input("USER: Disable laser/LED and hit ENTER to continue . . .")
-
-    ## Add an extension to the file path
-    laser_file += '.h5'
 
     return cal_freqs, cal_means
 
