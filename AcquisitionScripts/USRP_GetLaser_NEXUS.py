@@ -435,10 +435,10 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
         ## Show the user the voltage then update the output file
         print("Using an LED voltage of:",V_led,"V")
-        outfname = "USRP_LaserOn_"+V_led+"_"+series
+        outfname = "USRP_LaserOn_"+str(V_led)+"V_"+series
 
         ## Create a group for the noise scan parameters
-        gScan = h5_group_obj.create_group('LaserScan')
+        gScan = h5_group_obj.create_group('LaserScan_'+str(V_led).replace(".","-")+'V')
         gScan.attrs.create("file",  outfname+".h5")
         gScan.create_dataset("readout_tones",  data=readout_tones)
         gScan.create_dataset("relative_tones", data=relative_tones)
