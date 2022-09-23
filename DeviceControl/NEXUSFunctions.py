@@ -197,7 +197,7 @@ def read_MACRT_data(date_series, offset):
     result = pd.concat(datalist)
     return result
 
-def read_Lakeshore_data(date_series, offset)
+def read_Lakeshore_data(date_series, offset):
     datalist=[]
     for iseries in date_series:
         iseries = iseries.replace("-","")
