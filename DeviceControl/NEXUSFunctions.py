@@ -201,8 +201,8 @@ def read_Lakeshore_data(date_series, offset):
     datalist=[]
     for iseries in date_series:
         iseries = iseries.replace("-","")
-        data = pd.read_csv(os.path.join(local_path,"Temperature_"+iseries+".txt"), delimiter = ';') 
-        print(data.keys())
+        data = pd.read_csv(os.path.join(local_path,"Temperature_"+iseries+".txt"), delimiter = '\t') 
+        # print(data.keys())
         data['ctime'] = [datetime.datetime.strptime(elem, '%Y-%m-%d %H:%M:%S.%f')+offset for elem in data['Time']]
         datalist.append(data)
     result = pd.concat(datalist)
