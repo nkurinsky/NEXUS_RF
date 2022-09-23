@@ -187,14 +187,25 @@ class NEXUSThermometer:
 ## Pull the actual data from the file
 remote_path = "/gpfs/slac/staas/fs1/g/supercdms/www/nexus/fridge/files/"
 local_path  = "/data/SlowDataLogCopies/"
+
 def read_MACRT_data(date_series, offset):
-     datalist=[]
-     for iseries in date_series:
-         data = pd.read_csv(os.path.join(local_path,"MACRT_"+iseries+".csv"), delimiter = ';') 
-         data['ctime'] = [datetime.datetime.strptime(elem, '%m/%d/%Y %I:%M:%S %p')+offset for elem in data['Date']]
-         datalist.append(data)
-     result = pd.concat(datalist)
-     return result
+    datalist=[]
+    for iseries in date_series:
+        data = pd.read_csv(os.path.join(local_path,"MACRT_"+iseries+".csv"), delimiter = ';') 
+        data['ctime'] = [datetime.datetime.strptime(elem, '%m/%d/%Y %I:%M:%S %p')+offset for elem in data['Date']]
+        datalist.append(data)
+    result = pd.concat(datalist)
+    return result
+
+def read_Lakeshore_data(date_series, offset)
+    datalist=[]
+    for iseries in date_series:
+        iseries = iseries.replace("-","")
+        data = pd.read_csv(os.path.join(local_path,"Temperature_"+iseries+".txt"), delimiter = ';') 
+        data['ctime'] = [datetime.datetime.strptime(elem, '%m/%d/%Y %I:%M:%S %p')+offset for elem in data['Date']]
+        datalist.append(data)
+    result = pd.concat(datalist)
+    return result
 
 ## Give the date string and the number of days to create an array to read in 
 ## all required files
