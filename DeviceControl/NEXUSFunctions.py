@@ -202,7 +202,7 @@ def read_Lakeshore_data(date_series, offset):
     for iseries in date_series:
         iseries = iseries.replace("-","")
         data = pd.read_csv(os.path.join(local_path,"Temperature_"+iseries+".txt"), delimiter = ';') 
-        data['ctime'] = [datetime.datetime.strptime(elem, '%m/%d/%Y %I:%M:%S %p')+offset for elem in data['Date']]
+        data['ctime'] = [datetime.datetime.strptime(elem, '%Y-%m-%d %H:%M:%S.%f')+offset for elem in data['Time']]
         datalist.append(data)
     result = pd.concat(datalist)
     return result
@@ -220,7 +220,7 @@ def create_date_range(date_str, num_days):
      return dateList
 
 ## Example polling and plotting of data
-def poll_and_plot(date_str, num_days):
+def poll_and_plot_MACRT(date_str, num_days):
     series  = create_date_range(date_str, num_days)
     offset  = datetime.timedelta(days=0, hours=0, minutes=0)
     precool = read_MACRT_data(series, offset)
@@ -241,6 +241,6 @@ def poll_and_plot(date_str, num_days):
     return f
 
 if __name__ == "__main__":
-    f = poll_and_plot('2020-10-28',5)
+    f = poll_and_plot_MACRT('2022-06-18',11)
     a = f.gca()
-    a.set_title("Nexus Run 7 Cooldown Curve")
+    # a.set_title("Nexus Run 7 Cooldown Curve")
