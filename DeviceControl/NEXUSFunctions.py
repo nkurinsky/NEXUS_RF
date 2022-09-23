@@ -208,9 +208,9 @@ def read_Lakeshore_data(date_series, offset):
     result = pd.concat(datalist)
     return result
 
-def select_Lakeshore_channel(ls_data_df, channel=2):
-    df_out   = res_ls.loc[res_ls['Channel']==channel]
-    ch_tps   = [s.replace("K","") for s in res_ls['Temperature'].loc[res_ls['Channel']==channel].values]
+def select_Lakeshore_channel(data_df, channel=2):
+    df_out   = data_df.loc[data_df['Channel']==channel]
+    ch_tps   = [s.replace("K","") for s in data_df['Temperature'].loc[data_df['Channel']==channel].values]
     ch_temps = [np.nan if s=='N/A' or s=='Out of Range' else float(s) for s in ch_tps]
     df_out['Temperature'] = ch_temps
     return df_out
