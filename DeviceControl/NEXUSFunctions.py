@@ -218,7 +218,7 @@ def poll_and_plot(date_str, num_days):
     f = plt.figure(figsize = (12,4))
     a = plt.gca()
 
-    a.plot(precool_nr7['ctime'], result_nr7['MIXING CHAMB_Conv'], label='Mixing Chamber NR7', color='dodgerblue')
+    a.plot(precool['ctime'], precool['MIXING CHAMB_Conv'], label='Mixing Chamber NR7', color='dodgerblue')
     a.set_xlabel('Time')
     a.set_ylabel('Temp [K]')
 
