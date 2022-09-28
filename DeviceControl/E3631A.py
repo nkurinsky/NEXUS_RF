@@ -3,8 +3,9 @@ from time import sleep
 
 class E3631A():
 
-    def __init__(self,server_ip="192.168.0.34",server_port=1234):
-        self.address = (server_ip, server_port)
+    def __init__(self,server_ip="192.168.0.34",server_port=1234,gpib_addr=0):
+        self.address   = (server_ip, server_port)
+        self.gpib_addr = gpib_addr
 
     ## Sends a command to the server address and returns an array of 
     ## strings containing the parts of the server response string
@@ -55,6 +56,30 @@ class E3631A():
                 print("Timeout on", self.server_address[0])
             else:
                 print("Connection OK")
+        return
+
+    ## Call this before sending any commands to ensure the GPIB-LAN interface
+    ## is focusing on the correct instrument via its GPIB address
+    def focusInstrument(self):
+
+        ## Set mode as CONTROLLER
+        self._sendCmd("++mode 1", getResponse=False)
+
+        ## Turn off read-after-write to avoid "Query Unterminated" errors
+        self._sendCmd("++auto 0", getResponse=False)
+
+        ## Do not append CR or LF to GPIB data
+        self._sendCmd("++eos 3", getResponse=False)
+
+        ## Assert EOI with last byte to indicate end of data
+        self._sendCmd("++eoi 1", getResponse=False)
+
+        ## Read timeout is 500 msec
+        self._sendCmd("++read_tmo_ms 500", getResponse=False)
+        
+        ## Set HP E3631A address
+        self._sendCmd("++addr " + str(int(self.gpib_addr)), getResponse=False)
+
         return
 
     ## Get the standard Identity string of the device
