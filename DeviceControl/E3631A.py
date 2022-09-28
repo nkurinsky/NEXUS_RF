@@ -3,7 +3,7 @@ from time import sleep
 
 class E3631A():
 
-    def __init__(self,server_ip="192.168.0.34",server_port=11034):
+    def __init__(self,server_ip="192.168.0.34",server_port=1234):
         self.address = (server_ip, server_port)
 
     ## Sends a command to the server address and returns an array of 
