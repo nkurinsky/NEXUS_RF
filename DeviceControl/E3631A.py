@@ -58,11 +58,9 @@ class E3631A():
                 print("Connection OK")
         return
 
-    ## Call this before sending any commands to ensure the GPIB-LAN interface
-    ## is focusing on the correct instrument via its GPIB address
-    def focusInstrument(self):
-
-        ## Set mode as CONTROLLER
+    ## Call this once after instantiating the class
+    def configureGPIB(self):
+    	## Set mode as CONTROLLER
         self._sendCmd("++mode 1", getResponse=False)
 
         ## Turn off read-after-write to avoid "Query Unterminated" errors
@@ -76,10 +74,14 @@ class E3631A():
 
         ## Read timeout is 500 msec
         self._sendCmd("++read_tmo_ms 500", getResponse=False)
-        
+
+        return
+
+    ## Call this before sending any commands to ensure the GPIB-LAN interface
+    ## is focusing on the correct instrument via its GPIB address
+    def focusInstrument(self):
         ## Set HP E3631A address
         self._sendCmd("++addr " + str(int(self.gpib_addr)), getResponse=False)
-
         return
 
     ## Get the standard Identity string of the device

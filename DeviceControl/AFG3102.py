@@ -65,10 +65,8 @@ class AFG3102():
                 print("Connection OK")
         return
 
-    ## Call this before sending any commands to ensure the GPIB-LAN interface
-    ## is focusing on the correct instrument via its GPIB address
-    def focusInstrument(self):
-
+    ## Call this once after instantiating the class
+    def configureGPIB(self):
         ## Set mode as CONTROLLER
         self._sendCmd("++mode 1", getResponse=False)
 
@@ -83,10 +81,14 @@ class AFG3102():
 
         ## Read timeout is 500 msec
         self._sendCmd("++read_tmo_ms 500", getResponse=False)
-        
+
+        return
+
+    ## Call this before sending any commands to ensure the GPIB-LAN interface
+    ## is focusing on the correct instrument via its GPIB address
+    def focusInstrument(self):
         ## Set Tek AFG3102 address
         self._sendCmd("++addr " + str(int(self.gpib_addr)), getResponse=False)
-
         return
 
     ## Get the standard Identity string of the device
