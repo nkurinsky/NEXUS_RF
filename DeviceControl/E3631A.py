@@ -3,7 +3,7 @@ from time import sleep
 
 class E3631A():
 
-    def __init__(self,server_ip="192.168.0.34",server_port=1234,gpib_addr=0):
+    def __init__(self,server_ip="192.168.0.142",server_port=1234,gpib_addr=5):
         self.address   = (server_ip, server_port)
         self.gpib_addr = gpib_addr
 
