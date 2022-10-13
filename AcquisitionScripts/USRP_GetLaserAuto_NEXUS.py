@@ -45,10 +45,10 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" : 100.0
-    "pw_us":  10.0
-    "V_hi" :   5.0
-    "V_lo" :   0.0
+    "f_Hz" : 100.0,
+    "pw_us":  10.0,
+    "V_hi" :   5.0,
+    "V_lo" :   0.0,
 }
 LED_voltages = np.arange(start=2.0, stop=6.0, step=0.1)
 LED_voltages = LED_voltages[::-1]
