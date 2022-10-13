@@ -131,7 +131,7 @@ class AFG3102():
         cmd_str = " ".join( ( cmd, arg ) )
         self._sendCmd(cmd_str, getResponse=False)
         if confirm:
-            print("Output is:", "ON" if (self.getOutputState()=="1") else "OFF")
+            print("Output is:", "ON" if bool(int(self.getOutputState())) else "OFF")
         return
 
     ## Update the frequency and derived parameters
