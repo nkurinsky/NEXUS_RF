@@ -19,7 +19,7 @@ class AFG3102():
     ## between the commas
     def _sendCmd(self,cmd,getResponse=True,verbose=False):
         ## Append a newline character to the end of the line
-        if not (cmdStr[-1]=="\n"):
+        if not (cmd[-1]=="\n"):
             cmdStr = cmd+"\n"
 
         ## Diagnostic text
@@ -33,12 +33,15 @@ class AFG3102():
                 s.settimeout(1)
                 s.sendall(cmdStr.encode())
                 if(getResponse):
+                    s.sendall("++read\n".encode())
                     data   = s.recv(1024)
                     retStr = data.decode()
                     if verbose:
                         print("Received:", retStr)
+                else:
+                    retStr = ""
         except socket.timeout:
-            print("Timeout on", self.server_address[0])
+            print("Timeout on", self.address[0])
             return
 
         ## Remove leading or trailing whitespace in string response
@@ -95,6 +98,11 @@ class AFG3102():
     def getIdentity(self):
         resp = self._sendCmd("*IDN?")
         return resp ## array of strings
+
+    ## Clear any errors on the device
+    def clearErrors(self):
+        self._sendCmd("*CLS", getResponse=False)
+        return 
         
     ## Perform a soft reset of the device
     def doSoftReset(self):

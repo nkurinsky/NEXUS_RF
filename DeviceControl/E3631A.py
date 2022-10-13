@@ -12,7 +12,7 @@ class E3631A():
     ## between the commas
     def _sendCmd(self,cmd,getResponse=True,verbose=False):
         ## Append a newline character to the end of the line
-        if not (cmdStr[-1]=="\n"):
+        if not (cmd[-1]=="\n"):
             cmdStr = cmd+"\n"
 
         ## Diagnostic text
@@ -26,12 +26,15 @@ class E3631A():
                 s.settimeout(1)
                 s.sendall(cmdStr.encode())
                 if(getResponse):
+                    s.sendall("++read\n".encode())
                     data   = s.recv(1024)
                     retStr = data.decode()
                     if verbose:
                         print("Received:", retStr)
+                else:
+                    retStr = ""
         except socket.timeout:
-            print("Timeout on", self.server_address[0])
+            print("Timeout on", self.address[0])
             return
 
         ## Remove leading or trailing whitespace in string response
@@ -88,6 +91,11 @@ class E3631A():
     def getIdentity(self):
         resp = self._sendCmd("*IDN?")
         return resp ## array of strings
+
+    ## Clear any errors on the device
+    def clearErrors(self):
+        self._sendCmd("*CLS", getResponse=False)
+        return 
         
     ## Perform a soft reset of the device
     def doSoftReset(self):
@@ -97,7 +105,9 @@ class E3631A():
     ## Query if the output is currently on or off
     def getOutputState(self):
         resp = self._sendCmd("OUTPut?")
-        return resp[0] ## "1" or "0"
+        if resp is not None:
+            return resp[0] ## "1" or "0"
+        return
 
     ## Set the output state
     def setOutputState(self, enable=True, confirm=True):
@@ -106,7 +116,7 @@ class E3631A():
         cmd_str = " ".join( ( cmd, arg ) )
         self._sendCmd(cmd_str, getResponse=False)
         if confirm:
-            print("Output is:", "ON" if (self.getOutputState()=="1") else "OFF")
+            print("Output is:", "ON" if bool(int(self.getOutputState())) else "OFF")
         return
 
     ## Get the current output settings
@@ -116,7 +126,7 @@ class E3631A():
             print("Error:", ch, "is not a valid channel string. Options: P6V, P25V, N25V")
             return
 
-        resp = self._sendCmd(cmd+"? "+ch)
+        resp = self._sendCmd("APPLy? "+ch)
         return resp
 
     ## Apply a voltage/current on a specific output
@@ -135,9 +145,9 @@ class E3631A():
                 vlt_str = "MIN"
             if voltage > 6.0:
                 vlt_str = "MAX"
-            if current < 0.0:
+            if current_limit < 0.0:
                 cur_str = "MIN"
-            if current > 5.0:
+            if current_limit > 5.0:
                 cur_str = "MAX"
 
         if ( ch=="P25V" ):
@@ -145,9 +155,9 @@ class E3631A():
                 vlt_str = "MIN"
             if voltage > 25.0:
                 vlt_str = "MAX"
-            if current < 0.0:
+            if current_limit < 0.0:
                 cur_str = "MIN"
-            if current > 1.0:
+            if current_limit > 1.0:
                 cur_str = "MAX"
 
         ## This may not work as expected depending on if the firmware
@@ -157,9 +167,9 @@ class E3631A():
                 vlt_str = "MIN"
             if voltage < -25.0:
                 vlt_str = "MAX"
-            if current < 0.0:
+            if current_limit < 0.0:
                 cur_str = "MIN"
-            if current > 1.0:
+            if current_limit > 1.0:
                 cur_str = "MAX"
 
         ## Define the command string to send
