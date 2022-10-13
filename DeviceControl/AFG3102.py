@@ -2,10 +2,10 @@ import socket
 from time import sleep
 
 default_pulse_params = {
-    "f_Hz" : 100.0
-    "pw_us":  10.0
-    "V_hi" :   5.0
-    "V_lo" :   0.0
+    "f_Hz" : 100.0,
+    "pw_us":  10.0,
+    "V_hi" :   5.0,
+    "V_lo" :   0.0,
 }
 
 class AFG3102():
