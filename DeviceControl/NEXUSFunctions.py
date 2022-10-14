@@ -195,7 +195,7 @@ def read_plclog_data(date_series, offset):
     for iseries in date_series:
         file = os.path.join(local_path,iseries+".txt")
         print(file)
-        data = pd.read_csv(file, delimiter = '\t') 
+        data = pd.read_csv(file, delimiter = '\t', encoding='latin-1') 
         data['ctime'] = [ datetime.datetime.strptime( ed.replace(" ","")+"-"+eh.replace(" ","") , 
                                                       '%m/%d/%Y-%H:%M:%S') \
                           + offset for ed,eh in zip(data['date'],data['heures']) ]
