@@ -190,6 +190,7 @@ remote_path = "/gpfs/slac/staas/fs1/g/supercdms/www/nexus/fridge/files/"
 local_path  = "/data/SlowDataLogCopies/"
 
 def read_plclog_data(date_series, offset):
+    ## The format for creating a date series is "%y%m%d"
     datalist=[]
     for iseries in date_series:
         data = pd.read_csv(os.path.join(local_path,iseries+".csv"), delimiter = '\t') 
@@ -240,16 +241,36 @@ def create_date_range(date_str, num_days, fmt='%Y-%m-%d'):
      return dateList
 
 ## Example polling and plotting of data
+def poll_and_plot_plclog(date_str, num_days):
+    series  = create_date_range(date_str, num_days, fmt="%y%m%d")
+    offset  = datetime.timedelta(days=0, hours=0, minutes=0)
+    data_df = read_plclog_data(series, offset)
+
+    #Example of plotting
+    f = plt.figure(figsize = (12,4))
+    a = plt.gca()
+
+    a.plot(data_df['ctime'], data_df['P1 mbar'], label='P1 mbar', color='dodgerblue')
+    a.set_xlabel('Time')
+    a.set_ylabel('Pressure [mbar]')
+
+    plt.grid()
+    plt.legend(loc="best")
+    f.autofmt_xdate()
+    myFmt = mdates.DateFormatter('%m-%d %H:%M:%S')
+    a.xaxis.set_major_formatter(myFmt)
+    return f
+
 def poll_and_plot_MACRT(date_str, num_days):
     series  = create_date_range(date_str, num_days)
     offset  = datetime.timedelta(days=0, hours=0, minutes=0)
-    precool = read_MACRT_data(series, offset)
+    data_df = read_MACRT_data(series, offset)
     
     #Example of plotting
     f = plt.figure(figsize = (12,4))
     a = plt.gca()
 
-    a.plot(precool['ctime'], precool['MIXING CHAMB_Conv'], label='Mixing Chamber NR7', color='dodgerblue')
+    a.plot(data_df['ctime'], data_df['MIXING CHAMB_Conv'], label='Mixing Chamber NR7', color='dodgerblue')
     a.set_xlabel('Time')
     a.set_ylabel('Temp [K]')
 
