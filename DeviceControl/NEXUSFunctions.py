@@ -193,7 +193,7 @@ def read_plclog_data(date_series, offset):
     ## The format for creating a date series is "%y%m%d"
     datalist=[]
     for iseries in date_series:
-        data = pd.read_csv(os.path.join(local_path,iseries+".csv"), delimiter = '\t') 
+        data = pd.read_csv(os.path.join(local_path,iseries+".txt"), delimiter = '\t') 
         data['ctime'] = [ datetime.datetime.strptime( ed.strip(" ")+"-"+eh.strip(" ") , 
                                                       '%m/%d/%Y-%H:%M:%S') \
                           + offset for ed,eh in zip(data['date'],data['heures']) ]
