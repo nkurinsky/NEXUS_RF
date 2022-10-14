@@ -189,6 +189,17 @@ class NEXUSThermometer:
 remote_path = "/gpfs/slac/staas/fs1/g/supercdms/www/nexus/fridge/files/"
 local_path  = "/data/SlowDataLogCopies/"
 
+def read_plclog_data(date_series, offset):
+    datalist=[]
+    for iseries in date_series:
+        data = pd.read_csv(os.path.join(local_path,iseries+".csv"), delimiter = '\t') 
+        data['ctime'] = [ datetime.datetime.strptime( ed.strip(" ")+"-"+eh.strip(" ") , 
+                                                      '%m/%d/%Y-%H:%M:%S') \
+                          + offset for ed,eh in zip(data['date'],data['heures']) ]
+        datalist.append(data)
+    result = pd.concat(datalist)
+    return result
+
 def read_MACRT_data(date_series, offset):
     datalist=[]
     for iseries in date_series:
@@ -218,14 +229,14 @@ def select_Lakeshore_channel(data_df, channel=2):
 
 ## Give the date string and the number of days to create an array to read in 
 ## all required files
-def create_date_range(date_str, num_days):
-     a = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+def create_date_range(date_str, num_days, fmt='%Y-%m-%d'):
+     a = datetime.datetime.strptime(date_str, fmt)
      print('The starting date is: ')
      print(a)
      dateList = []
      for x in range (0, num_days):
          a_date = a + datetime.timedelta(days = x)
-         dateList.append( a_date.strftime("%Y-%m-%d"))
+         dateList.append( a_date.strftime(fmt))
      return dateList
 
 ## Example polling and plotting of data
