@@ -185,8 +185,8 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
             plt.savefig(filename[:-3]+'_res'+str(MKIDnum)+'.png')
             plt.close()
 
-    # return frs, Qrs, Qc_hat, a, phi, tau, Qcs
-    return frs, Qrs, Qcs
+    return frs, Qrs, Qc_hat, a, phi, tau, Qcs
+    # return frs, Qrs, Qcs
 
 def get_raw(openfile):
     try:
