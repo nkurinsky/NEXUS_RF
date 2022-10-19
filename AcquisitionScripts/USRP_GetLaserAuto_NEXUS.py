@@ -423,7 +423,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     for V_led in LED_voltages:
 
         ## Show the user the voltage then update the output file
-        print("Using an LED voltage of:",V_led,"V")
+        print("Using an LED voltage of:","{:.3f}".format(V_led),"V")
         outfname = "USRP_LaserOn_"+"{:.3f}".format(V_led)+"V_"+series
 
         ## Set the DC power supply output voltage
