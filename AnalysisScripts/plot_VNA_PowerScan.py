@@ -120,8 +120,8 @@ def fit_single_file(file_name):
     this_f_r.show_fit_results()
 
     ## Save the figure
-    # fig = plt.gcf()
-    plt.title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
+    ax = fig.gca()
+    ax.set_title("Power: "+str(sweep.power)+" dBm, Temperature: "+str(np.mean(sweep.start_T))+" mK")
     fig.savefig(os.path.join(out_path,"freq_fit_P"+str(sweep.power)+"dBm.png"), format='png')
 
     ## Return the fit parameters
