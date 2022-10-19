@@ -546,8 +546,8 @@ if __name__ == "__main__":
         exit(1)
 
     ## Instantiate the GPIB devices
-    e3631a = E3631A(server_ip="192.168.0.142",server_port=1234,gpib_addr=5)
-    fg3102 = AFG3102(server_ip="192.168.0.142",server_port=1234,gpib_addr=0)
+    e3631a = E3631A()
+    fg3102 = AFG3102()
 
     ## Configure the AWG output
     fg3102.configureGPIB()
