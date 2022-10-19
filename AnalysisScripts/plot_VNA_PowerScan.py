@@ -165,8 +165,8 @@ if __name__ == "__main__":
         result.powers[i] = pwr
         result.fit_fr[i] = fr
         result.fit_Qr[i] = Qr
-        result.fit_Qi[i] = Qc
-        result.fit_Qc[i] = Qi
+        result.fit_Qi[i] = Qi
+        result.fit_Qc[i] = Qc
 
         ## Store the fit results
         fr_list.append(fr); Qr_list.append(Qr)
@@ -190,8 +190,20 @@ if __name__ == "__main__":
     fig = plt.figure()
     plt.plot(power_list,Qr_list)
     plt.xlabel('Applied RF Power [dBm]')
-    plt.ylabel(r'Resonator Quality Factor $Q$')
-    fig.savefig(os.path.join(out_path,"Q_vs_P.png"), format='png')
+    plt.ylabel(r'Resonator Quality Factor $Q_r$')
+    fig.savefig(os.path.join(out_path,"Qr_vs_P.png"), format='png')
+
+    fig = plt.figure()
+    plt.plot(power_list,Qc_list)
+    plt.xlabel('Applied RF Power [dBm]')
+    plt.ylabel(r'Coupling Quality Factor $Q_c$')
+    fig.savefig(os.path.join(out_path,"Qc_vs_P.png"), format='png')
+
+    fig = plt.figure()
+    plt.plot(power_list,Qi_list)
+    plt.xlabel('Applied RF Power [dBm]')
+    plt.ylabel(r'Internal Quality Factor $Q_i$')
+    fig.savefig(os.path.join(out_path,"Qi_vs_P.png"), format='png')
 
     if (show_plots):
         plt.show()
