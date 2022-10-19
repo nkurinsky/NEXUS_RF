@@ -459,9 +459,14 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Add an extension to the file path
         laser_file += '.h5'
 
+    ## Turn off the AWG output
+    fg3102.focusInstrument()
+    fg3102.setOutputState(enable=False)
+
+    ## Stop putting out an LED voltage
     e3631a.focusInstrument()
     e3631a.setVoltage(0.0)
-    e3631a.setOutputState(enable=False)
+    # e3631a.setOutputState(enable=False)
 
     return cal_freqs, cal_means
 
