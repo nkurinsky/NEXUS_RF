@@ -51,7 +51,7 @@ afg_pulse_params = {
     "V_lo" :   0.0,
 }
 LED_voltages = np.arange(start=2.6, stop=3.0, step=0.01)
-LED_voltages = LED_voltages[::-1]
+# LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -424,7 +424,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
         ## Show the user the voltage then update the output file
         print("Using an LED voltage of:",V_led,"V")
-        outfname = "USRP_LaserOn_"+str(V_led)+"V_"+series
+        outfname = "USRP_LaserOn_"+"{:.3f}".format(V_led)+"V_"+series
 
         ## Set the DC power supply output voltage
         e3631a.setVoltage(V_led)
