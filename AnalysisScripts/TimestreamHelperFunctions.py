@@ -46,6 +46,9 @@ def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans'):
 		if "delta" in file and not "cleaned" in file:
 			t_files = np.append(t_files, file)
 
+		if "Laser" in file and not "cleaned" in file:
+			t_files = np.append(t_files, file)
+
 	if verbose:
 		print("Line Delay file: ",d_file)
 		print("VNA scan file:   ",v_file)
