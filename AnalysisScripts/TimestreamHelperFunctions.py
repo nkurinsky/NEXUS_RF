@@ -21,7 +21,7 @@ def timesFromRate(rate, length):
 	return times
 
 ## Find all the uncleaned files that correspond to a specific timestream acquisition
-def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans'):
+def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans', sep_noise_laser=False):
 	data_path = os.path.join(base_path,series.split('_')[0],series)
 	
 	## Grab the file with no calibration offset
@@ -30,33 +30,39 @@ def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans'):
 	s_file  = "None"
 	d_file  = "None"
 	v_file  = "None"
-	t_files = []
+	n_files = []
+	l_files = []
 
 	for file in file_list:
 
 		file = file.split("/")[-1]
 
-		if "Delay" in file:
+		if "USRP_Delay" in file:
 			d_file = file
 
-		if "VNA" in file:
+		if "USRP_VNA" in file:
 			v_file = file
 
 		if "noise_averages" in file:
 			s_file = file
 
-		if "delta" in file and not "cleaned" in file:
-			t_files = np.append(t_files, file)
+		if "USRP_Noise" in file and not "cleaned" in file:
+			n_files = np.append(n_files, file)
 
-		if "Laser" in file and not "cleaned" in file:
-			t_files = np.append(t_files, file)
+		if "USRP_Laser" in file and not "cleaned" in file:
+			l_files = np.append(l_files, file)
 
 	if verbose:
 		print("Line Delay file: ",d_file)
 		print("VNA scan file:   ",v_file)
-		print("Timestream files:",t_files)
+		print("Noise ts files:  ",n_files)
+		print("Laser ts files:  ",l_files)
 		print("Summary file:	",s_file)
+
+	if sep_noise_laser:
+		return s_file, d_file, v_file, n_files, l_files
 		
+	t_files = np.append(n_files, l_files)
 	return s_file, d_file, v_file, t_files
 
 ## Pull metadata from the noise averages summary file, store in dictionary
