@@ -417,7 +417,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     e3631a.focusInstrument()
     print("*IDN?", e3631a.getIdentity())
     e3631a.clearErrors()
-    e3631a.doSoftReset()
+    # e3631a.doSoftReset()
     e3631a.setOutputState(enable=True)
 
     ## Loop until the user opts to quit
@@ -566,6 +566,7 @@ if __name__ == "__main__":
     fg3102.doSoftReset()
 
     fg3102.configureSource(afg_pulse_params)
+    fg3102.setOutputState(enable=False)
 
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
