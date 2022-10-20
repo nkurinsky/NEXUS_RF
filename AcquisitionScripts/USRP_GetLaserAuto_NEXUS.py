@@ -360,6 +360,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
         ## Determine how long to acquire noise
         dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
+        gScan.create_dataset("duration",       data=np.array([dur_noise]))
 
         print("Starting Noise Run...")
         ## Do a noise run with the USRP
@@ -437,12 +438,20 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         gScan.create_dataset("amplitudes",     data=amplitudes)
         gScan.create_dataset("LOfrequency",    data=np.array([freq]))
         gScan.create_dataset("LEDvoltage",     data=np.array([V_led]))
+        gScan.create_dataset("LEDfreqHz",      data=np.array([afg_pulse_params["f_Hz"]]))
+        gScan.create_dataset("LEDpulseus",     data=np.array([afg_pulse_params["pw_us"]]))
+        gScan.create_dataset("LEDVhi",         data=np.array([afg_pulse_params["V_hi"]]))
+        gScan.create_dataset("LEDVlo",         data=np.array([afg_pulse_params["V_lo"]]))
+
+        ## Determine how long to acquire noise
+        dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
+        gScan.create_dataset("duration",       data=np.array([dur_noise]))
         
         print("Starting Laser/LED Run...")
         ## Do a noise run with the USRP
         laser_file = u.get_tones_noise(relative_tones, 
                                     #measure_t  = lapse_noise,  ## passed in sec
-                                    measure_t  = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec,  ## passed in sec
+                                    measure_t  = dur_noise, 
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz

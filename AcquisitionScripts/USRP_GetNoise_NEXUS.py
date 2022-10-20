@@ -325,6 +325,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
 
         ## Determine how long to acquire noise
         dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
+        gScan.create_dataset("duration",       data=np.array([dur_noise]))
 
         print("Starting Noise Run...")
         ## Do a noise run with the USRP
