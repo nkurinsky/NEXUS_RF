@@ -69,7 +69,7 @@ points  =  1e6
 duration = 30           ## [Sec]
 
 ## Set Resonator parameters
-res     = 4.242170      ## Al   [GHz]
+res     = 4.242050      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
