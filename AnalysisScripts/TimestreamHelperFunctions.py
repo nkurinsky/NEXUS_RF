@@ -71,8 +71,8 @@ def UnpackSummary(s_file_path, verbose=False):
 	## Open the summary file in read-only mode
 	fsum = h5py.File(s_file_path, 'r')
 	if verbose:
-		print(fsum.keys())
-		print(fsum.attrs.keys())
+		print("File keys:            ", fsum.keys())
+		print("File attribute keys:  ", fsum.attrs.keys())
 		
 	## Should only be one power per file
 	## Open that data member
@@ -89,15 +89,15 @@ def UnpackSummary(s_file_path, verbose=False):
 		print("Error - Cannot find appropriate power data group.")
 		return None, None, None
 	if verbose:
-		print(md.keys())
-		print(md.attrs.keys())
+		print("PowerN keys:          ", md.keys())
+		print("PowerN attribute keys:"md.attrs.keys())
 		
-	## Create a dictionary to store results
-	md_dict = {}
+	# ## Create a dictionary to store results
+	# md_dict = {}
 	
-	## Pull the metadata from the file into a dictionary
-	for k in md.attrs.keys():
-		md_dict[k] = md.attrs[k]
+	# ## Pull the metadata from the file into a dictionary
+	# for k in md.attrs.keys():
+	# 	md_dict[k] = md.attrs[k]
 		
 	## Pull the mean F,S21 from the cal delta scans
 	mean_frqs = np.copy(np.array(md['freqs']))
@@ -106,7 +106,8 @@ def UnpackSummary(s_file_path, verbose=False):
 	## Close the summary h5 file
 	fsum.close()
 
-	return md_dict, mean_frqs, mean_S21s
+	# return md_dict, mean_frqs, mean_S21s
+	return md, mean_frqs, mean_S21s
 
 def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None):
 	
