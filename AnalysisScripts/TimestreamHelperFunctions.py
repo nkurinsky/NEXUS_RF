@@ -53,11 +53,11 @@ def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans', sep_nois
 			l_files = np.append(l_files, file)
 
 	if verbose:
-		print("Line Delay file: ",d_file)
-		print("VNA scan file:   ",v_file)
-		print("Noise ts files:  ",n_files)
-		print("Laser ts files:  ",l_files)
-		print("Summary file:	",s_file)
+		print("Line Delay file: ",[file.split("/")[-1] for file in d_file] )
+		print("VNA scan file:   ",[file.split("/")[-1] for file in v_file] )
+		print("Noise ts files:  ",[file.split("/")[-1] for file in n_files])
+		print("Laser ts files:  ",[file.split("/")[-1] for file in l_files])
+		print("Summary file:	",[file.split("/")[-1] for file in s_file] )
 
 	if sep_noise_laser:
 		return s_file, d_file, v_file, n_files, l_files
