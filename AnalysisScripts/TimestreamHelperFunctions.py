@@ -46,10 +46,10 @@ def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans', sep_nois
 		if "noise_averages" in fname:
 			s_file = file
 
-		if "USRP_Noise" in file and not "cleaned" in fname:
+		if "USRP_Noise" in fname and not "cleaned" in fname:
 			n_files = np.append(n_files, file)
 
-		if "USRP_Laser" in file and not "cleaned" in fname:
+		if "USRP_Laser" in fname and not "cleaned" in fname:
 			l_files = np.append(l_files, file)
 
 	if verbose:
