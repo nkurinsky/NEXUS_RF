@@ -351,10 +351,6 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         print("Amplitudes:         ", amplitudes)
         print("LO Frequency [Hz]:  ", freq)
 
-        # ## Turn on the laser
-        # print("Enabling laser...")
-        # driver.enable_laser(True)
-
         ## Determine how long to acquire noise
         dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
         gScan.create_dataset("duration",       data=np.array([dur_noise]))
@@ -387,7 +383,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
         ## Add an extension to the file path
         noise_file += '.h5'
 
-        time_threshold = dur_noise / 2
+        time_threshold = 0.3 * dur_noise # dur_noise / 2
 
         frequencies_scanned, noise_mean_scanned = puf.avg_noi(noise_file,time_threshold=time_threshold)
 
@@ -438,8 +434,8 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
                     break
 
         ## Show the user the voltage then update the output file
-        print("Using an LED voltage of:",V_led,"V")
-        outfname = "USRP_LaserOn_"+str(V_led)+"V_"+series
+        print("Using an LED voltage of:","{:.3f}".format(V_led),"V")
+        outfname = "USRP_LaserOn_"+"{:.3f}".format(V_led)+"V_"+series
 
         ## Create a group for the noise scan parameters
         gScan = h5_group_obj.create_group('LaserScan_'+str(V_led).replace(".","-")+'V')
