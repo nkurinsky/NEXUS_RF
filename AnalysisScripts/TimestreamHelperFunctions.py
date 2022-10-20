@@ -90,7 +90,7 @@ def UnpackSummary(s_file_path, verbose=False):
 		return None, None, None
 	if verbose:
 		print("PowerN keys:          ", md.keys())
-		print("PowerN attribute keys:"md.attrs.keys())
+		print("PowerN attribute keys:",md.attrs.keys())
 		
 	# ## Create a dictionary to store results
 	# md_dict = {}
