@@ -213,7 +213,7 @@ class AFG3102():
 
         ## Check the settings
         if confirm:
-            print("Voltage high [V]:", self._sendCmd(ch_str+":VOLTage:LIMit:HIGH?") )
+            print("Pulse width:", self._sendCmd(ch_str+":PULSe:WIDTh?") )
 
         return
 
