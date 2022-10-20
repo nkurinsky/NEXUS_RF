@@ -35,21 +35,21 @@ def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans', sep_nois
 
 	for file in file_list:
 
-		file = file.split("/")[-1]
+		fname = file.split("/")[-1]
 
-		if "USRP_Delay" in file:
+		if "USRP_Delay" in fname:
 			d_file = file
 
-		if "USRP_VNA" in file:
+		if "USRP_VNA" in fname:
 			v_file = file
 
-		if "noise_averages" in file:
+		if "noise_averages" in fname:
 			s_file = file
 
-		if "USRP_Noise" in file and not "cleaned" in file:
+		if "USRP_Noise" in file and not "cleaned" in fname:
 			n_files = np.append(n_files, file)
 
-		if "USRP_Laser" in file and not "cleaned" in file:
+		if "USRP_Laser" in file and not "cleaned" in fname:
 			l_files = np.append(l_files, file)
 
 	if verbose:
