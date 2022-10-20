@@ -34,6 +34,8 @@ def GetFiles(series, verbose=False, base_path='/data/USRP_Noise_Scans'):
 
 	for file in file_list:
 
+		file = file.split("/")[-1]
+
 		if "Delay" in file:
 			d_file = file
 
