@@ -90,15 +90,23 @@ def UnpackSummary(s_file_path, verbose=False):
 		return None, None, None
 	if verbose:
 		print("PowerN keys:          ", md.keys())
-		print("PowerN attribute keys:",md.attrs.keys())
+		print("PowerN attribute keys:", md.attrs.keys())
 		
-	# ## Create a dictionary to store results
-	# md_dict = {}
+	## Create a dictionary to store results
+	md_dict = {}
 	
-	# ## Pull the metadata from the file into a dictionary
-	# for k in md.attrs.keys():
-	# 	md_dict[k] = md.attrs[k]
-		
+	## Pull the metadata from the file into a dictionary
+	for k in md.attrs.keys():
+		md_dict[k] = md.attrs[k]
+
+	## If there is laser data on top of the attributes add it to the dictionary
+	for k in md.keys():
+		if "LaserScan" in k:
+			l_dict = {}
+			for kk in md[k].keys():
+				l_dict[kk] = md[k][kk]
+			md_dict[k] = l_dict
+
 	## Pull the mean F,S21 from the cal delta scans
 	mean_frqs = np.copy(np.array(md['freqs']))
 	mean_S21s = np.copy(np.array(md['means']))
@@ -106,8 +114,7 @@ def UnpackSummary(s_file_path, verbose=False):
 	## Close the summary h5 file
 	fsum.close()
 
-	# return md_dict, mean_frqs, mean_S21s
-	return md, mean_frqs, mean_S21s
+	return md_dict, mean_frqs, mean_S21s
 
 def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None):
 	
