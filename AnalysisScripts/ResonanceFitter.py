@@ -362,18 +362,25 @@ def resfunc8(f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau):
     return real_S21 + imag_S21
 
 ## Note that fine fit fits for Qr and Qc, from which Qi is calculated
-def finefit(f, z, fr_0, fit_res_obj=None, plot=False):
+def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
     """
     finefit fits f and z to the resonator model described in Jiansong's thesis
 
     Input parameters:
-                  f: frequencys
+                  f: frequencys [GHz]
                   z: complex impedence
                fr_0: initially predicted fr [GHz]
 
     Returns:
         fr_fine, Qr_fine, Qc_hat_mag_fine, a_fine, phi_fine, tau_fine, Qc_fine
     """
+
+    ## First trim the data if specified
+    if restrict_fit_MHz is not None:
+        fmin = fr_0 - (restrict_fit_MHz*1e-3/2.)
+        fmax = fr_0 + (restrict_fit_MHz*1e-3/2.)
+        f = f[ (f>fmin)*(f<fmax) ]
+        z = z[ (f>fmin)*(f<fmax) ]
 
     # find starting parameters using a rough fit
     # fr_1, Qr_1, phi_1, a_1, Qc_hat_mag_1, tau_1, Imtau_1 = roughfit(f, z, fr_0)
