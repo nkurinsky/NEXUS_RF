@@ -433,15 +433,15 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
 
     if plot:
         plt.figure(1)
-        plt.plot(abs(xdata[:len(z)]), 20*np.log10(abs(resfunc8(xdata[:len(z)],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7])+1j*resfunc8(xdata[len(z):],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7]))),label='finefit')
-        plt.plot(fparams[0], 20*np.log10(abs(resfunc8(-1.*fparams[0],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7])+1j*resfunc8(fparams[0],fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7]))),'o',label='finefit fr')
+        plt.plot(abs(xdata[:len(z)]), 20*np.log10(abs(resfunc8(xdata[:len(z)],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(xdata[len(z):],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))),label='finefit')
+        plt.plot(fopt[0], 20*np.log10(abs(resfunc8(-1.*fopt[0],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(fopt[0],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))),'o',label='finefit fr')
         plt.legend()
         plt.figure(2)
-        plt.plot(abs(xdata),resfunc8(xdata,fparams[0],fparams[1],fparams[2],fparams[3],fparams[4],fparams[5],fparams[6],fparams[7]),label='finefit')
+        plt.plot(abs(xdata),resfunc8(xdata,fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]),label='finefit')
         plt.legend()
         plt.figure(3)
-        plt.plot(resfunc3(f,fparams[0],fparams[1],fparams[2],fparams[3]+1j*fparams[4],fparams[5],fparams[6]+1j*fparams[7]).real,resfunc3(f,fparams[0],fparams[1],fparams[2],fparams[3]+1j*fparams[4],fparams[5],fparams[6]+1j*fparams[7]).imag,label='finefit')
-        plt.plot(resfunc3(fparams[0],fparams[0],fparams[1],fparams[2],fparams[3]+1j*fparams[4],fparams[5],fparams[6]+1j*fparams[7]).real,resfunc3(fparams[0],fparams[0],fparams[1],fparams[2],fparams[3]+1j*fparams[4],fparams[5],fparams[6]+1j*fparams[7]).imag,'o',label='finefit fr')
+        plt.plot(resfunc3(f,fopt[0],fopt[1],fopt[2],fopt[3]+1j*fopt[4],fopt[5],fopt[6]+1j*fopt[7]).real,resfunc3(f,fopt[0],fopt[1],fopt[2],fopt[3]+1j*fopt[4],fopt[5],fopt[6]+1j*fopt[7]).imag,label='finefit')
+        plt.plot(resfunc3(fopt[0],fopt[0],fopt[1],fopt[2],fopt[3]+1j*fopt[4],fopt[5],fopt[6]+1j*fopt[7]).real,resfunc3(fopt[0],fopt[0],fopt[1],fopt[2],fopt[3]+1j*fopt[4],fopt[5],fopt[6]+1j*fopt[7]).imag,'o',label='finefit fr')
         plt.legend()
         plt.show()
 
