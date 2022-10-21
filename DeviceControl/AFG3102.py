@@ -173,11 +173,11 @@ class AFG3102():
 
         ## Send the commands to set up the source
         Vl_str = "{:.3f}".format(V_lo) + "V"
-        self._sendCmd(ch_str+":VOLTage:LIMit:LOW "+Vl_str, getResponse=False)
+        self._sendCmd(ch_str+":VOLTage:LEVel:LOW "+Vl_str, getResponse=False)
 
         ## Check the settings
         if confirm:
-            print("Voltage low  [V]:", self._sendCmd(ch_str+":VOLTage:LIMit:LOW?") )
+            print("Voltage low  [V]:", self._sendCmd(ch_str+":VOLTage:LEVel:LOW?") )
 
         return
 
@@ -191,11 +191,11 @@ class AFG3102():
 
         ## Send the commands to set up the source
         Vh_str = "{:.3f}".format(V_hi) + "V"
-        self._sendCmd(ch_str+":VOLTage:LIMit:HIGH "+Vh_str, getResponse=False)
+        self._sendCmd(ch_str+":VOLTage:LEVel:HIGH "+Vh_str, getResponse=False)
 
         ## Check the settings
         if confirm:
-            print("Voltage high [V]:", self._sendCmd(ch_str+":VOLTage:LIMit:HIGH?") )
+            print("Voltage high [V]:", self._sendCmd(ch_str+":VOLTage:LEVel:HIGH?") )
 
         return
 
