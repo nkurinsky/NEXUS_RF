@@ -150,7 +150,7 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
         MKID_f = VNA_f[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         MKID_z = VNA_z[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         # frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau, Qc = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum])
-        res_pars, res_errs = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum], restrict_fit_MHz=0.2)
+        res_pars, res_errs = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum], restrict_fit_MHz=0.2, plot=True)
         frs[MKIDnum] = res_pars["f0"]
         Qrs[MKIDnum] = res_pars["Qr"]
         Qc_hat = res_pars["QcHat"]
