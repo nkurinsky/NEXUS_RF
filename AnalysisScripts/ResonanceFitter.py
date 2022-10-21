@@ -379,8 +379,10 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
     if restrict_fit_MHz is not None:
         fmin = fr_0 - (restrict_fit_MHz*1e-3/2.)
         fmax = fr_0 + (restrict_fit_MHz*1e-3/2.)
-        f = f[ (f>fmin)&(f<fmax) ]
-        z = z[ (f>fmin)&(f<fmax) ]
+        ft = f[ (f>fmin)&(f<fmax) ]
+        zt = z[ (f>fmin)&(f<fmax) ]
+        f  = ft
+        z  = zt
 
     # find starting parameters using a rough fit
     # fr_1, Qr_1, phi_1, a_1, Qc_hat_mag_1, tau_1, Imtau_1 = roughfit(f, z, fr_0)
