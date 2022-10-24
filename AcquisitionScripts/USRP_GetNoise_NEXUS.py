@@ -258,6 +258,7 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
     ## Do some math to find the frequency span for the VNA
     ## relative to the LO frequency
+    print("F span (VNA):",fspan,"Hz")
     fVNAmin = res*1e9 - (fspan/2.)
     fVNAmax = res*1e9 + (fspan/2.)
     print("VNA spans", fVNAmin/1e6, "MHz to", fVNAmax/1e6, "MHz")
@@ -415,14 +416,16 @@ def doRun(this_power):
     gPower.attrs.create("rate",    args.rate)
     gPower.attrs.create("LOfreq",  args.LOfrq)
 
+    print("F span (VNA):",args.VNAfspan,"Hz")
+
     cal_freqs, cal_means = runNoise(
         tx_gain = args.txgain,
         rx_gain = args.rxgain,
         _iter   = args.iter,
-        rate    = args.rate,        ## Passed in Samps/sec
-        freq    = args.LOfrq,       ## Passed in Hz
+        rate    = args.rate,          ## Passed in Samps/sec
+        freq    = args.LOfrq,         ## Passed in Hz
         front_end = "A",
-        fspan   = args.VNAfspan,    ## Passed in Hz
+        fspan   = args.VNAfspan,      ## Passed in Hz
         # f0      = args.f0,          ## Passed in Hz, relative to LO
         # f1      = args.f1,          ## Passed in Hz, relative to LO
         lapse_VNA   = args.timeVNA,   ## Passed in seconds
