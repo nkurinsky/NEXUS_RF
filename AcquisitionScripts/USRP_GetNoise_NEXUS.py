@@ -38,18 +38,19 @@ rx_gain = 17.0
 LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 # LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 
+## Set Resonator parameters
+res     = 4.24204767      ## Al   [GHz]
+# res     = 4.244760      ## Nb 7 [GHz]
+# res     = 4.202830      ## Nb 6 [GHz]
+
 ## Set some VNA sweep parameters
 f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
 # f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 # f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
-points  =  1e6
-duration = 30           ## [Sec]
-
-## Set Resonator parameters
-res     = 4.2420468      ## Al   [GHz]
-# res     = 4.244760      ## Nb 7 [GHz]
-# res     = 4.202830      ## Nb 6 [GHz]
+f_span_kHz = 200        ## Symmetric about the center frequency
+points     = 2e5
+duration   = 30         ## [Sec]
 
 ## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
@@ -117,10 +118,12 @@ def parse_args():
     
     parser.add_argument('--LOfrq' , '-f' , type=float, default=LO/1e6,
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
-    parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
-        help='Baseband start frequency in MHz, absolute (default '+str(f0/1e6)+' MHz)')
-    parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
-        help='Baseband end frequency in MHz, absolute (default '+str(f1/1e6)+' MHz)')
+    parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz/1e3,
+        help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz/1e3)+' MHz')
+    # parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
+    #     help='Baseband start frequency in MHz, absolute (default '+str(f0/1e6)+' MHz)')
+    # parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
+    #     help='Baseband end frequency in MHz, absolute (default '+str(f1/1e6)+' MHz)')
 
     args = parser.parse_args()
 
@@ -156,15 +159,20 @@ def parse_args():
     ## MHz frequencies to Hz
     if (args.LOfrq is not None):
         args.LOfrq = args.LOfrq*1e6 ## Store it as Hz not MHz
-    if (args.f0 is not None):
-        args.f0 = args.f0*1e6 ## Store it as Hz not MHz
-    if (args.f1 is not None):
-        args.f1 = args.f1*1e6 ## Store it as Hz not MHz
-
-    if(args.f0 is not None and args.f1 is not None):
-        if((args.f1 - args.f0) > 1e7):
-            print("Frequency range (",args.f0,",",args.f1,") too large! Exiting...")
+    if (args.VNAfspan is not None):
+        args.VNAfspan = args.VNAfspan*1e3 ## Store it as Hz not kHz
+        if(args.VNAfspan > 1e7):
+            print("Frequency range (",args.VNAfspan,") too large! Exiting...")
             exit(1)
+    # if (args.f0 is not None):
+    #     args.f0 = args.f0*1e6 ## Store it as Hz not MHz
+    # if (args.f1 is not None):
+    #     args.f1 = args.f1*1e6 ## Store it as Hz not MHz
+
+    # if(args.f0 is not None and args.f1 is not None):
+    #     if((args.f1 - args.f0) > 1e7):
+    #         print("Frequency range (",args.f0,",",args.f1,") too large! Exiting...")
+    #         exit(1)
 
     if(args.LOfrq is not None):
         if(np.any(np.array(args.LOfrq) > 6e9)):
@@ -195,7 +203,7 @@ def create_dirs():
     print ("Scan stored as series "+series+" in path "+sweepPath)
     return 0
 
-def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, lapse_noise, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
+def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
     ## First do a line delay measurement
     if delay_over is not None:
         print("Line delay is user specified:", delay_over, "ns")
@@ -247,6 +255,15 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse_VNA, 
     gVNA.attrs.create("n_points", points)
     gVNA.attrs.create("iteratns", _iter)
     gVNA.attrs.create("VNAfile",  outfname+".h5")
+
+    ## Do some math to find the frequency span for the VNA
+    ## relative to the LO frequency
+    fVNAmin = res*1e9 - (fspan/2.)
+    fVNAmax = res*1e9 + (fspan/2.)
+    print("VNA spans", fVNAmin/1e6, "MHz to", fVNAmax/1e6, "MHz")
+    f0 = freq - fVNAmin
+    f1 = freq - fVNAmax
+    print("Relative to LO: start", f0, "Hz; stop",f1,"Hz")
 
     print("Starting single VNA run...")
     vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
@@ -405,8 +422,9 @@ def doRun(this_power):
         rate    = args.rate,        ## Passed in Samps/sec
         freq    = args.LOfrq,       ## Passed in Hz
         front_end = "A",
-        f0      = args.f0,          ## Passed in Hz, relative to LO
-        f1      = args.f1,          ## Passed in Hz, relative to LO
+        fspan   = args.VNAfspan,    ## Passed in Hz
+        # f0      = args.f0,          ## Passed in Hz, relative to LO
+        # f1      = args.f1,          ## Passed in Hz, relative to LO
         lapse_VNA   = args.timeVNA,   ## Passed in seconds
         lapse_noise = args.timeNoise, ## Passed in seconds
         points  = args.points,
