@@ -456,7 +456,7 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
         # plt.show()
 
     print("Fr from fit  [GHz]:", fopt[0])
-    print("Fr max curve [GHz]:", min_frequency)
+    print("Fr min curve [GHz]:", min_frequency)
 
     ## Create a dictionary of the result params
     fine_pars = { "f0"    : fopt[0], 
