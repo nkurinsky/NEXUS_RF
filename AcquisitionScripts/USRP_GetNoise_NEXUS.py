@@ -161,6 +161,7 @@ def parse_args():
         args.LOfrq = args.LOfrq*1e6 ## Store it as Hz not MHz
     if (args.VNAfspan is not None):
         args.VNAfspan = args.VNAfspan*1e3 ## Store it as Hz not kHz
+        print("F span (VNA):",args.VNAfspan,"Hz")
         if(args.VNAfspan > 1e7):
             print("Frequency range (",args.VNAfspan,") too large! Exiting...")
             exit(1)
