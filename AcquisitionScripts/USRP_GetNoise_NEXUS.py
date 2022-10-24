@@ -118,8 +118,8 @@ def parse_args():
     
     parser.add_argument('--LOfrq' , '-f' , type=float, default=LO/1e6,
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
-    parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz/1e3,
-        help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz/1e3)+' MHz')
+    parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz,
+        help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz)+' kHz)')
     # parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
     #     help='Baseband start frequency in MHz, absolute (default '+str(f0/1e6)+' MHz)')
     # parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
