@@ -451,6 +451,9 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
         plt.savefig("VNA-S21complex-fit.png")
         # plt.show()
 
+    print("Fr from fit  [GHz]:", fopt[0])
+    print("Fr max curve [GHz]:", xdata[:len(z)][np.argmin(  20*np.log10(abs(resfunc8(xdata[:len(z)],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(xdata[len(z):],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))) )])
+
     ## Create a dictionary of the result params
     fine_pars = { "f0"    : fopt[0], 
                   "Qr"    : fopt[1],
