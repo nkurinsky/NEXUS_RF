@@ -2,6 +2,9 @@ import sys,os
 import time, datetime
 import argparse
 import numpy as np
+
+## Try to read in the USRP modules
+## Exit out if you can't after adjusting path
 try:
     import pyUSRP as u
 except ImportError:
@@ -11,19 +14,35 @@ except ImportError:
     except ImportError:
         print("Cannot find the pyUSRP package")
 
-# import PyMKID_USRP_import_functions as puf2
+try:
+    import PyMKID_USRP_functions as puf
+except ImportError:
+    try:
+        sys.path.append('../AnalysisScripts')
+        import PyMKID_USRP_functions as puf
+    except ImportError:
+        print("Cannot find the PyMKID_USRP_functions package")
+        exit()
+
+## Set DAQ parameters
+rate    = 100e6
+tx_gain = 0
+rx_gain = 17.0
+LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
+# LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
+
+## Set Resonator parameters
+res     = 4.24204767      ## Al   [GHz]
+# res     = 4.244760      ## Nb 7 [GHz]
+# res     = 4.202830      ## Nb 6 [GHz]
+
+## Set some VNA sweep parameters
+f_span_kHz = 140        ## Symmetric about the center frequency
+points     = 1400       ## Defined such that we look at 100 Hz windows
+duration   = 10         ## [Sec]
 
 ## Set some VNA parameters
-power   = -40.0     ## [dBm]
-rate    = 100e6     ## samples per second
-tx_gain = 0
-rx_gain = 17.5
-LO      = 4.250e9   ## [Hz] Nice round numbers, don't go finer than 50 MHz
-# res     = 4.242170  ## [GHz] resonator peak
-f0      = -10e6     ## [Hz], relative to LO
-f1      = -5e6      ## [Hz], relative to LO
-points  =  1e5
-lapse   = 10        ## [Sec]
+power   = -30.0     ## [dBm]
                        
 ## File handling options
 filename=None
@@ -32,11 +51,21 @@ filename=None
 dataPath = '/data/USRP_VNA_Sweeps'  #VNA subfolder of TempSweeps
 
 ## Sub directory definitions
-dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-sweepPath = os.path.join(dataPath,dateStr)
+dateStr    = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+sweepPath  = '' # os.path.join(dataPath,dateStr)
 
-series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-seriesPath = os.path.join(sweepPath,series)
+series     = '' # str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+seriesPath = '' # os.path.join(sweepPath,series)
+
+def get_paths():
+    ## Sub directory definitions
+    dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+    sweepPath = os.path.join(dataPath,dateStr)
+
+    series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+    seriesPath = os.path.join(sweepPath,series)
+
+    return dateStr, sweepPath, series, seriesPath
 
 def parse_args():
     # Instantiate the parser
@@ -52,25 +81,17 @@ def parse_args():
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
     parser.add_argument('--points', '-p' , type=int  , default=points, 
         help='Number of points used in the scan (default '+str(points)+' points)')
-    parser.add_argument('--time'  , '-T' , type=float, default=lapse, 
-        help='Duration of the scan in seconds per iteration (default '+str(lapse)+' seconds)')
+    parser.add_argument('--time'  , '-T' , type=float, default=duration, 
+        help='Duration of the scan in seconds per iteration (default '+str(duration)+' seconds)')
     
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
     
-    parser.add_argument('--LOfrq' , '-f' , nargs='+' , default=[LO/1e6],
+    parser.add_argument('--LOfrq' , '-f' , type=float, default=LO/1e6,
         help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
-    parser.add_argument('--f0'    , '-f0', type=float, default=f0/1e6, 
-        help='Baseband start frequrency in MHz relative to LO (default '+str(f0/1e6)+' MHz)')
-    parser.add_argument('--f1'    , '-f1', type=float, default=f1/1e6, 
-        help='Baseband end frequrency in MHz relative to LO (default '+str(f1/1e6)+' MHz)')
-    
-    # ## Line delay arguments
-    # parser.add_argument('--delay_duration', '-dd', type=float, default=delay_duration, 
-    #     help='Duration of the delay measurement (default '+str(delay_duration)+' seconds)')
-    # parser.add_argument('--delay_over'    , '-do', type=float, default=None,
-    #     help='Manually set line delay in nanoseconds. Skip the line delay measure.')
+    parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz,
+        help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz)+' kHz)')
 
     args = parser.parse_args()
 
@@ -102,15 +123,11 @@ def parse_args():
 
     ## MHz frequencies to Hz
     if (args.LOfrq is not None):
-        args.LOfrq = [f*1e6 for f in args.LOfrq] ## Store it as Hz not MHz
-    if (args.f0 is not None):
-        args.f0 = args.f0*1e6 ## Store it as Hz not MHz
-    if (args.f1 is not None):
-        args.f1 = args.f1*1e6 ## Store it as Hz not MHz
-
-    if(args.f0 is not None and args.f1 is not None):
-        if((args.f1 - args.f0) > 1e7):
-            print("Frequency range (",args.f0,",",args.f1,") too large! Exiting...")
+        args.LOfrq = args.LOfrq*1e6 ## Store it as Hz not MHz
+    if (args.VNAfspan is not None):
+        args.VNAfspan = args.VNAfspan*1e3 ## Store it as Hz not kHz
+        if(args.VNAfspan > 1e7):
+            print("Frequency range (",args.VNAfspan,") too large! Exiting...")
             exit(1)
 
     if(args.LOfrq is not None):
@@ -118,15 +135,15 @@ def parse_args():
             print("Invalid LO Frequency:",args.freq," is too High! Exiting...")
             exit(1)
 
-    if np.abs(args.f0)>args.rate/2:
-        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f0/1e6,args.rate/1e6))
-        args.f0 = args.rate/2 * (np.abs(args.f0)/args.f0)
-        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f0/1e6))
+    # if np.abs(args.f0)>args.rate/2:
+    #     u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f0/1e6,args.rate/1e6))
+    #     args.f0 = args.rate/2 * (np.abs(args.f0)/args.f0)
+    #     u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f0/1e6))
 
-    if np.abs(args.f1)>args.rate/2:
-        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1/1e6,args.rate/1e6))
-        args.f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
-        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1/1e6))
+    # if np.abs(args.f1)>args.rate/2:
+    #     u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1/1e6,args.rate/1e6))
+    #     args.f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
+    #     u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1/1e6))
 
     return args
 
@@ -143,7 +160,7 @@ def create_dirs():
     return 0
 
 ## Function to run a VNA sweep
-def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points, ntones, delay_duration, delay_over=None):
+def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse, points, ntones, delay_duration, delay_over=None):
     ## First do a line delay measurement
     if delay_over is not None:
         print("Line delay is user specified:", delay_over, "ns")
@@ -204,6 +221,16 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
     # print("- output_filename", outfname)
     # print("- Multitone_compensation", ntones)
 
+    ## Do some math to find the frequency span for the VNA
+    ## relative to the LO frequency
+    print("F span (VNA):",fspan,"Hz")
+    fVNAmin = res*1e9 - (fspan/2.)
+    fVNAmax = res*1e9 + (fspan/2.)
+    print("VNA spans", fVNAmin/1e6, "MHz to", fVNAmax/1e6, "MHz")
+    f0 = fVNAmin - freq
+    f1 = fVNAmax - freq
+    print("Relative to LO: start", f0, "Hz; stop",f1,"Hz")
+
     print("Starting single VNA run...")
     vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
         measure_t = lapse, 
@@ -222,6 +249,16 @@ def runVNA(tx_gain, rx_gain, _iter, rate, freq, front_end, f0, f1, lapse, points
         Multitone_compensation = ntones)
     print("Done.")
 
+    ## Fit the data acquired in this noise scan
+    print("Fitting VNA sweep to find resonator frequency...")
+    fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[res],show=True,save=True)
+    print("Done.")
+
+    ## Extract the important parameters from fit
+    f = fs[0]*1e9 ## Get it in Hz (fs is in GHz)
+    q = qs[0]
+    print("F:",f,"Q:",q)
+
     return vna_filename, delay
 
 ## Main function when called from command line
@@ -230,14 +267,15 @@ if __name__ == "__main__":
     ## Parse command line arguments to set parameters
     args = parse_args()
 
-    ## Create the output directories
-    create_dirs()
-    os.chdir(seriesPath) ## When doing this, no need to provide subfolder
-
     ## Connect to GPU SDR server
     if not u.Connect():
         u.print_error("Cannot find the GPU server!")
         exit(1)
+
+    ## Create the output directories
+    dateStr, sweepPath, series, seriesPath = get_paths()
+    create_dirs()
+    os.chdir(seriesPath) ## When doing this, no need to provide subfolder
 
     ## Ensure the power doesn't go above -25 dBm
     ## Due to power splitting across tones
