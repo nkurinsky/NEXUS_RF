@@ -44,10 +44,6 @@ res     = 4.24204767      ## Al   [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set some VNA sweep parameters
-f0      = -10e6         ## (Al and Nb 7) [Hz], relative to LO=4.25e9
-f1      = -5e6          ## (Al and Nb 7) [Hz], relative to LO=4.25e9
-# f0      = -5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
-# f1      =  5e6          ## (Nb 6) [Hz], relative to LO=4.20e9
 f_span_kHz = 200        ## Symmetric about the center frequency
 points     = 2e5
 duration   = 30         ## [Sec]
