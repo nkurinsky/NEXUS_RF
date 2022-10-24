@@ -314,8 +314,9 @@ if __name__ == "__main__":
             rate    = args.rate,        ## Passed in Samps/sec
             freq    = args.LOfrq[fi],   ## Passed in Hz
             front_end = "A",
-            f0      = args.f0,          ## Passed in Hz, relative to LO
-            f1      = args.f1,          ## Passed in Hz, relative to LO
+            fspan   = args.VNAfspan,      ## Passed in Hz
+            # f0      = args.f0,          ## Passed in Hz, relative to LO
+            # f1      = args.f1,          ## Passed in Hz, relative to LO
             lapse   = args.time,        ## Passed in seconds
             points  = args.points,
             ntones  = N_power,
