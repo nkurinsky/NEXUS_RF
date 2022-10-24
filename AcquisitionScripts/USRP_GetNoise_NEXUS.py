@@ -179,15 +179,15 @@ def parse_args():
             print("Invalid LO Frequency:",args.freq," is too High! Exiting...")
             exit(1)
 
-    if np.abs(args.f0)>args.rate/2:
-        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f0/1e6,args.rate/1e6))
-        args.f0 = args.rate/2 * (np.abs(args.f0)/args.f0)
-        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f0/1e6))
+    # if np.abs(args.f0)>args.rate/2:
+    #     u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f0/1e6,args.rate/1e6))
+    #     args.f0 = args.rate/2 * (np.abs(args.f0)/args.f0)
+    #     u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f0/1e6))
 
-    if np.abs(args.f1)>args.rate/2:
-        u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1/1e6,args.rate/1e6))
-        args.f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
-        u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1/1e6))
+    # if np.abs(args.f1)>args.rate/2:
+    #     u.print_warning("Cannot use initial baseband frequency of %.2f MHz with a data rate of %.2f MHz" % (args.f1/1e6,args.rate/1e6))
+    #     args.f1 = args.rate/2 * (np.abs(args.f1)/args.f1)
+    #     u.print_debug("Setting maximum initial baseband scan frequency to %.2f MHz"%(args.f1/1e6))
 
     return args
 
