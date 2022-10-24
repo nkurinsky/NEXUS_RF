@@ -434,10 +434,14 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
     fopt, fcov = opt.curve_fit(resfunc8, xdata, ydata, p0=pGuess, bounds=([min(f), 0, 0, -np.inf, -np.inf,-1*np.pi, -np.inf, -np.inf], [max(f), np.inf, np.inf, np.inf, np.inf, np.pi, np.inf, np.inf]))
     ferr = np.sqrt(np.diag(fcov))
 
+    min_S21logmag = np.min(  20*np.log10(abs(resfunc8(xdata[:len(z)],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(xdata[len(z):],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))) )
+    min_frequency = np.abs(xdata[:len(z)][np.argmin(  20*np.log10(abs(resfunc8(xdata[:len(z)],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(xdata[len(z):],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))) )])
+
     if plot:
         plt.figure(1)
         plt.plot(abs(xdata[:len(z)]), 20*np.log10(abs(resfunc8(xdata[:len(z)],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(xdata[len(z):],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))),label='finefit')
         plt.plot(fopt[0], 20*np.log10(abs(resfunc8(-1.*fopt[0],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(fopt[0],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))),'o',label='finefit fr')
+        plt.plot(min_frequency, min_S21logmag,'o',label='finefit min', color='purple')
         plt.legend()
         plt.savefig("VNA-S21logmag-fit.png")
         plt.figure(2)
@@ -452,7 +456,7 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
         # plt.show()
 
     print("Fr from fit  [GHz]:", fopt[0])
-    print("Fr max curve [GHz]:", xdata[:len(z)][np.argmin(  20*np.log10(abs(resfunc8(xdata[:len(z)],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7])+1j*resfunc8(xdata[len(z):],fopt[0],fopt[1],fopt[2],fopt[3],fopt[4],fopt[5],fopt[6],fopt[7]))) )])
+    print("Fr max curve [GHz]:", min_frequency)
 
     ## Create a dictionary of the result params
     fine_pars = { "f0"    : fopt[0], 
