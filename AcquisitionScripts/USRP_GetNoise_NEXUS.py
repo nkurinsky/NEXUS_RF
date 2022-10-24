@@ -263,8 +263,8 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
     fVNAmin = res*1e9 - (fspan/2.)
     fVNAmax = res*1e9 + (fspan/2.)
     print("VNA spans", fVNAmin/1e6, "MHz to", fVNAmax/1e6, "MHz")
-    f0 = freq - fVNAmin
-    f1 = freq - fVNAmax
+    f0 = fVNAmin - freq
+    f1 = fVNAmax - freq
     print("Relative to LO: start", f0, "Hz; stop",f1,"Hz")
 
     print("Starting single VNA run...")
