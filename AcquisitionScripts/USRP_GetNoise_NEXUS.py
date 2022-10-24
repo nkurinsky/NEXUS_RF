@@ -161,7 +161,6 @@ def parse_args():
         args.LOfrq = args.LOfrq*1e6 ## Store it as Hz not MHz
     if (args.VNAfspan is not None):
         args.VNAfspan = args.VNAfspan*1e3 ## Store it as Hz not kHz
-        print("F span (VNA):",args.VNAfspan,"Hz")
         if(args.VNAfspan > 1e7):
             print("Frequency range (",args.VNAfspan,") too large! Exiting...")
             exit(1)
@@ -416,8 +415,6 @@ def doRun(this_power):
     gPower.attrs.create("N_power", N_power)
     gPower.attrs.create("rate",    args.rate)
     gPower.attrs.create("LOfreq",  args.LOfrq)
-
-    print("F span (VNA):",args.VNAfspan,"Hz")
 
     cal_freqs, cal_means = runNoise(
         tx_gain = args.txgain,
