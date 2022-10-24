@@ -222,6 +222,7 @@ def masterplot(results, results2, label1, label2, fr1, fr2, dfr1, dfr2, show_MB=
     
     plt.show()
     return
+
 def compare_plots_f0(results, results2, label1, label2, fr1, fr2, show_MB=True):
     plt.figure(1,figsize=(8,8))
     plt.plot(results[:,0],(results[:,1]/1e3),'ob',label = label1)
@@ -303,6 +304,7 @@ def calc_MB_theory(results, fr, select='both'):
         return df_f0s
     elif select=='both':
         return np.array(MB_qis),np.array(MB_f0s)
+
 def pbp_Qi_benefit(results1, results2,chopval=0):
     #point by point calculation of Qi with filter/Qi without filter
     #results1 should be with filters, results2 without
