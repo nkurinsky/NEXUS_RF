@@ -44,9 +44,9 @@ res     = 4.24204767      ## Al   [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set some VNA sweep parameters
-f_span_kHz = 200        ## Symmetric about the center frequency
-points     = 2e5
-duration   = 30         ## [Sec]
+f_span_kHz = 140        ## Symmetric about the center frequency
+points     = 1400       ## Defined such that we look at 100 Hz windows
+duration   = 10         ## [Sec]
 
 ## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
