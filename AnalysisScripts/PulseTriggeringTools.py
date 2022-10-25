@@ -26,8 +26,8 @@ def readLegacyDataFile(filestr):
     res['chan_names']=['radius','arc length']
     return res
 
-def readDataFile(series):
-    sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, verbose=True)
+def readDataFile(series, base_path='/data/USRP_Noise_Scans'):
+    sum_file, dly_file, vna_file, tone_files = Thf.GetFiles(series, base_path=base_path, verbose=True)
 
     try:
         metadata, avg_frqs, avg_S21s = Thf.UnpackSummary(sum_file)
