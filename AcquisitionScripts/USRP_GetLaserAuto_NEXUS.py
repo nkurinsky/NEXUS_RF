@@ -419,7 +419,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         e3631a.setVoltage(V_led)
 
         ## Create a group for the noise scan parameters
-        gScan = h5_group_obj.create_group('LaserScan_'+str(V_led).replace(".","-")+'V')
+        gScan = h5_group_obj.create_group('LaserScan_'+"{:.3f}".format(V_led).replace(".","-")+'V')
         gScan.attrs.create("file",  outfname+".h5")
         gScan.create_dataset("readout_tones",  data=readout_tones)
         gScan.create_dataset("relative_tones", data=relative_tones)
