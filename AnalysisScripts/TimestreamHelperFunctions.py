@@ -104,7 +104,7 @@ def UnpackSummary(s_file_path, verbose=False):
 		if "LaserScan" in k:
 			l_dict = {}
 			for kk in md[k].keys():
-				l_dict[kk] = md[k][kk]
+				l_dict[kk] = md[k][kk].to_numpy()
 			md_dict[k] = l_dict
 
 	## Pull the mean F,S21 from the cal delta scans
