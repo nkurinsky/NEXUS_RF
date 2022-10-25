@@ -407,8 +407,8 @@ def StackPulses(timestream, start_t_sec, pulse_rate_Hz=100, win_fac=0.90, sample
     samps_btwn_pls = int(sample_rate * t_btwn_pulses)
     
     ## Define the window of interest
-    if win_fac > 0.95:
-        win_fac = 0.95
+    if win_fac > 1.00:
+        win_fac = 1.00
     window = int(win_fac * samps_btwn_pls)
     
     ## Take the average of the second 5 windows in the timestream to determine a baseline
