@@ -135,7 +135,7 @@ class AFG3102():
         return
 
     ## Update the frequency and derived parameters
-    def updateFrequency(self, freq_Hz, ch=1, confirm=True):
+    def updateFrequency(self, freq_Hz, ch=1, confirm=True, burst=True):
         ## First check that the channel provided is okay
         if not (ch==1 or ch==2):
             print("Error:", ch, "is not a valid channel string. Options: 1, 2")
@@ -144,7 +144,7 @@ class AFG3102():
 
         ## Extract the pulse parameter dictionary and create strings
         prd_sec = 1./freq_Hz
-        Npulses = int(freq_Hz)
+        Npulses = int(freq_Hz) - 1
 
         f_str = "{:.3f}".format(freq_Hz) + "Hz"
         P_str = "{:.3f}".format(prd_sec) + "s"
@@ -153,13 +153,15 @@ class AFG3102():
         ## Send the commands to set up the source
         self._sendCmd(ch_str+":FREQuency:FIXed "+ f_str, getResponse=False)
         self._sendCmd(ch_str+":PULSe:PERiod "   + P_str, getResponse=False)
-        self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
+        if burst:
+            self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
 
         ## Check the settings
         if confirm:
             print("Frequency [Hz]:", self._sendCmd(ch_str+":FREQuency:FIXed?") )
             print("Period   [sec]:", self._sendCmd(ch_str+":PULSe:PERiod?") )
-            print("N cycles   [#]:", self._sendCmd(ch_str+":BURSt:NCYCles?") )
+            if burst:
+                print("N cycles   [#]:", self._sendCmd(ch_str+":BURSt:NCYCles?") )
 
         return
 
@@ -240,6 +242,10 @@ class AFG3102():
         self.updateFrequency( pulse_par_dict["f_Hz" ], ch=ch, confirm=confirm )
         self.updatePulseWidth(pulse_par_dict["pw_us"], ch=ch, confirm=confirm )
 
+        self._sendCmd(ch_str+":BURSt:TDELay MINimum", getResponse=False)
+        if confirm:
+            print("Burst delay:", self._sendCmd(ch_str+":BURSt:TDELay?"))
+
         self._sendCmd(ch_str+":BURSt:STATe ON", getResponse=False)
         if confirm:
             print("Burst state:", self._sendCmd(ch_str+":BURSt:STATe?"))
@@ -256,6 +262,32 @@ class AFG3102():
         # "SOURce1:PULSe:WIDTh 200ns" 10us
 
         # "SOURce1:BURSt:STATe ON"
+        return
+
+    def configureContinuousSource(self, pulse_par_dict, ch=1, confirm=True):
+        ## First check that the channel provided is okay
+        if not (ch==1 or ch==2):
+            print("Error:", ch, "is not a valid channel string. Options: 1, 2")
+            return
+        ch_str = "SOURce" + str(int(ch))
+
+        ## Send the commands to set up the source
+        self._sendCmd(ch_str+":FUNCtion PULSe"      , getResponse=False)
+        if confirm:
+            print("Function   :", self._sendCmd(ch_str+":FUNCtion?"))
+        self._sendCmd(ch_str+":FREQuency:MODE FIXed", getResponse=False)
+        if confirm:
+            print("Freq   mode:", self._sendCmd(ch_str+":FREQuency:MODE?"))
+
+        self.updateHiVoltage( pulse_par_dict["V_hi" ], ch=ch, confirm=confirm )
+        self.updateLoVoltage( pulse_par_dict["V_lo" ], ch=ch, confirm=confirm )
+        self.updateFrequency( pulse_par_dict["f_Hz" ], ch=ch, confirm=confirm, burst=False )
+        self.updatePulseWidth(pulse_par_dict["pw_us"], ch=ch, confirm=confirm )
+
+        self._sendCmd(ch_str+":BURSt:STATe OFF", getResponse=False)
+        if confirm:
+            print("Burst state:", self._sendCmd(ch_str+":BURSt:STATe?"))
+
         return
 
    
