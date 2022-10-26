@@ -144,7 +144,7 @@ class AFG3102():
 
         ## Extract the pulse parameter dictionary and create strings
         prd_sec = 1./freq_Hz
-        Npulses = int(freq_Hz) - 1
+        Npulses = int(freq_Hz)
 
         f_str = "{:.3f}".format(freq_Hz) + "Hz"
         P_str = "{:.3f}".format(prd_sec) + "s"
@@ -219,6 +219,7 @@ class AFG3102():
 
         return
 
+    ## Set up a triggered output where the number of pulses in a single burst fills a full second
     def configureSource(self, pulse_par_dict, ch=1, confirm=True):
         ## First check that the channel provided is okay
         if not (ch==1 or ch==2):
@@ -264,6 +265,7 @@ class AFG3102():
         # "SOURce1:BURSt:STATe ON"
         return
 
+    ## Set up a continuous pulse output (no trigger)
     def configureContinuousSource(self, pulse_par_dict, ch=1, confirm=True):
         ## First check that the channel provided is okay
         if not (ch==1 or ch==2):
