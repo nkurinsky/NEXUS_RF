@@ -253,7 +253,7 @@ class AFG3102():
 
         self._sendCmd("TRIGger:SOURce EXTernal")
         if confirm:
-            print("Trigger source:", self._sendCmd("TRIGger:SOURce"))
+            print("Trigger source:", self._sendCmd("TRIGger:SOURce?"))
 
         # "SOURce1:FUNCtion PULSe"
         # "SOURce1:BURSt:MODE TRIGgered"
