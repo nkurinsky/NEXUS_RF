@@ -134,6 +134,20 @@ class AFG3102():
             print("Output is:", "ON" if bool(int(self.getOutputState())) else "OFF")
         return
 
+    ## Update the number of pulses to put out per cycle
+    def updateNperCycle(self, N_pls, ch=1, confirm=True):
+        ## First check that the channel provided is okay
+        if not (ch==1 or ch==2):
+            print("Error:", ch, "is not a valid channel string. Options: 1, 2")
+            return
+        ch_str = "SOURce" + str(int(ch))
+
+        self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
+        if confirm:
+            print("N cycles   [#]:", self._sendCmd(ch_str+":BURSt:NCYCles?") )
+
+        return
+
     ## Update the frequency and derived parameters
     def updateFrequency(self, freq_Hz, ch=1, confirm=True, burst=True):
         ## First check that the channel provided is okay
@@ -154,7 +168,8 @@ class AFG3102():
         self._sendCmd(ch_str+":FREQuency:FIXed "+ f_str, getResponse=False)
         self._sendCmd(ch_str+":PULSe:PERiod "   + P_str, getResponse=False)
         if burst:
-            self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
+            self.updateNperCycle(Npulses, ch=ch, confirm=False)
+            # self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
 
         ## Check the settings
         if confirm:
