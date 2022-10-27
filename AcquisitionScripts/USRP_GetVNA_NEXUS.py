@@ -294,7 +294,7 @@ if __name__ == "__main__":
 
     ## Print the settings we'll be using
     print('===== VNA Settings =====')
-    print('     LO [MHz]: ',[f/1e6 for f in args.LOfrq])
+    print('     LO [MHz]: ',args.LOfrq/1e6)
     print('     f0 [MHz]: ',args.f0/1e6)
     print('     f1 [MHz]: ',args.f1/1e6)
     print('  power [dBm]: ',args.power)
