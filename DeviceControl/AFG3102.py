@@ -255,6 +255,10 @@ class AFG3102():
         if confirm:
             print("Trigger source:", self._sendCmd("TRIGger:SOURce?"))
 
+        self._sendCmd("TRIGger:SLOPe POSitive", getResponse=False)
+        if confirm:
+            print("Trigger slope:", self._sendCmd("TRIGger:SLOPe?"))
+
         # "SOURce1:FUNCtion PULSe"
         # "SOURce1:BURSt:MODE TRIGgered"
         # "SOURce1:FREQuency:MODE FIXed"
