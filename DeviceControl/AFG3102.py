@@ -251,7 +251,7 @@ class AFG3102():
         if confirm:
             print("Burst state:", self._sendCmd(ch_str+":BURSt:STATe?"))
 
-        self._sendCmd("TRIGger:SOURce EXTernal")
+        self._sendCmd("TRIGger:SOURce EXTernal", getResponse=False)
         if confirm:
             print("Trigger source:", self._sendCmd("TRIGger:SOURce?"))
 
