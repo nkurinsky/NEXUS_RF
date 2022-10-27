@@ -142,6 +142,8 @@ class AFG3102():
             return
         ch_str = "SOURce" + str(int(ch))
 
+        N_str = "{:d}".format(N_pls)
+
         self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
         if confirm:
             print("N cycles   [#]:", self._sendCmd(ch_str+":BURSt:NCYCles?") )
