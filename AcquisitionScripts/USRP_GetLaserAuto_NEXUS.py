@@ -46,7 +46,7 @@ except ImportError:
 ## Set Laser parameters
 afg_pulse_params = {
     "f_Hz" : 100.0,
-    "pw_us":   5.0,
+    "pw_us":   3.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
 }
@@ -555,8 +555,8 @@ if __name__ == "__main__":
     fg3102.doSoftReset()
 
     fg3102.configureSource(afg_pulse_params)
-    fg3102._sendCmd("SOURce1:BURSt:TDELay 10us", getResponse=False)
-    print("Burst delay:", fg3102._sendCmd("SOURce1:BURSt:TDELay?"))
+    # fg3102._sendCmd("SOURce1:BURSt:TDELay 100us", getResponse=False)
+    # print("Burst delay:", fg3102._sendCmd("SOURce1:BURSt:TDELay?"))
     fg3102.setOutputState(enable=False)
 
     ## Loop over the powers considered
