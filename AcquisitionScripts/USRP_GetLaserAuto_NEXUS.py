@@ -459,6 +459,9 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         ## Add an extension to the file path
         laser_file += '.h5'
 
+        ## Wait for the chip to cool off?
+        time.sleep(30) ## 30 seconds
+
     ## Turn off the AWG output
     fg3102.focusInstrument()
     fg3102.setOutputState(enable=False)
