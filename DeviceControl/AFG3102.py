@@ -263,7 +263,7 @@ class AFG3102():
         if not (ch==1 or ch==2):
             print("Error:", ch, "is not a valid channel string. Options: 1, 2")
             return
-        ch_str = "" + str(int(ch))
+        ch_str = "SOURce" + str(int(ch))
 
         ## Send the commands to set up the source
         self._sendCmd(ch_str+":FUNCtion PULSe"      , getResponse=False)
