@@ -570,6 +570,11 @@ if __name__ == "__main__":
     fg3102.configureSource(afg_pulse_params)
     fg3102.setOutputState(enable=False)
 
+    ## Make sure the DC PS is not at voltage
+    e3631a.focusInstrument()
+    e3631a.setVoltage(0.0)
+    # e3631a.setOutputState(enable=False)
+
     ## Loop over the powers considered
     for i in np.arange(n_pwrs):
         dateStr, sweepPath, series, seriesPath = get_paths()
