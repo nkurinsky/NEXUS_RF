@@ -6,6 +6,7 @@ default_pulse_params = {
     "pw_us":  10.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
+    "d_ms" :   5.0
 }
 
 class AFG3102():
@@ -168,7 +169,7 @@ class AFG3102():
 
         ## Send the commands to set up the source
         self._sendCmd(ch_str+":FREQuency:FIXed "+ f_str, getResponse=False)
-        self._sendCmd(ch_str+":PULSe:PERiod "   + P_str, getResponse=False)
+        # self._sendCmd(ch_str+":PULSe:PERiod "   + P_str, getResponse=False)
         if burst:
             self.updateNperCycle(Npulses, ch=ch, confirm=False)
             # self._sendCmd(ch_str+":BURSt:NCYCles "  + N_str, getResponse=False)
@@ -236,13 +237,31 @@ class AFG3102():
 
         return
 
+    def updatePulseDelay(self, delay_ms, ch=1, confirm=True):
+        ## First check that the channel provided is okay
+        if not (ch==1 or ch==2):
+            print("Error:", ch, "is not a valid channel string. Options: 1, 2")
+            return
+        ch_str = "SOURce" + str(int(ch))
+
+        ## Send the commands to set up the source
+        pw_str = "{:.3f}".format(delay_ms) + "ms"
+        self._sendCmd(ch_str+":PULSe:DELay "+pw_str, getResponse=False)
+
+        ## Check the settings
+        if confirm:
+            print("Pulse delay:", self._sendCmd(ch_str+":PULSe:DELay?") )
+
+        return
+
+
     ## Set up a triggered output where the number of pulses in a single burst fills a full second
     def configureSource(self, pulse_par_dict, ch=1, confirm=True):
         ## First check that the channel provided is okay
         if not (ch==1 or ch==2):
             print("Error:", ch, "is not a valid channel string. Options: 1, 2")
             return
-        ch_str = "SOURce" + str(int(ch))
+        ch_str = "" + str(int(ch))
 
         ## Send the commands to set up the source
         self._sendCmd(ch_str+":FUNCtion PULSe"      , getResponse=False)
@@ -259,6 +278,7 @@ class AFG3102():
         self.updateLoVoltage( pulse_par_dict["V_lo" ], ch=ch, confirm=confirm )
         self.updateFrequency( pulse_par_dict["f_Hz" ], ch=ch, confirm=confirm )
         self.updatePulseWidth(pulse_par_dict["pw_us"], ch=ch, confirm=confirm )
+        self.updatePulseDelay(pulse_par_dict["d_ms" ], ch=ch, confirm=confirm )
 
         self._sendCmd(ch_str+":BURSt:TDELay MINimum", getResponse=False)
         if confirm:
