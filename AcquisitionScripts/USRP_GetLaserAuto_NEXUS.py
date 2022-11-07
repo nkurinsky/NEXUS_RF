@@ -49,6 +49,7 @@ afg_pulse_params = {
     "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
+    "d_ms" :   5.0,
 }
 LED_voltages = np.arange(start=2.6, stop=4.65, step=0.05)
 LED_voltages = LED_voltages[::-1]
@@ -289,6 +290,10 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         Multitone_compensation = ntones)
     print("Done.")
 
+    ## Wait for the chip to cool off?
+    print("Waiting for chip to cool...")
+    time.sleep(5) ## 30 seconds
+
     ## Fit the data acquired in this noise scan
     print("Fitting VNA sweep to find resonator frequency...")
     fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[res],show=False)
@@ -370,6 +375,10 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
                                     shared_lo  = False,
                                     subfolder  = None,#seriesPath,
                                     output_filename = outfname)
+
+        ## Wait for the chip to cool off?
+        print("Waiting for chip to cool...")
+        time.sleep(5) ## 30 seconds
 
         ## Add an extension to the file path
         noise_file += '.h5'
@@ -461,7 +470,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
         ## Wait for the chip to cool off?
         print("Waiting for chip to cool...")
-        time.sleep(30) ## 30 seconds
+        time.sleep(5) ## 30 seconds
 
     ## Turn off the AWG output
     fg3102.focusInstrument()
@@ -559,8 +568,6 @@ if __name__ == "__main__":
     fg3102.doSoftReset()
 
     fg3102.configureSource(afg_pulse_params)
-    fg3102._sendCmd("SOURce1:BURSt:TDELay 5ms", getResponse=False)
-    print("Burst delay:", fg3102._sendCmd("SOURce1:BURSt:TDELay?"))
     fg3102.setOutputState(enable=False)
 
     ## Loop over the powers considered
