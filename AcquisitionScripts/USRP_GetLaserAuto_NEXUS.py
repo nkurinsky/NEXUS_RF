@@ -45,12 +45,12 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" : 100.0,
-    "pw_us":   3.0,
+    "f_Hz" :  75.0,
+    "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
 }
-LED_voltages = [3.0] # np.arange(start=2.7, stop=3.51, step=0.01)
+LED_voltages = np.arange(start=2.6, stop=4.65, step=0.05)
 LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
@@ -555,8 +555,8 @@ if __name__ == "__main__":
     fg3102.doSoftReset()
 
     fg3102.configureSource(afg_pulse_params)
-    # fg3102._sendCmd("SOURce1:BURSt:TDELay 100us", getResponse=False)
-    # print("Burst delay:", fg3102._sendCmd("SOURce1:BURSt:TDELay?"))
+    fg3102._sendCmd("SOURce1:BURSt:TDELay 5ms", getResponse=False)
+    print("Burst delay:", fg3102._sendCmd("SOURce1:BURSt:TDELay?"))
     fg3102.setOutputState(enable=False)
 
     ## Loop over the powers considered
