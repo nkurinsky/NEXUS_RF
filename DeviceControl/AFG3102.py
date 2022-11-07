@@ -237,6 +237,9 @@ class AFG3102():
 
         return
 
+    ## Update the delay between the start of the awg time and first pulse
+    ## This doesn't interfere with triggering every second and allows a 
+    ## full pulse train to fill a full second without missed/overlapping windows
     def updatePulseDelay(self, delay_ms, ch=1, confirm=True):
         ## First check that the channel provided is okay
         if not (ch==1 or ch==2):
@@ -253,7 +256,6 @@ class AFG3102():
             print("Pulse delay:", self._sendCmd(ch_str+":PULSe:DELay?") )
 
         return
-
 
     ## Set up a triggered output where the number of pulses in a single burst fills a full second
     def configureSource(self, pulse_par_dict, ch=1, confirm=True):
