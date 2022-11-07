@@ -460,6 +460,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         laser_file += '.h5'
 
         ## Wait for the chip to cool off?
+        print("Waiting for chip to cool...")
         time.sleep(30) ## 30 seconds
 
     ## Turn off the AWG output
