@@ -34,11 +34,14 @@ def build_t_and_f(N,sampling_rate):
     T = N/sampling_rate
     lowest_freq = 1./T
     highest_freq = sampling_rate/2
-    if N % 2 == 0:
-        f_pos = np.linspace(lowest_freq,highest_freq,N//2)
-        f_neg = np.linspace(-(highest_freq-lowest_freq),-lowest_freq,N//2-1)
+    if not (N % 2 == 0):
+        N = N-1
+    
+    f_pos = np.linspace(lowest_freq,highest_freq,N//2)
+    f_neg = np.linspace(-(highest_freq-lowest_freq),-lowest_freq,N//2-1)
 
-        f = np.concatenate(([0],f_pos,f_neg))
+    f = np.concatenate(([0],f_pos,f_neg))
+
     return time,f
 
 def electronics_basis(noise_timestream,axis_option=0):
