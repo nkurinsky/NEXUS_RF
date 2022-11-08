@@ -280,6 +280,10 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         Multitone_compensation = ntones)
     print("Done.")
 
+    ## Wait for the chip to cool off?
+    print("Waiting for chip to cool...")
+    time.sleep(5) ## 30 seconds
+
     ## Fit the data acquired in this noise scan
     print("Fitting VNA sweep to find resonator frequency...")
     fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[res],show=True,save=True)
@@ -361,6 +365,10 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
                                     shared_lo  = False,
                                     subfolder  = None,#seriesPath,
                                     output_filename = outfname)
+
+        ## Wait for the chip to cool off?
+        print("Waiting for chip to cool...")
+        time.sleep(5) ## 30 seconds
 
         ## Add an extension to the file path
         noise_file += '.h5'
