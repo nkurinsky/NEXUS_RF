@@ -45,7 +45,7 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :  75.0,
+    "f_Hz" :  20.0,
     "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
@@ -130,6 +130,8 @@ def parse_args():
         help='Duration of the VNA scan in seconds per iteration (default '+str(duration)+' seconds)')
     parser.add_argument('--timeNoise', '-Tn' , type=float, default=duration, 
         help='Duration of the noise scan in seconds (default '+str(duration)+' seconds)')
+    parser.add_argument('--timeLaser', '-Tl' , type=float, default=duration, 
+        help='Duration of the laser/LED scan in seconds (default '+str(duration)+' seconds)')
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
@@ -209,7 +211,7 @@ def create_dirs():
     print ("Scan stored as series "+series+" in path "+sweepPath)
     return 0
 
-def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
+def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
     ## First do a line delay measurement
     if delay_over is not None:
         print("Line delay is user specified:", delay_over, "ns")
@@ -439,16 +441,16 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         gScan.create_dataset("LEDpulseus",     data=np.array([afg_pulse_params["pw_us"]]))
         gScan.create_dataset("LEDVhi",         data=np.array([afg_pulse_params["V_hi"]]))
         gScan.create_dataset("LEDVlo",         data=np.array([afg_pulse_params["V_lo"]]))
+        gScan.create_dataset("delayms",        data=np.array([afg_pulse_params["d_ms"]]))
 
         ## Determine how long to acquire noise
-        dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
-        gScan.create_dataset("duration",       data=np.array([dur_noise]))
+        dur_laser = lapse_laser if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
+        gScan.create_dataset("duration",       data=np.array([dur_laser]))
         
         print("Starting Laser/LED Run...")
         ## Do a noise run with the USRP
         laser_file = u.get_tones_noise(relative_tones, 
-                                    #measure_t  = lapse_noise,  ## passed in sec
-                                    measure_t  = dur_noise, 
+                                    measure_t  = dur_laser, 
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz
@@ -517,10 +519,6 @@ def doRun(this_power):
     gPower.attrs.create("rate",    args.rate)
     gPower.attrs.create("LOfreq",  args.LOfrq)
 
-    # gPower.attrs.create("afg_pw",  args.laserPW)
-    # gPower.attrs.create("L_br",  args.laserBR)
-    # gPower.attrs.create("L_R" ,  args.laserRR)
-
     cal_freqs, cal_means = runLaser(
         tx_gain = args.txgain,
         rx_gain = args.rxgain,
@@ -533,6 +531,7 @@ def doRun(this_power):
         # f1      = args.f1,          ## Passed in Hz, relative to LO
         lapse_VNA   = args.timeVNA,   ## Passed in seconds
         lapse_noise = args.timeNoise, ## Passed in seconds
+        lapse_laser = args.timeLaser, ## Passed in seconds
         points  = args.points,
         ntones  = N_power,
         delay_duration = 0.1, # args.delay_duration,
