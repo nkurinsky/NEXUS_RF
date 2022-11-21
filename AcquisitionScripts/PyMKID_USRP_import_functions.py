@@ -14,6 +14,16 @@ except ImportError:
         print("Cannot find the pyUSRP package")
         exit()
 
+try:
+    import PyMKID_USRP_functions as puf
+except ImportError:
+    try:
+        sys.path.append('../AnalysisScripts')
+        import PyMKID_USRP_functions as puf
+    except ImportError:
+        print("Cannot find the PyMKID_USRP_functions package")
+        exit()
+
 
 def run_delay(series, tx_gain, rx_gain, rate, freq, front_end, lapse_delay, delay_over=None, h5_group_obj=None):
 
