@@ -2,6 +2,8 @@ import sys, os
 import time
 import h5py
 
+import numpy as np
+
 ## Try to read in the USRP modules
 ## Exit out if you can't after adjusting path
 try:
