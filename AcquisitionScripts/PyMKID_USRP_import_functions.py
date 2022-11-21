@@ -1,4 +1,5 @@
 import sys, os
+import time
 import h5py
 
 ## Try to read in the USRP modules
