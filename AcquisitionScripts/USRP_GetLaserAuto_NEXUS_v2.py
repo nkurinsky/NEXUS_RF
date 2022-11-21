@@ -57,7 +57,8 @@ afg_pulse_params = {
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
+# LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
+LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
@@ -243,7 +244,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         ntones       = ntones, 
         h5_group_obj = h5_group_obj)
 
-    puif.run_noise(series=series,
+    cal_freqs, cal_means = puif.run_noise(series=series,
         delay        = delay, 
         f            = f, 
         q            = q, 
@@ -312,7 +313,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
         ## Determine how long to acquire noise
         # dur_laser = lapse_laser if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
-        gScan.create_dataset("duration",       data=np.array([dur_laser]))
+        gScan.create_dataset("duration",       data=np.array([lapse_laser]))
         
         print("Starting Laser/LED Run...")
         ## Do a noise run with the USRP
@@ -351,7 +352,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         # e3631a.setOutputState(enable=False)
 
         ## After three LED blasts, do a new noise run
-        if (iv+1 % 3 == 0):
+        if ( (iv+1 % 3) == 0):
             puif.run_noise(series=series,
                 delay        = delay, 
                 f            = f, 
