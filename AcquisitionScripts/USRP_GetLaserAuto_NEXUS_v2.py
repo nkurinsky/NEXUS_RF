@@ -311,13 +311,13 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         gScan.create_dataset("delayms",        data=np.array([afg_pulse_params["d_ms"]]))
 
         ## Determine how long to acquire noise
-        dur_laser = lapse_laser if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
+        # dur_laser = lapse_laser if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
         gScan.create_dataset("duration",       data=np.array([dur_laser]))
         
         print("Starting Laser/LED Run...")
         ## Do a noise run with the USRP
         laser_file = u.get_tones_noise(relative_tones, 
-                                    measure_t  = dur_laser, 
+                                    measure_t  = lapse_laser, 
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz
