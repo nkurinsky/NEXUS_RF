@@ -51,7 +51,7 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :  20.0,
+    "f_Hz" :  10.0,
     "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
@@ -60,6 +60,7 @@ afg_pulse_params = {
 LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
+led_dec = 400
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -83,8 +84,8 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-30])
-n_pwrs = len(powers)
+powers  = np.array([-30])
+n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
 ## These deltas are fractions of the central frequency
@@ -139,6 +140,8 @@ def parse_args():
         help='Duration of the noise scan in seconds (default '+str(duration)+' seconds)')
     parser.add_argument('--timeLaser', '-Tl' , type=float, default=duration, 
         help='Duration of the laser/LED scan in seconds (default '+str(duration)+' seconds)')
+    parser.add_argument('--ledDec', '-dc' , type=float, default=led_dec, 
+        help='Decimation factor for the laser/LED timestreams (default '+str(led_dec)+'x)')
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
@@ -218,7 +221,7 @@ def create_dirs():
     print ("Scan stored as series "+series+" in path "+sweepPath)
     return 0
 
-def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
+def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, laser_dec, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
     
     delay = puif.run_delay(series=series, 
         tx_gain      = tx_gain, 
@@ -322,7 +325,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz
-                                    decimation = 100, 
+                                    decimation = laser_dec, 
                                     RF         = freq,  ## passed in Hz 
                                     Front_end  = front_end,
                                     Device     = None,
@@ -420,6 +423,7 @@ def doRun(this_power):
         lapse_VNA   = args.timeVNA,   ## Passed in seconds
         lapse_noise = args.timeNoise, ## Passed in seconds
         lapse_laser = args.timeLaser, ## Passed in seconds
+        laser_dec   = args.ledDec,
         points  = args.points,
         ntones  = N_power,
         delay_duration = 0.1, # args.delay_duration,
