@@ -57,8 +57,8 @@ afg_pulse_params = {
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-# LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
-LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
+LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
+# LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
@@ -352,7 +352,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         # e3631a.setOutputState(enable=False)
 
         ## After three LED blasts, do a new noise run
-        if ( (iv+1 % 3) == 0):
+        if ( (iv+1) % 3 == 0):
             puif.run_noise(series=series,
                 delay        = delay, 
                 f            = f, 
