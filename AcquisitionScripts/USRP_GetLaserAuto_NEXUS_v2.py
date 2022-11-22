@@ -60,7 +60,7 @@ afg_pulse_params = {
 LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
-led_dec = 400
+led_dec = 100
 
 ## Set DAQ parameters
 rate    = 100e6
