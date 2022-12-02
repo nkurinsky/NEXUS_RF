@@ -32,6 +32,12 @@ except ImportError:
         exit()
 
 try:
+    import PyMKID_USRP_import_functions as puif
+except ImportError:
+    print("Cannot find the PyMKID_USRP_import_functions package")
+    exit()
+
+try:
     from E3631A  import *
     from AFG3102 import *
 except ImportError:
@@ -45,14 +51,19 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :  20.0,
+    "f_Hz" :   5.0,
     "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
+LED_voltages = np.arange(start=2.000, stop=4.250, step=0.250)
+# LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
+# LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
+led_dec   = 100
+
+sleep_sec = 30.0
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -76,8 +87,8 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-30])
-n_pwrs = len(powers)
+powers  = np.array([-30])
+n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
 ## These deltas are fractions of the central frequency
@@ -132,6 +143,8 @@ def parse_args():
         help='Duration of the noise scan in seconds (default '+str(duration)+' seconds)')
     parser.add_argument('--timeLaser', '-Tl' , type=float, default=duration, 
         help='Duration of the laser/LED scan in seconds (default '+str(duration)+' seconds)')
+    parser.add_argument('--ledDec', '-dc' , type=float, default=led_dec, 
+        help='Decimation factor for the laser/LED timestreams (default '+str(led_dec)+'x)')
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
@@ -211,190 +224,49 @@ def create_dirs():
     print ("Scan stored as series "+series+" in path "+sweepPath)
     return 0
 
-def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
-    ## First do a line delay measurement
-    if delay_over is not None:
-        print("Line delay is user specified:", delay_over, "ns")
-        delay = delay_over
-        u.set_line_delay(rate, delay_over*1e9)
-    else:
-        try:
-            if u.LINE_DELAY[str(int(rate/1e6))]:
-                delay = u.LINE_DELAY[str(int(rate/1e6))]*1e-9
-                print("Line delay was found in file.")
-        except KeyError:
-            print("Cannot find line delay. Measuring line delay before VNA:")
+def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, laser_dec, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
+    
+    delay = puif.run_delay(series=series, 
+        tx_gain      = tx_gain, 
+        rx_gain      = rx_gain, 
+        rate         = rate, 
+        freq         = freq, 
+        front_end    = front_end, 
+        lapse_delay  = delay_duration, 
+        delay_over   = delay_over, 
+        h5_group_obj = h5_group_obj)
 
-            outfname = "USRP_Delay_"+series
+    f, q = puif.run_vna(series=series, 
+        res          = res, 
+        tx_gain      = tx_gain, 
+        rx_gain      = rx_gain,  
+        _iter        = _iter, 
+        rate         = rate, 
+        freq         = freq, 
+        front_end    = front_end,  
+        fspan        = fspan, 
+        lapse_VNA    = lapse_VNA, 
+        points       = points, 
+        ntones       = ntones, 
+        h5_group_obj = h5_group_obj)
 
-            filename = u.measure_line_delay(rate, freq, front_end, USRP_num=0, 
-                tx_gain=tx_gain, 
-                rx_gain=rx_gain, 
-                compensate = True, 
-                duration = delay_duration,
-                output_filename=outfname, 
-                subfolder=None)#seriesPath)
-            print("Done.")
-
-            print("Analyzing line delay file...")
-            delay = u.analyze_line_delay(filename, False)
-            print("Done.")
-
-            print("Writing line delay to file...")
-            u.write_delay_to_file(filename, delay)
-            print("Done.")
-
-            print("Loading line delay from file...")
-            u.load_delay_from_file(filename)
-            print("Done.")
-
-    ## Store the line delay as metadata in our noise file
-    h5_group_obj.attrs.create("delay_ns", delay * 1e9)
-
-    if ntones ==1:
-        ntones = None
-    print("Using", ntones, "tones for Multitone_compensation")
-
-    outfname = "USRP_VNA_"+series
-
-    ## Create a VNA group for our h5 file
-    gVNA = h5_group_obj.create_group('VNA')
-    gVNA.attrs.create("duration", lapse_VNA)
-    gVNA.attrs.create("n_points", points)
-    gVNA.attrs.create("iteratns", _iter)
-    gVNA.attrs.create("VNAfile",  outfname+".h5")
-
-    ## Do some math to find the frequency span for the VNA
-    ## relative to the LO frequency
-    print("F span (VNA):",fspan,"Hz")
-    fVNAmin = res*1e9 - (fspan/2.)
-    fVNAmax = res*1e9 + (fspan/2.)
-    print("VNA spans", fVNAmin/1e6, "MHz to", fVNAmax/1e6, "MHz")
-    f0 = fVNAmin - freq
-    f1 = fVNAmax - freq
-    print("Relative to LO: start", f0, "Hz; stop",f1,"Hz")
-
-    print("Starting single VNA run...")
-    vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
-        measure_t = lapse_VNA, 
-        n_points  = points, 
-        tx_gain   = tx_gain,
-        rx_gain   = rx_gain, 
-        Rate      = rate, 
-        decimation= True, 
-        RF        = freq, 
-        Front_end = front_end,
-        Device    = None, 
-        Iterations= _iter, 
-        verbose   = False,
-        subfolder = None, #seriesPath,
-        output_filename = outfname, 
-        Multitone_compensation = ntones)
-    print("Done.")
-
-    ## Wait for the chip to cool off?
-    print("Waiting for chip to cool...")
-    time.sleep(5) ## 30 seconds
-
-    ## Fit the data acquired in this noise scan
-    print("Fitting VNA sweep to find resonator frequency...")
-    fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_filename + '.h5',[res],show=False)
-    print("Done.")
-
-    ## Extract the important parameters from fit
-    f = fs[0]*1e9 ## Get it in Hz (fs is in GHz)
-    q = qs[0]
-    print("F:",f,"Q:",q)
-
-    ## Save the fit results to the VNA group
-    gVNA.create_dataset('fit_f_GHz', data=np.array(fs[0]))
-    gVNA.create_dataset('fit_Q_fac', data=np.array(qs[0]))
-
-    ## Create some output objects
-    ## Each entry is a single number
-    cal_freqs = np.zeros(n_c_deltas)
-    cal_means = np.zeros(n_c_deltas, dtype=np.complex_)
-
-    ## For each power, loop over all the calibration offsets and take a noise run
-    for j in np.arange(n_c_deltas):
-        ## Pick this calibration delta
-        delta = cal_deltas[j]
-
-        ## Make array of tones (fres, fTa, fTb)
-        readout_tones  = np.append([f + delta*float(f)/q], tracking_tones)
-        n_ro_tones     = len(readout_tones)
-        readout_tones  = np.around(readout_tones, decimals=0)
-
-        ## Split the power evenly across two tones
-        amplitudes     = 1./ntones * np.ones(n_ro_tones)
-
-        relative_tones = np.zeros(n_ro_tones)
-        for k in np.arange(n_ro_tones):
-            relative_tones[k] = float(readout_tones[k]) - freq
-
-        ## Don't need tracking tones for calibration deltas
-        if not (delta==0):
-            relative_tones = np.array([relative_tones[0]])
-            amplitudes     = np.array([amplitudes[0]])
-
-        outfname = "USRP_Noise_"+series+"_delta"+str(int(100.*delta))
-
-        ## Create a group for the noise scan parameters
-        gScan = h5_group_obj.create_group('Scan'+str(j))
-        gScan.attrs.create("delta", delta)
-        gScan.attrs.create("file",  outfname+".h5")
-        gScan.create_dataset("readout_tones",  data=readout_tones)
-        gScan.create_dataset("relative_tones", data=relative_tones)
-        gScan.create_dataset("amplitudes",     data=amplitudes)
-        gScan.create_dataset("LOfrequency",    data=np.array([freq]))
-
-        print("Readout  tones [Hz]:", readout_tones)
-        print("Relative tones [Hz]:", relative_tones)
-        print("Amplitudes:         ", amplitudes)
-        print("LO Frequency [Hz]:  ", freq)
-
-        ## Determine how long to acquire noise
-        dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
-        gScan.create_dataset("duration",       data=np.array([dur_noise]))
-
-        print("Starting Noise Run...")
-        ## Do a noise run with the USRP
-        noise_file = u.get_tones_noise(relative_tones, 
-                                    #measure_t  = lapse_noise,  ## passed in sec
-                                    measure_t  = dur_noise,
-                                    tx_gain    = tx_gain, 
-                                    rx_gain    = rx_gain, 
-                                    rate       = rate,  ## passed in Hz
-                                    decimation = 100, 
-                                    RF         = freq,  ## passed in Hz 
-                                    Front_end  = front_end,
-                                    Device     = None,
-                                    amplitudes = amplitudes,
-                                    delay      = delay, ## passed in ns
-                                    pf_average = 4, 
-                                    mode       = "DIRECT", 
-                                    trigger    = None, 
-                                    shared_lo  = False,
-                                    subfolder  = None,#seriesPath,
-                                    output_filename = outfname)
-
-        ## Wait for the chip to cool off?
-        print("Waiting for chip to cool...")
-        time.sleep(5) ## 30 seconds
-
-        ## Add an extension to the file path
-        noise_file += '.h5'
-
-        time_threshold = 0.3 * dur_noise # dur_noise / 2
-
-        frequencies_scanned, noise_mean_scanned = puf.avg_noi(noise_file,time_threshold=time_threshold)
-
-        ## Store the result in the internal output arrays
-        cal_freqs[j] = frequencies_scanned[0]
-        cal_means[j] = noise_mean_scanned[0]
-
-        if not (delta == 0):
-            os.remove(noise_file)
+    cal_freqs, cal_means = puif.run_noise(series=series,
+        delay        = delay, 
+        f            = f, 
+        q            = q, 
+        cal_deltas   = cal_deltas, 
+        tracking_tones = tracking_tones, 
+        tx_gain      = tx_gain, 
+        rx_gain      = rx_gain,  
+        rate         = rate, 
+        freq         = freq, 
+        front_end    = front_end,  
+        lapse_noise  = lapse_noise,
+        cal_lapse_sec = cal_lapse_sec, 
+        points       = points, 
+        ntones       = ntones, 
+        h5_group_obj = h5_group_obj,
+        idx          = None)
 
     ## Now take a laser run, with no calibration deltas
     readout_tones  = np.append([f], tracking_tones)
@@ -408,26 +280,28 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
     for k in np.arange(n_ro_tones):
         relative_tones[k] = float(readout_tones[k]) - freq
 
-    ## Turn on the AWG output
-    fg3102.focusInstrument()
-    fg3102.setOutputState(enable=True)
-
     ## Connect to the DC supply and confiure/enable the output
     e3631a.focusInstrument()
     print("*IDN?", e3631a.getIdentity())
     e3631a.clearErrors()
     # e3631a.doSoftReset()
-    e3631a.setOutputState(enable=True)
-
+    
     ## Loop until the user opts to quit
-    for V_led in LED_voltages:
+    for iv in np.arange(len(LED_voltages)):
+        V_led = LED_voltages[iv]
 
         ## Show the user the voltage then update the output file
         print("Using an LED voltage of:","{:.3f}".format(V_led),"V")
         outfname = "USRP_LaserOn_"+"{:.3f}".format(V_led)+"V_"+series
 
         ## Set the DC power supply output voltage
+        e3631a.focusInstrument()
+        e3631a.setOutputState(enable=True)
         e3631a.setVoltage(V_led)
+
+        ## Turn on the AWG output
+        fg3102.focusInstrument()
+        fg3102.setOutputState(enable=True)
 
         ## Create a group for the noise scan parameters
         gScan = h5_group_obj.create_group('LaserScan_'+"{:.3f}".format(V_led).replace(".","-")+'V')
@@ -444,17 +318,17 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         gScan.create_dataset("delayms",        data=np.array([afg_pulse_params["d_ms"]]))
 
         ## Determine how long to acquire noise
-        dur_laser = lapse_laser if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
-        gScan.create_dataset("duration",       data=np.array([dur_laser]))
+        # dur_laser = lapse_laser if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
+        gScan.create_dataset("duration",       data=np.array([lapse_laser]))
         
         print("Starting Laser/LED Run...")
         ## Do a noise run with the USRP
         laser_file = u.get_tones_noise(relative_tones, 
-                                    measure_t  = dur_laser, 
+                                    measure_t  = lapse_laser, 
                                     tx_gain    = tx_gain, 
                                     rx_gain    = rx_gain, 
                                     rate       = rate,  ## passed in Hz
-                                    decimation = 100, 
+                                    decimation = laser_dec, 
                                     RF         = freq,  ## passed in Hz 
                                     Front_end  = front_end,
                                     Device     = None,
@@ -472,16 +346,36 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
         ## Wait for the chip to cool off?
         print("Waiting for chip to cool...")
-        time.sleep(5) ## 30 seconds
+        time.sleep(sleep_sec) ## 30 seconds
 
-    ## Turn off the AWG output
-    fg3102.focusInstrument()
-    fg3102.setOutputState(enable=False)
+        ## Turn off the AWG output
+        fg3102.focusInstrument()
+        fg3102.setOutputState(enable=False)
 
-    ## Stop putting out an LED voltage
-    e3631a.focusInstrument()
-    e3631a.setVoltage(0.0)
-    # e3631a.setOutputState(enable=False)
+        ## Stop putting out an LED voltage
+        e3631a.focusInstrument()
+        e3631a.setVoltage(0.0)
+        # e3631a.setOutputState(enable=False)
+
+        ## After three LED blasts, do a new noise run
+        if ( (iv+1) % 3 == 0):
+            puif.run_noise(series=series,
+                delay        = delay, 
+                f            = f, 
+                q            = q, 
+                cal_deltas   = cal_deltas, 
+                tracking_tones = tracking_tones, 
+                tx_gain      = tx_gain, 
+                rx_gain      = rx_gain,  
+                rate         = rate, 
+                freq         = freq, 
+                front_end    = front_end,  
+                lapse_noise  = lapse_noise,
+                cal_lapse_sec = cal_lapse_sec, 
+                points       = points, 
+                ntones       = ntones, 
+                h5_group_obj = h5_group_obj,
+                idx          = iv)            
 
     return cal_freqs, cal_means
 
@@ -532,6 +426,7 @@ def doRun(this_power):
         lapse_VNA   = args.timeVNA,   ## Passed in seconds
         lapse_noise = args.timeNoise, ## Passed in seconds
         lapse_laser = args.timeLaser, ## Passed in seconds
+        laser_dec   = args.ledDec,
         points  = args.points,
         ntones  = N_power,
         delay_duration = 0.1, # args.delay_duration,
