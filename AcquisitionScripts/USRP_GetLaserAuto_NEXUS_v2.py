@@ -51,16 +51,19 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :  10.0,
+    "f_Hz" :   5.0,
     "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
+LED_voltages = np.arange(start=2.000, stop=4.250, step=0.250)
+# LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
-led_dec = 100
+led_dec   = 100
+
+sleep_sec = 30.0
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -343,7 +346,7 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
         ## Wait for the chip to cool off?
         print("Waiting for chip to cool...")
-        time.sleep(5) ## 30 seconds
+        time.sleep(sleep_sec) ## 30 seconds
 
         ## Turn off the AWG output
         fg3102.focusInstrument()
