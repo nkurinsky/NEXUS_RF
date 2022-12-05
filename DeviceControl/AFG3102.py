@@ -264,7 +264,7 @@ class AFG3102():
     ## The AFG has a minimum duty factor of 0.001%, so we need to check that we're within that 
     ## constraint, otherwise it defaults to 50% duty factor which is bad
     ## The 
-    def checkParameters(pulse_par_dict):
+    def checkParameters(self, pulse_par_dict):
 
         pw = pulse_par_dict["pw_us"] * 1e-6
         ws = 1./pulse_par_dict["f_Hz" ]
