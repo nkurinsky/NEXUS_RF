@@ -51,7 +51,7 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :   5.0,
+    "f_Hz" :  10.0,
     "pw_us":   1.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
@@ -61,9 +61,6 @@ LED_voltages = np.arange(start=2.000, stop=4.250, step=0.250)
 # LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 LED_voltages = LED_voltages[::-1]
-led_dec   = 100
-
-sleep_sec = 30.0
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -71,6 +68,7 @@ tx_gain = 0
 rx_gain = 17.0
 LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 # LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
+led_dec   = 100        ## Default decimation for the LED timestreams
 
 ## Set Resonator parameters
 res     = 4.24204767      ## Al   [GHz]
@@ -96,6 +94,9 @@ n_pwrs  = len(powers)
 cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 n_c_deltas = len(cal_deltas)
 cal_lapse_sec = 10.
+
+## Set the duration to wait after an LED timestream before doing the next USRP operation
+sleep_sec = 30.0
 
 ## File handling options
 filename=None
@@ -466,6 +467,9 @@ if __name__ == "__main__":
 
     ## Make sure the DC PS is not at voltage
     e3631a.focusInstrument()
+    print("*IDN?", e3631a.getIdentity())
+    e3631a.clearErrors()
+    # e3631a.doSoftReset()
     e3631a.setVoltage(0.0)
     # e3631a.setOutputState(enable=False)
 
