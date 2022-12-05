@@ -249,6 +249,7 @@ class AFG3102():
 
         ## Note that there is some hard limit between pulse width and pulse frequency.
         ## At 10 Hz, can go down to 1.0 us, but at 5.0 Hz, can only go down to 2.0 us
+        ## I don't think it can go below 0.001% duty factor
 
         ## Send the commands to set up the source
         pw_str = "{:.3f}".format(delay_ms) + "ms"
