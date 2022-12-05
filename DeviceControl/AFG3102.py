@@ -269,7 +269,7 @@ class AFG3102():
         pw = pulse_par_dict["pw_us"] * 1e-6
         ws = 1./pulse_par_dict["f_Hz" ]
         df = 100.0 * pw/ws
-        ok = (df >= 0.001)
+        ok = (df >= 0.000999)
         pw = (0.001/100.0) * ws
         return ok, pw*1e6
 
