@@ -270,7 +270,7 @@ class AFG3102():
         ws = 1./pulse_par_dict["f_Hz" ]
         df = 100.0 * pw/ws
         ok = (df >= 0.001)
-        pw = (0.001/100.0) * pw
+        pw = (0.001/100.0) * ws
         return ok, pw*1e6
 
 
