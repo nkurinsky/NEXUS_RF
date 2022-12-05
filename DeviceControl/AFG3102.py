@@ -261,6 +261,19 @@ class AFG3102():
 
         return
 
+    ## The AFG has a minimum duty factor of 0.001%, so we need to check that we're within that 
+    ## constraint, otherwise it defaults to 50% duty factor which is bad
+    ## The 
+    def checkParameters(pulse_par_dict):
+
+        pw = pulse_par_dict["pw_us"] * 1e-6
+        ws = 1./pulse_par_dict["f_Hz" ]
+        df = 100.0 * pw/ws
+        ok = (df >= 0.001)
+        pw = (0.001/100.0) * pw
+        return ok, pw*1e6
+
+
     ## Set up a triggered output where the number of pulses in a single burst fills a full second
     def configureSource(self, pulse_par_dict, ch=1, confirm=True):
         ## First check that the channel provided is okay
@@ -279,6 +292,11 @@ class AFG3102():
         self._sendCmd(ch_str+":FREQuency:MODE FIXed", getResponse=False)
         if confirm:
             print("Freq   mode:", self._sendCmd(ch_str+":FREQuency:MODE?"))
+
+        ok, new_pw_us = self.checkParameters(pulse_par_dict)
+        if not ok:
+            print("Warning: duty factor set below minimum capability - reset to a pulse width of",new_pw_us,"us (minimum)")
+            pulse_par_dict["pw_us"] = new_pw_us
 
         self.updateHiVoltage( pulse_par_dict["V_hi" ], ch=ch, confirm=confirm )
         self.updateLoVoltage( pulse_par_dict["V_lo" ], ch=ch, confirm=confirm )
