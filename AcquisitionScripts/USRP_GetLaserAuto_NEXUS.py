@@ -269,6 +269,10 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         h5_group_obj = h5_group_obj,
         idx          = None)
 
+    ## We'll need this for when we do multiple noise characterization scans
+    cal_fs_obj = np.zeros(shape=(2,len(cal_freqs))) ; cal_fs_obj[1] = cal_freqs
+    cal_ms_obj = np.zeros(shape=(2,len(cal_means))) ; cal_fs_obj[1] = cal_means
+
     ## Now take a laser run, with no calibration deltas
     readout_tones  = np.append([f], tracking_tones)
     n_ro_tones     = len(readout_tones)
@@ -286,6 +290,9 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
     print("*IDN?", e3631a.getIdentity())
     e3631a.clearErrors()
     # e3631a.doSoftReset()
+
+    ## Declare a flag for additional noise characterization scans
+    adtl_noise_scan = False
     
     ## Loop until the user opts to quit
     for iv in np.arange(len(LED_voltages)):
@@ -360,7 +367,9 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
         ## After three LED blasts, do a new noise run
         if ( (iv+1) % 3 == 0):
-            puif.run_noise(series=series,
+            adtl_noise_scan = True
+
+            cal_freqs2, cal_means2 = puif.run_noise(series=series,
                 delay        = delay, 
                 f            = f, 
                 q            = q, 
@@ -376,9 +385,15 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
                 points       = points, 
                 ntones       = ntones, 
                 h5_group_obj = h5_group_obj,
-                idx          = iv)            
+                idx          = iv)
 
-    return cal_freqs, cal_means
+            cal_fs_obj = np.r_[cal_fs_obj, [cal_freqs2]]
+            cal_ms_obj = np.r_[cal_ms_obj, [cal_means2]]
+
+    if adtl_noise_scan:
+        return cal_fs_obj[1:,:], cal_ms_obj[1:,:]
+    else:
+        return cal_freqs, cal_means
 
 def doRun(this_power):
 
