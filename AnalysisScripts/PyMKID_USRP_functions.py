@@ -268,6 +268,7 @@ def avg_noi(filename,time_threshold=0.05,verbose=False):
             decimation = fyle["raw_data0/B_RX2"].attrs.get('decim')
 
     eff_rate = rate/decimation
+
     if verbose:
         print( "\n\nData taken "+str(Dt_tm))
         print( "Reported LO is "+str(LO*1e-6)+" MHz")
@@ -277,8 +278,6 @@ def avg_noi(filename,time_threshold=0.05,verbose=False):
         print( "Reported amplitudes are "+str(amplitude))
         print( "\tPowers are "+str(-11+20*np.log10(amplitude))+" dBm")
         print( "Tones are "+str(search_freqs*1e-6)+" MHz")
-
-    eff_rate = rate/decimation
 
     time_correction = 1/eff_rate
 
