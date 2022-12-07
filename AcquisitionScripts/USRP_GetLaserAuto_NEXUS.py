@@ -270,8 +270,8 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         idx          = None)
 
     ## We'll need this for when we do multiple noise characterization scans
-    cal_fs_obj = np.zeros(shape=(2,len(cal_freqs))) ; cal_fs_obj[1] = cal_freqs
-    cal_ms_obj = np.zeros(shape=(2,len(cal_means))) ; cal_fs_obj[1] = cal_means
+    cal_fs_obj = np.zeros(shape=(2,len(cal_freqs)),dtype='complex128') ; cal_fs_obj[1] = cal_freqs
+    cal_ms_obj = np.zeros(shape=(2,len(cal_means)),dtype='complex128') ; cal_fs_obj[1] = cal_means
 
     ## Now take a laser run, with no calibration deltas
     readout_tones  = np.append([f], tracking_tones)
