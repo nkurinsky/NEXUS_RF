@@ -152,9 +152,10 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 									  i=i)
 	return p, P, r, t ## powers, PSDs, res, timestreams
 
-def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
-	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15], \
-	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None):
+def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
+	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15],
+	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None,
+	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3 ):
 
 	## Create the axes
 	fga = plt.figure()
@@ -225,10 +226,13 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5], \
 		
 		metadata, avg_frqs, avg_S21s = UnpackSummary(sum_file)
 		
-		powers, PSDs, res, timestreams = CleanPSDs(tone_files[0], vna_file, f_transient=0.075,
-											   charFs = avg_frqs,
-											   charZs = avg_S21s,
-											   MBresults = MB_fit_result)
+		powers, PSDs, res, timestreams = CleanPSDs(tone_files[0], vna_file,
+											   charFs      = avg_frqs,
+											   charZs      = avg_S21s,
+											   MBresults   = MB_fit_result,
+											   PSD_lo_f    = PSD_lo_f, 
+											   PSD_hi_f    = PSD_hi_f, 
+											   f_transient = f_transient )
 		
 		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=str(powers_list[i])+" dBc")
 		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=str(powers_list[i])+" dBc")
