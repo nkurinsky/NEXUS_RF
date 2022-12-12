@@ -234,13 +234,13 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 											   PSD_hi_f    = PSD_hi_f, 
 											   f_transient = f_transient )
 		
-		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=str(powers_list[i])+" dBc")
-		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=str(powers_list[i])+" dBc")
-		axA.plot(PSDs["f"],PSDs['dissipation'],label=str(powers_list[i])+" dBc")
-		axB.plot(PSDs["f"],PSDs['frequency'],label=str(powers_list[i])+" dBc")
+		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=str(powers_list[i])+" dBm")
+		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=str(powers_list[i])+" dBm")
+		axA.plot(PSDs["f"],PSDs['dissipation'],label=str(powers_list[i])+" dBm")
+		axB.plot(PSDs["f"],PSDs['frequency'],label=str(powers_list[i])+" dBm")
 		if (MB_fit_result is not None):
-			ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBc")
-			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBc")
+			ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBm")
+			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBm")
 
 		del sum_file, dly_file, vna_file, tone_files
 		del metadata, avg_frqs, avg_S21s
