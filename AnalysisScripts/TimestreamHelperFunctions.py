@@ -202,12 +202,13 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	axB.set_xscale('log')
 	axB.set_yscale('log')
 
-	fg1 = plt.figure()
-	ax1 = fg1.gca()
-
 	if (MB_fit_result is not None):
+		fg1 = plt.figure()
+		ax1 = fg1.gca()
+
+		ax1.set_title(r"Dissipation direction ($\kappa_1$)")
 		ax1.set_xlabel("Frequency [Hz]")
-		ax1.set_ylabel(r"Kappa1 PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
+		ax1.set_ylabel(r"$\kappa_1$ PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
 		ax1.set_xlim(fHz_range)
 		ax1.set_ylim(q_b_PSDrange)
 		ax1.set_xscale('log')
@@ -216,8 +217,9 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 		fg2 = plt.figure()
 		ax2 = fg2.gca()
 
+		ax2.set_title(r"Frequency direction ($\kappa_2$)")
 		ax2.set_xlabel("Frequency [Hz]")
-		ax2.set_ylabel(r"Kappa2 PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
+		ax2.set_ylabel(r"$\kappa_2$ PSD (Cleaned) [$(\mu$m$^{-3})^2$/Hz]")
 		ax2.set_xlim(fHz_range)
 		ax2.set_ylim(q_b_PSDrange)
 		ax2.set_xscale('log')
