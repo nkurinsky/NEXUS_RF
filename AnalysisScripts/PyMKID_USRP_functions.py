@@ -129,7 +129,7 @@ def template(filename,time_threshold=20e-3,ythreshold=0.01,left_time=2e-3,right_
 
     return trigNum, temp_array, temp_time, search_freqs
 
-def vna_file_fit(filename,pickedres,show=False,save=False):
+def vna_file_fit(filename,pickedres,show=False,save=False,verbose=True):
     pickedres = np.array(pickedres)
     VNA_f, VNA_z = read_vna(filename, decimation=1)
     VNA_f = VNA_f*1e-3 #VNA_f in units of GHz after this line
@@ -150,7 +150,7 @@ def vna_file_fit(filename,pickedres,show=False,save=False):
         MKID_f = VNA_f[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         MKID_z = VNA_z[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         # frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau, Qc = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum])
-        res_pars, res_errs = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum], restrict_fit_MHz=None, plot=True)
+        res_pars, res_errs = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum], restrict_fit_MHz=None, plot=True, verbose=verbose)
         frs[MKIDnum] = res_pars["f0"]
         Qrs[MKIDnum] = res_pars["Qr"]
         Qc_hat = res_pars["QcHat"]
@@ -418,7 +418,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     ax1.title(filename)
     # plt.show()
 
-def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None,save_directory=None):
+def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None,save_directory=None,verbose=True):
     if fig_obj == None:
         fig = plt.figure('noise and vna ' + title,figsize=(3,3),dpi=300)
     else:
