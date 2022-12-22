@@ -161,11 +161,15 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, show_sub_plots=False, verbose=False,
 	f_data = [None] ):
 
+	## Determine how many powers we'll loop over
+	n_pwrs = len(series_list)
+
 	## Create a container for the data at the requested frequencies
 	if f_data[0] is not None:
+		p_dict = {}
 		n_frqs = len(f_data)
 		n_vals = 6 if (MB_fit_result is not None) else 4
-		p_data = np.zeros(shape=(n_frqs,n_vals+1))
+		
 
 	## Create the axes
 	fga = plt.figure()
@@ -233,7 +237,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 		ax2.set_yscale('log')
 
 	## Loop over every series
-	for i in np.arange(len(series_list)):
+	for i in np.arange(n_pwrs):
 		sum_file, dly_file, vna_file, tone_files = GetFiles(series_list[i], verbose=verbose)
 		
 		metadata, avg_frqs, avg_S21s = UnpackSummary(sum_file, verbose=verbose)
@@ -256,7 +260,9 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 			ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBm")
 			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBm")
 
+
 		if f_data[0] is not None:
+			p_data  = np.zeros(shape=(n_frqs,n_vals+1))
 			for jj in np.arange(n_frqs):
 				## Find the closest PSD point to the requested frequency
 				idx          = np.argmin(np.abs(PSDs["f"]-f_data[jj]))
@@ -269,6 +275,9 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 				if (MB_fit_result is not None):
 					p_data[jj,5] = PSDs['kappa_1'][idx]
 					p_data[jj,6] = PSDs['kappa_2'][idx]
+
+			p_dict[powers_list[i]] = p_data
+			del p_data
 
 		del sum_file, dly_file, vna_file, tone_files
 		del metadata, avg_frqs, avg_S21s
@@ -283,5 +292,5 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 		ax2.legend(loc='lower right')
 
 	# plt.show()
-	return p_data
+	return p_dict
 
