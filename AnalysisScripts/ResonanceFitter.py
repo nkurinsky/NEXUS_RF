@@ -362,7 +362,7 @@ def resfunc8(f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau):
     return real_S21 + imag_S21
 
 ## Note that fine fit fits for Qr and Qc, from which Qi is calculated
-def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
+def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False, verbose=True):
     """
     finefit fits f and z to the resonator model described in Jiansong's thesis
 
@@ -455,8 +455,9 @@ def finefit(f, z, fr_0, restrict_fit_MHz=None, fit_res_obj=None, plot=False):
         plt.savefig("VNA-S21complex-fit.png")
         # plt.show()
 
-    print("Fr from fit  [GHz]:", fopt[0])
-    print("Fr min curve [GHz]:", min_frequency)
+    if verbose:
+        print("Fr from fit  [GHz]:", fopt[0])
+        print("Fr min curve [GHz]:", min_frequency)
 
     ## Create a dictionary of the result params
     fine_pars = { "f0"    : fopt[0], 
@@ -703,7 +704,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
 
         try:
             # fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = finefit(f_curr, z_curr, f[peaklist[i]])
-            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]], this_r)
+            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]], this_r, verbose=verbose)
             fr_list[i]  = fine_pars["f0"]
             Qr_list[i]  = fine_pars["Qr"]
             Qc_hat_mag_list[i] = fine_pars["QcHat"]
