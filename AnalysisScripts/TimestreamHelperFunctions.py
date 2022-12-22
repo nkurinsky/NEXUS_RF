@@ -197,7 +197,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	axA = fgA.gca()
 
 	axA.set_xlabel("Frequency [Hz]")
-	axA.set_ylabel(r"Dissipation PSD (Cleaned) [$(delta(1/Q))^2$/Hz]")
+	axA.set_ylabel(r"Dissipation PSD (Cleaned) [$(\delta(1/Q))^2$/Hz]")
 	axA.set_xlim(fHz_range)
 	axA.set_ylim(r_b_PSDrange)
 	axA.set_xscale('log')
