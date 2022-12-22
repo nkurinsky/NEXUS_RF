@@ -310,7 +310,8 @@ def noise_removal(coherent_data,removal_decimation=1,rejects=[],verbose=False):
         else:
             off_tone_data = np.delete(coherent_data,[0, t],axis=0)
 
-        print(off_tone_data.shape)
+        if verbose:
+            print(off_tone_data.shape)
 
         ## Take the mean of all other tones at every sample #len = number of samples in data_noise
         template = np.mean(off_tone_data,axis=0,dtype=np.float64) 
