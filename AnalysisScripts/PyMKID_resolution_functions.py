@@ -87,7 +87,7 @@ def electronics_basis(noise_timestream,axis_option=0):
     ## Return the radial direction timestream, arclength direction time stream, radius average, and phase average
     return radius_timestream, arc_length_timestream, radius, angle
 
-def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z,plot_title=None):
+def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z,plot_title=None,verbose=True):
 
     def rotate_to_ideal(z,f,fr,a,tau,phi):
         return 1-((1-z/(a*np.exp(-2j*np.pi*(f-fr)*tau)))*(np.cos(phi)/np.exp(1j*phi)))
@@ -98,7 +98,7 @@ def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z,plot_ti
     readout_index = PUf.find_closest(VNA_f,readout_f)
     MKID_f = VNA_f[max(readout_index-index_range,0):min(readout_index+index_range,len(VNA_f))]
     MKID_z = VNA_z[max(readout_index-index_range,0):min(readout_index+index_range,len(VNA_f))]
-    fine_pars, fine_errs = fitres.finefit(MKID_f, MKID_z, readout_f)
+    fine_pars, fine_errs = fitres.finefit(MKID_f, MKID_z, readout_f,verbose=verbose)
 
     ## Unpack the dictionaries from fine fit result
     fit_fr = fine_pars["f0"]
@@ -194,7 +194,7 @@ def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z,plot_ti
     if plot_title is not None:
         PUf.plot_noise_and_vna(timestream_rotated_ideal,MKID_z_ideal,
                                fit_z=fit_z_ideal, f_idx=res_f_idx,
-                               char_zs=char_z_rotated_ideal,title='ideal space')
+                               char_zs=char_z_rotated_ideal,title='ideal space',verbose=False)
 
     return frequency, dissipation, ideal, resonator
 
