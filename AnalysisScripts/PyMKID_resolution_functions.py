@@ -504,7 +504,7 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
     plt.savefig(noise_data_file[:-3]+'_'+savefig+'_PSD.png')
     # plt.close()
 
-def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_dec=200,MB_results=None,num_chunks=100,blank_chunks=40,removal_decimation=1,i=0):
+def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_dec=200,MB_results=None,num_chunks=100,blank_chunks=40,removal_decimation=1,i=0,show_plots=True):
 
     if type(char_zs) == type(None):
         resonator = False
@@ -726,8 +726,8 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
             # timestreams['k1 simple clean'] = k1_timestream_clean_simple
             # timestreams['k2 simple clean'] = k2_timestream_clean_simple
 
-    timestream_plot = True
-    if timestream_plot:
+    # timestream_plot = True
+    if show_plots: # timestream_plot:
         radius_std = np.std(radius_no_pulse[:,0])
         num_freqs = int(len(data_freqs))
         visual_separation = np.linspace(0,20*num_freqs*radius_std,num_freqs)
@@ -761,8 +761,8 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
                                # fit_z=ideal_clean['fit z'],char_zs=char_zs,alpha=0.05,title=str(i))
 
 
-    resonator_timestream_plot = True
-    if resonator_timestream_plot and resonator:
+    # resonator_timestream_plot = True
+    if resonator and show_plots: #resonator_timestream_plot:
         f_idx = PUf.find_closest(ideal_clean['f'],data_freqs[0])
 
         PUf.plot_noise_and_vna(ideal_clean['timestream'],ideal_clean['z'],fit_z=ideal_clean['fit z'],
@@ -773,8 +773,8 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         # raw_input('press enter to close all plots')
         # plt.close('all')
 
-    PSD_plotting = True
-    if PSD_plotting:
+    # PSD_plotting = True
+    if show_plots: #PSD_plotting:
         # print(P_radius_avg.shape,P_arc_avg.shape)
         plot_PSDs(f,P_radius_avg,P_arc_avg,\
                   noise_data_file,directions=['radius','arc length'],\
