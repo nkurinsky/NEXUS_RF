@@ -236,7 +236,8 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 											   PSD_lo_f    = PSD_lo_f, 
 											   PSD_hi_f    = PSD_hi_f, 
 											   f_transient = f_transient,
-											   show_plots  = show_sub_plots )
+											   show_plots  = show_sub_plots,
+											   verbose     = verbose )
 		
 		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=str(powers_list[i])+" dBm")
 		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=str(powers_list[i])+" dBm")
