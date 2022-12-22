@@ -658,12 +658,12 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
                           = resonator_basis(timestreams_no_pulse[:,0],\
                                                             data_freqs[0],\
                                                             VNA_f,VNA_z,\
-                                                            char_fs,char_zs)
+                                                            char_fs,char_zs,verbose=verbose)
         frequency_clean, dissipation_clean, ideal_clean, _ \
                           = resonator_basis(timestreams_clean[:,0],\
                                             data_freqs[0],\
                                             VNA_f,VNA_z,\
-                                            char_fs,char_zs)
+                                            char_fs,char_zs,verbose=verbose)
         # frequency_clean_simple, dissipation_clean_simple, ideal_clean_simple, _ \
         #                   = resonator_basis(timestreams_clean_simple[:,0],\
         #                                     data_freqs[0],\
