@@ -116,13 +116,13 @@ def UnpackSummary(s_file_path, verbose=False):
 
 	return md_dict, mean_frqs, mean_S21s
 
-def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None, show_plots=True):
+def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None, show_plots=True, verbose=True):
 	
 	if series is not None:
-		sum_file, dly_file, vna_file, tone_files = GetFiles(series, verbose=True)
+		sum_file, dly_file, vna_file, tone_files = GetFiles(series, verbose=verbose>1)
 		ts_file = tone_files[0]
 
-		metadata, charFs, charZs = UnpackSummary(sum_file)
+		metadata, charFs, charZs = UnpackSummary(sum_file, verbose=verbose>1)
 
 	PSD_lo_f = int(PSD_lo_f)  ## chunk up to [Hz]
 	PSD_hi_f = int(PSD_hi_f)  ## decimate down to  [Hz]
@@ -138,8 +138,9 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 	num_chunks = int(noise_total_time*PSD_lo_f)
 	noise_decimation = int(noise_fs/PSD_hi_f)
 
-	print("Will separate data into ", num_chunks	  , "chunks to achieve the requested", "{:.2e}".format(PSD_lo_f),' Hz low  end of the PSD')
-	print("Additional decimation by", noise_decimation, "needed to achieve the requested", "{:.2e}".format(PSD_hi_f),' Hz high end of the PSD')
+	if verbose>0:
+		print("Will separate data into ", num_chunks	  , "chunks to achieve the requested", "{:.2e}".format(PSD_lo_f),' Hz low  end of the PSD')
+		print("Additional decimation by", noise_decimation, "needed to achieve the requested", "{:.2e}".format(PSD_hi_f),' Hz high end of the PSD')
 
 	p, P, r, t = Prf.PSDs_and_cleaning(ts_file, vna_file,
 									  extra_dec  = noise_decimation,
@@ -150,13 +151,14 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 									  char_fs = charFs,
 									  MB_results = MBresults,
 									  i=i,
-									  show_plots = show_plots)
+									  show_plots = show_plots,
+									  verbose = verbose>0)
 	return p, P, r, t ## powers, PSDs, res, timestreams
 
 def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15],
 	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None,
-	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, show_sub_plots=False ):
+	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, show_sub_plots=False, verbose=False ):
 
 	## Create the axes
 	fga = plt.figure()
@@ -223,9 +225,9 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 
 	## Loop over every series
 	for i in np.arange(len(series_list)):
-		sum_file, dly_file, vna_file, tone_files = GetFiles(series_list[i], verbose=True)
+		sum_file, dly_file, vna_file, tone_files = GetFiles(series_list[i], verbose=verbose)
 		
-		metadata, avg_frqs, avg_S21s = UnpackSummary(sum_file)
+		metadata, avg_frqs, avg_S21s = UnpackSummary(sum_file, verbose=verbose)
 		
 		powers, PSDs, res, timestreams = CleanPSDs(tone_files[0], vna_file,
 											   charFs      = avg_frqs,

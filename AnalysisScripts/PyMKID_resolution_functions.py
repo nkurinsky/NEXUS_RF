@@ -504,19 +504,21 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
     plt.savefig(noise_data_file[:-3]+'_'+savefig+'_PSD.png')
     # plt.close()
 
-def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_dec=200,MB_results=None,num_chunks=100,blank_chunks=40,removal_decimation=1,i=0,show_plots=True):
+def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_dec=200,MB_results=None,num_chunks=100,blank_chunks=40,removal_decimation=1,i=0,show_plots=True,verbose=True):
 
     if type(char_zs) == type(None):
         resonator = False
     else:
         resonator = True
-        print("Will convert to resonator basis!")
+        if verbose:
+            print("Will convert to resonator basis!")
 
     if type(MB_results) == type(None):
         quasiparticle = False
     else:
         quasiparticle = True
-        print("Will convert to quasiparticle basis!")
+        if verbose:
+            print("Will convert to quasiparticle basis!")
 
     timestreams = {}
 
@@ -539,13 +541,15 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
 
     # extra_dec is necessary if significant beating in band
     if extra_dec:
-        print('doing additional decimation')
+        if verbose:
+            print('doing additional decimation')
         data_noise = average_decimate(data_noise,extra_dec)
         time_correction *= extra_dec
         time = time[::extra_dec]
 
     fs = int(1./time_correction)
-    print("sampling frequency plugged into welch is " + str(fs))
+    if verbose:
+        print("sampling frequency plugged into welch is " + str(fs))
     
 
     ## Search the timestream for pulses, break into events, save them to the same file
@@ -557,10 +561,10 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
     all_chunks = range(num_chunks)
     chunked_timestreams = create_chunks(data_noise,num_chunks)
     chunked_time = create_chunks(time,num_chunks)
-    print("chunk length plugged into welch is " + str(chunk_len))
-    # print(chunked_time[0:10,0:10,0])
-
-    print('chunked data into '+  str(num_chunks) + ' timestreams')
+    if verbose:
+        print("chunk length plugged into welch is " + str(chunk_len))
+        # print(chunked_time[0:10,0:10,0])
+        print('chunked data into '+  str(num_chunks) + ' timestreams')
 
     ## Check for any chunks that contain a pulse
     bad_chunks = identify_bad_chunks(chunked_time,pulse_times)
@@ -618,8 +622,8 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
     timestreams_clean = save_clean_timestreams(noise_data_file,radius_average,angle_average,radius_clean,arc_clean,fs,cd1_coeff=rad_coeff,cd2_coeff=arc_coeff,override=True)
     # timestreams_clean_simple = save_clean_timestreams(noise_data_file,data_noise,radius_clean_simple,arc_clean_simple,fs,override=False)
 
-
-    print('number of chunks used to average is ' + str(num_good_chunks))
+    if verbose:
+        print('number of chunks used to average is ' + str(num_good_chunks))
 
     ## Do a welch signal processing
     f,P_radius_avg       = welch(radius_no_pulse,fs=fs,noverlap=0,nperseg=chunk_len,axis=0)
