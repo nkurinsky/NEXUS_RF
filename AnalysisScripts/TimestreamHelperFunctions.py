@@ -101,7 +101,8 @@ def UnpackSummary(s_file_path, verbose=False):
 
 	## If there is laser data on top of the attributes add it to the dictionary
 	for k in md.keys():
-		if "LaserScan" in k:
+		# if "LaserScan" in k:
+		if "Scan" in k:
 			l_dict = {}
 			for kk in md[k].keys():
 				l_dict[kk] = md[k][kk].value
