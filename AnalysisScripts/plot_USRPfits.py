@@ -12,7 +12,7 @@ try:
     import MB_equations
 except ImportError:
     try:
-        sys.path.append('/home/nexus-admin/workarea/PyMKID')
+        sys.path.append('../BackendTools')
         import MB_equations
     except ImportError:
         print("Cannot find the MB_equations package")

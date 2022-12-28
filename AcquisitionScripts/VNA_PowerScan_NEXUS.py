@@ -7,9 +7,10 @@ import argparse
 
 ## Point to the backend function scripts
 sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
-
 from VNAfunctions import *  #using the VNA to do a power sweep
 from NEXUSFunctions import * #control NEXUS fridge
+
+sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/BackendTools")
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)

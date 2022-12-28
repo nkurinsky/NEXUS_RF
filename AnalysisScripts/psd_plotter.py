@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+sys.path.append('../BackendTools')
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
 

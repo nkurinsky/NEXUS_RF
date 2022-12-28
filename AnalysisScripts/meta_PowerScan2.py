@@ -1,7 +1,16 @@
 import os, h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import ResonanceFitResult as fit
+
+try:
+    import ResonanceFitResult as fit
+except ImportError:
+    try:
+        sys.path.append('../BackendTools')
+        import ResonanceFitResult as fit
+    except ImportError:
+        print("Cannot find the pyUSRP package")
+        exit()
 
 ## Set up matplotlib options for plots
 plt.rcParams['axes.grid'] = True

@@ -8,6 +8,10 @@ AcquisitionScripts/__pycache__/*
 AcquisitionScripts/.ipynb_checkpoints/*
 AnalysisScripts/__pycache__/*
 AnalysisScripts/.ipynb_checkpoints/*
+AnalysisNotebooks/__pycache__/*
+AnalysisNotebooks/.ipynb_checkpoints/*
+BackendTools/__pycache__/*
+BackendTools/.ipynb_checkpoints/*
 DeviceControl/__pycache__/*
 DeviceControl/*/__pycache__/*
 DeviceControl/RF_Switch/__pycache__/*

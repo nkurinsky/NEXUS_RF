@@ -22,7 +22,7 @@ try:
     import PyMKID_USRP_functions as puf
 except ImportError:
     try:
-        sys.path.append('../AnalysisScripts')
+        sys.path.append('../BackendTools')
         import PyMKID_USRP_functions as puf
     except ImportError:
         print("Cannot find the PyMKID_USRP_functions package")
@@ -31,12 +31,28 @@ except ImportError:
 try:
     import PyMKID_USRP_import_functions as puf2
 except ImportError:
-    print("Cannot find the PyMKID_USRP_import_functions package")
-    exit()
+    try:
+        sys.path.append('../BackendTools')
+        import PyMKID_USRP_import_functions as puf2
+    except ImportError:
+        print("Cannot find the PyMKID_USRP_import_functions package")
+        exit()
 
 ## Attempt to connect to GPU SDR server
 if not u.Connect():
     u.print_error("Cannot find the GPU server!")
+
+## Create some directories for the data files
+dataPath = '/data/UsrpNoiseScans'
+if not os.path.exists(dataPath):
+    os.makedirs(dataPath)
+
+dateStr    = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+seriesPath = dataPath + '/' + series 
+if not os.path.exists(seriesPath):
+    os.makedirs(seriesPath)
+print ("Scan stored as series "+series+" in path "+dataPath)
     
 ## Set some noise scan parameters
 rate    = 100e6
@@ -48,8 +64,8 @@ tracking_tones = np.array([]) # np.array([4.235e9,4.255e9])
 
 ## Set the stimulus powers to loop over
 powers = np.arange(start = -50,
-                  stop  = -40,
-                  step  =   5)
+                   stop  = -40,
+                   step  =   5)
 n_pwrs = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -96,7 +112,8 @@ for i in np.arange(n_pwrs):
                                    points         = 1e5     ,
                                    ntones         = N_power ,
                                    delay_duration = 0.1     ,
-                                   delay_over     = 'null'  )
+                                   delay_over     = 'null'  ,
+                                   subfolder      = seriesPath )
 
     ## Fit the data acquired in this noise scan
     fs, qs, _,_,_,_,_ = puf.vna_file_fit(vna_file + '.h5',[res],show=False)
@@ -143,7 +160,8 @@ for i in np.arange(n_pwrs):
                                     pf         = 4          ,
                                     trigger    = None       ,
                                     amplitudes = amplitudes ,
-                                    delay      = delay*1e9  )
+                                    delay      = delay*1e9  ,
+                                    subfolder  = seriesPath )
         ## Add an extension to the file path
         noise_file += '.h5'
 

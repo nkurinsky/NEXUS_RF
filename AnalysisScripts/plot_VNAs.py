@@ -1,6 +1,6 @@
 from __future__ import division
 import sys,os
-sys.path.append('PyMKID')
+sys.path.append('../BackendTools')
 import numpy as np
 import matplotlib.pyplot as plt
 import time

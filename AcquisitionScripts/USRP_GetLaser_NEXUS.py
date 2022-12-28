@@ -25,7 +25,7 @@ try:
     import PyMKID_USRP_functions as puf
 except ImportError:
     try:
-        sys.path.append('../AnalysisScripts')
+        sys.path.append('../BackendTools')
         import PyMKID_USRP_functions as puf
     except ImportError:
         print("Cannot find the PyMKID_USRP_functions package")

@@ -10,6 +10,7 @@ from   matplotlib import cm
 import pandas as pd
 from   glob import glob
 
+sys.path.append('../BackendTools')
 import ResonanceFitter as fitres
 import ResonanceFitResult as fitclass
 

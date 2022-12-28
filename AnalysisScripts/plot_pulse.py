@@ -8,7 +8,7 @@ Created on Wed Sep  9 14:19:44 2020
 from __future__ import division
 import os
 import sys
-sys.path.append('../PyMKID-master')
+sys.path.append('../BackendTools')
 import numpy as np
 import matplotlib.pyplot as plt
 import PyMKID_USRP_functions as puf

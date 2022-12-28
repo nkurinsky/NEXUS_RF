@@ -4,7 +4,7 @@ import sys, os
 import numpy as np
 import datetime
 from time import sleep
-sys.path.append("../Devices/")
+sys.path.append("../DeviceControl/")
 
 datapath='/data/PowerSweeps/VNA'
 if not os.path.exists(datapath):

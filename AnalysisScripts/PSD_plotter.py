@@ -3,7 +3,7 @@ import matplotlib
 import os
 import numpy as np
 import sys
-sys.path.append('PyMKID')
+sys.path.append('../BackendTools')
 import matplotlib.pyplot as plt
 import PyMKID_USRP_functions as puf
 from matplotlib import animation
