@@ -704,7 +704,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
 
         try:
             # fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = finefit(f_curr, z_curr, f[peaklist[i]])
-            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]], this_r, verbose=verbose)
+            fine_pars, fine_errs = finefit(f_curr, z_curr, f[peaklist[i]], fit_res_obj=this_r, verbose=verbose)
             fr_list[i]  = fine_pars["f0"]
             Qr_list[i]  = fine_pars["Qr"]
             Qc_hat_mag_list[i] = fine_pars["QcHat"]
