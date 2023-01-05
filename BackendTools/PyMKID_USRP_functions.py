@@ -418,7 +418,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     ax1.title(filename)
     # plt.show()
 
-def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',fig_obj=None,save_directory=None,verbose=True):
+def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',show_legend=True,fig_obj=None,save_directory=None,verbose=True):
     if fig_obj == None:
         fig = plt.figure('noise and vna ' + title,figsize=(3,3),dpi=300)
     else:
@@ -472,7 +472,8 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
     plt.ylabel('ADC units')
     plt.axvline(x=0, color='gray')
     plt.axhline(y=0, color='gray')
-    plt.legend(loc='upper center',bbox_to_anchor=(0.5,-0.15),ncol=3)
+    if show_legend:
+        plt.legend(loc='upper center',bbox_to_anchor=(0.5,-0.15),ncol=3)
 
     if type(save_directory) != type(None):
         plt.tight_layout()
