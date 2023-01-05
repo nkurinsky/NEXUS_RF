@@ -458,12 +458,12 @@ def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,
             theta_plot = np.linspace(angles[idx] - dtheta,angles[idx] + dtheta, 100)
             x_plot = radius_mean[idx]*np.cos(theta_plot)
             y_plot = radius_mean[idx]*np.sin(theta_plot)
-            plt.plot(x_plot,y_plot,color='k',alpha = alpha,label='arc length direction')
+            plt.plot(x_plot,y_plot,color='k',alpha = 0.6,label='arc length direction')
 
             radius_plot = np.linspace(0.95*radius_mean[idx],1.05*radius_mean[idx],100)
             x_plot = radius_plot*np.cos(angles[idx])
             y_plot = radius_plot*np.sin(angles[idx])
-            plt.plot(x_plot,y_plot,ls='-.',color='k',alpha=alpha,label='radius direction')
+            plt.plot(x_plot,y_plot,ls='-.',color='k',alpha=0.6,label='radius direction')
 
     plt.plot(real_mean,imag_mean,'g',markersize=10,marker='*',ls='',label='timestream average')
 
