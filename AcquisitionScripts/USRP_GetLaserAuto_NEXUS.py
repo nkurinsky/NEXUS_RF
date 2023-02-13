@@ -55,16 +55,16 @@ except ImportError:
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :  10.0,
-    "pw_us":   1.0,
+    "f_Hz" :   5.0,
+    "pw_us":   2.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.000, stop=4.250, step=0.250)
+LED_voltages = np.arange(start=2.000, stop=6.000, step=0.250)
 # LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
-LED_voltages = LED_voltages[::-1]
+# LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -75,7 +75,7 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 led_dec   = 100        ## Default decimation for the LED timestreams
 
 ## Set Resonator parameters
-res     = 4.24204767      ## Al   [GHz]
+res     = 4.24198300      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
@@ -89,7 +89,8 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers  = np.array([-30])
+# powers = np.array([-40])
+powers  = np.array([-40,-35,-30,-25,-20])
 n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -168,6 +169,7 @@ def parse_args():
 
         powers[0] = args.power
         n_pwrs = len(powers)
+        print("All Powers:", powers, "(",n_pwrs,")")
 
         min_pwer = -70.0
         max_pwer = -15.0
