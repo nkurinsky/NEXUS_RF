@@ -5,14 +5,14 @@ n_scans=1
 
 # Power range
 pmin=-50
-pmax=-20
-pstep=2
+pmax=-15
+pstep=1
 
 # Frequency range
 # fmin=4.24195e9 ; fmax=4.24235e9	## Al -- 4.242175 G
 # fmin=4.242095e9 ; fmax=4.242265e9	## Al -- 4.242175 G, 170kHz range
-fmin=4.242005e9 ; fmax=4.242355e9	## Al -- 4.242175 G, 350kHz range
-# fmin=4.241430e9 ; fmax=4.242930e9	## Al -- 4.242175 G, 1.5MHz range
+# fmin=4.242005e9 ; fmax=4.242355e9	## Al -- 4.242175 G, 350kHz range
+fmin=4.241233e9 ; fmax=4.2427330e9	## Al -- 4.241983 G, 1.5MHz range
 # fmin=3.93600e9 ; fmax=3.93680e9	## Nb 1
 # fmin=3.98280e9 ; fmax=3.98400e9	## Nb 2
 # fmin=4.02660e9 ; fmax=4.02760e9	## Nb 3
