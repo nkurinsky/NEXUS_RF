@@ -32,10 +32,27 @@ except ImportError:
     exit()
 
 ## Temperature scan settings [K]
-single_T_thresh_mK = 500.0
-T_of_interest_mK   = np.arange(start=single_T_thresh_mK, stop=0.0, step=-50.0)
+Temp_base =  15e-3
+Temp_min  =  25e-3
+Temp_max  = 350e-3
+Temp_step =  25e-3
 
-T_hold_time_min    = 60.0
+## Temperature stabilization params
+tempTolerance =   1e-4       ## K
+sleepTime     =  30.0        ## sec
+stableTime    =  60.0        ## sec
+
+## Create the temperature array
+Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
+
+## Use this if starting at the top temperature
+# Temps = Temps[::-1] 
+# if (Temp_base) < Temps[-1]:
+#     Temps = np.append(Temps,Temp_base)
+
+# ## Use this if starting at base temperature
+if (Temp_base) < Temps[0]:
+   Temps = np.append(Temp_base,Temps)
 
 ## Set Laser parameters
 afg_pulse_params = {
@@ -73,7 +90,8 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-power = -30
+powers  = np.array([-30,-25,-20])
+n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
 ## These deltas are fractions of the central frequency
@@ -115,8 +133,8 @@ def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Acquire a laser timestream with the USRP using the GPU_SDR backend.')
 
-    parser.add_argument('--power'    , '-P' , type=float, default = power, 
-        help='RF power applied in dBm. (default '+str(power)+' dBm)')
+    parser.add_argument('--power'    , '-P' , type=float, default = powers[0], 
+        help='RF power applied in dBm. (default '+str(powers[0])+' dBm)')
     parser.add_argument('--txgain'   , '-tx', type=float, default = tx_gain, 
         help='Tx gain factor (default '+str(tx_gain)+')')
     parser.add_argument('--rxgain'   , '-rx', type=float, default = rx_gain, 
@@ -149,18 +167,21 @@ def parse_args():
     if (args.power is not None):
         print("Power(s):", args.power, type(args.power))
 
-        power = args.power
+        powers[0] = args.power
+        n_pwrs = len(powers)
+        print("All Powers:", powers, "(",n_pwrs,")")
 
         min_pwer = -70.0
         max_pwer = -15.0
-        if (power < min_pwer):
-            print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
-            power = min_pwer
+        for i in np.arange(n_pwrs):
+            if (powers[i] < min_pwer):
+                print("Power",args.power,"too Low! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to minimum...")
+                powers[i] = min_pwer
 
-        # Don't need to enforce this because it is used to tune up the tx gain later
-        if (power > max_pwer):
-            print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
-            power = max_pwer
+            # Don't need to enforce this because it is used to tune up the tx gain later
+            if (powers[i] > max_pwer):
+                print("Power",args.power,"too High! Range is "+str(min_pwer)+" to "+str(max_pwer)+" dBm. Adjusting to maximum...")
+                powers[i] = max_pwer
 
     if (args.rate is not None):
         args.rate = args.rate * 1e6 ## Store it as sps not Msps
@@ -208,6 +229,40 @@ def create_dirs():
     if not os.path.exists(seriesPath):
         os.makedirs(seriesPath)
     print ("Scan stored as series "+series+" in path "+sweepPath)
+    return 0
+
+def temp_change_and_wait(new_sp_K,nf_inst):
+
+    print("CHANGING SETPOINT TO",new_sp_K*1e3,"mK")
+    nf_inst.setSP(new_sp_K)
+
+    cTemp = None
+
+    while cTemp is None:
+        try:
+            cTemp=float(nf_inst.getTemp())
+        except:
+            print("Socket Failed, trying again soon")
+            sleep(sleepTime)
+
+    print("Waiting for Fridge to Reach Temperature")
+    print("Monitoring temp every",sleepTime,"seconds")
+    print("...",cTemp*1e3,"mK")
+    terr = new_sp_K-cTemp
+    ## This part doesn't work because getTemp only queries the setpoint
+    while(np.abs(terr) > tempTolerance):
+        sleep(sleepTime)
+        try:
+            cTemp=float(nf_inst.getTemp())
+            terr = new_sp_K-cTemp
+            print("...",cTemp*1e3,"("+str(terr*1e3)+") mK")
+        except:
+            print("Socket Failed, skipping reading")
+
+    print("Holding at current temp for",stableTime,"seconds")
+    sleep(stableTime)
+
+    print("Done.")
     return 0
 
 def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, laser_dec, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
@@ -482,34 +537,58 @@ if __name__ == "__main__":
     e3631a.setVoltage(0.0)
     # e3631a.setOutputState(enable=False)
 
-    ## Now check the temperature every few seconds
-    current_T_mK = 400e3
-    while (current_T_mK > single_T_thresh_mK):
-        current_T_mK = nf3.getTemp()*1e3
-    print("Reached threshold:",single_T_thresh_mK,"mK -- current temperature:",nf3.getTemp()*1e3,"mK")
+    ## Print some diagnostic text
+    SP = float(nf3.getSP())
+    print("Starting Set Point:",SP)
+    print("Scan Settings")
+    print("         Start Temp:",Temps[ 0]*1e3,"mK")
+    print("           End Temp:",Temps[-1]*1e3,"mK")
+    print("          Temp Step:",Temp_step*1e3,"mK")
+    print("     Temp Tolerance:",tempTolerance*1e3,"mK")
+    print("          Hold Time:",stableTime,"s")
+    print("   Reading Interval:",sleepTime,"s")
 
-    while (current_T_mK > T_of_interest_mK[-1]):
-        ## Pull the initial fridge temperature
-        start_T_mK = nf3.getTemp()*1e3
+    ## Run the temperature scan
+    for T in Temps:
+        
+        ## Change the fridge temperature
+        temp_change_and_wait(T, nf3)
 
-        ## Do a run at the single power
-        dateStr, sweepPath, series, seriesPath = get_paths()
-        doRun(power)
+        ## Loop over the powers considered
+        for i in np.arange(n_pwrs):
 
-        ## Now wait the specified hold time by doing sequential waits of 30 seconds
-        for i in np.arange(int(T_hold_time_min*60/30)):
-            time.sleep(30)
+            ## Pull the final fridge temperature
+            start_T_mK   = None
+            while start_T_mK is None:
+                try:
+                    start_T_mK   = nf3.getTemp()*1e3
+                except:
+                    print("Socket Failed, trying again soon")
+                    sleep(sleepTime)
 
-        ## Pull the final fridge temperature
-        final_T_mK   = nf3.getTemp()*1e3
+            ## Create new file path for the data
+            dateStr, sweepPath, series, seriesPath = get_paths()
+            doRun(powers[i])
 
-        ## Write some metadata to a file
-        write_str    = series +","+ str(start_T_mK) +","+ str(end_T_mK) +"\n"
-        with open(os.path.join(seriesPath,"run_temperatures.csv"), "a") as file:
-            file.write(write_str)
+            ## Pull the final fridge temperature
+            final_T_mK   = None
+            while final_T_mK is None:
+                try:
+                    final_T_mK   = nf3.getTemp()*1e3
+                except:
+                    print("Socket Failed, trying again soon")
+                    sleep(sleepTime)
 
-        ## Update the loop variable
-        current_T_mK = end_T_mK
+            ## Write some metadata to a file
+            write_str    = series +","+ str(T) +","+ str(start_T_mK) +","+ str(end_T_mK) +"\n"
+            with open(os.path.join(sweepPath,dateStr+"_run_temperatures.csv"), "a") as file:
+                file.write(write_str)
     
     ## Disconnect from the USRP server
     u.Disconnect()
+
+
+
+    
+
+    
