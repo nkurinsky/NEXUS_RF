@@ -309,21 +309,21 @@ if __name__ == "__main__":
     
 
     # Data acquisition
-    for fi in range(len(args.LOfrq)):
-        vna_file, delay = runVNA(
-            tx_gain = args.txgain,
-            rx_gain = args.rxgain,
-            _iter   = args.iter,
-            rate    = args.rate,        ## Passed in Samps/sec
-            freq    = args.LOfrq[fi],   ## Passed in Hz
-            front_end = "A",
-            fspan   = args.VNAfspan,      ## Passed in Hz
-            # f0      = args.f0,          ## Passed in Hz, relative to LO
-            # f1      = args.f1,          ## Passed in Hz, relative to LO
-            lapse   = args.time,        ## Passed in seconds
-            points  = args.points,
-            ntones  = N_power,
-            delay_duration = 0.1, # args.delay_duration,
-            delay_over = None) #args.delay_over)
+    vna_file, delay = runVNA(
+        tx_gain = args.txgain,
+        rx_gain = args.rxgain,
+        _iter   = args.iter,
+        rate    = args.rate,        ## Passed in Samps/sec
+        freq    = args.LOfrq,   ## Passed in Hz
+        front_end = "A",
+        fspan   = args.VNAfspan,      ## Passed in Hz
+        # f0      = args.f0,          ## Passed in Hz, relative to LO
+        # f1      = args.f1,          ## Passed in Hz, relative to LO
+        lapse   = args.time,        ## Passed in seconds
+        points  = args.points,
+        ntones  = N_power,
+        delay_duration = 0.1, # args.delay_duration,
+        delay_over = None) #args.delay_over)
+        
 
     u.Disconnect()
