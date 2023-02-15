@@ -74,14 +74,14 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 led_dec   = 100        ## Default decimation for the LED timestreams
 
 ## Set Resonator parameters
-res     = 4.24204767      ## Al   [GHz]
+res     = 4.24195      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set some VNA sweep parameters
-f_span_kHz = 140        ## Symmetric about the center frequency
-points     = 1400       ## Defined such that we look at 100 Hz windows
-duration   = 10         ## [Sec]
+f_span_kHz = 1000      ## Symmetric about the center frequency
+points     = 20000     ## Defined such that we look at 100 Hz windows
+duration   = 60        ## [Sec]
 
 ## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning tones to remove correlated noise
