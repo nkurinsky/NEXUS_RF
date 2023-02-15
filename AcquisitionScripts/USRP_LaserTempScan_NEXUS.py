@@ -573,7 +573,7 @@ if __name__ == "__main__":
             final_T_mK   = None
             while final_T_mK is None:
                 try:
-                    final_T_mK   = nf3.getTemperature()*1e3
+                    final_T_mK   = nf2.getTemperature()*1e3
                 except:
                     print("Socket Failed, trying again soon")
                     sleep(sleepTime)
