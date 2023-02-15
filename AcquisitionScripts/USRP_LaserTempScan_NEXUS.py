@@ -581,7 +581,7 @@ if __name__ == "__main__":
                     sleep(sleepTime)
 
             ## Write some metadata to a file
-            write_str    = series +","+ str(T) +","+ str(start_T_mK) +","+ str(end_T_mK) +"\n"
+            write_str    = series +","+ str(T) +","+ str(start_T_mK) +","+ str(final_T_mK) +"\n"
             with open(os.path.join(sweepPath,dateStr+"_run_temperatures.csv"), "a") as file:
                 file.write(write_str)
     
