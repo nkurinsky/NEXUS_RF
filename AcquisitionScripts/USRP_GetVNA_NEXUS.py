@@ -302,7 +302,7 @@ if __name__ == "__main__":
     print('      Tx gain: ',args.txgain)
     print('      Rx gain: ',args.rxgain)
     print('  Power [dBm]: ',args.power)
-    print(' F Span [kHz]: ',args.VNAfspan)
+    print(' F Span [kHz]: ',args.VNAfspan/1e3)
     print('  N of points: ',args.points)
     print(' Duration (s): ',args.time)
     # print('   Iterations: ',args.iter)
