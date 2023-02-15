@@ -79,20 +79,20 @@ def parse_args():
         help='Rx gain factor (default '+str(rx_gain)+')')
     parser.add_argument('--rate'  , '-R' , type=float, default = rate/1e6, 
         help='Sampling frequency (default '+str(rate/1e6)+' Msps)')
+
+    parser.add_argument('--LOfrq' , '-f' , type=float, default=LO/1e6,
+        help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
+    
     parser.add_argument('--points', '-p' , type=int  , default=points, 
         help='Number of points used in the scan (default '+str(points)+' points)')
     parser.add_argument('--time'  , '-T' , type=float, default=duration, 
         help='Duration of the scan in seconds per iteration (default '+str(duration)+' seconds)')
-    
+    parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz,
+        help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz)+' kHz)')
 
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
     
-    parser.add_argument('--LOfrq' , '-f' , type=float, default=LO/1e6,
-        help='LO frequency in MHz. Specifying multiple RF frequencies results in multiple scans (per each gain) (default '+str(LO/1e6)+' MHz)')
-    parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz,
-        help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz)+' kHz)')
-
     args = parser.parse_args()
 
     # Do some conditional checks
