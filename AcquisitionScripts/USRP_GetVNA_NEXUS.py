@@ -295,15 +295,18 @@ if __name__ == "__main__":
     ## Print the settings we'll be using
     print('===== VNA Settings =====')
     print('     LO [MHz]: ',args.LOfrq/1e6)
-    print('     f0 [MHz]: ',args.f0/1e6)
-    print('     f1 [MHz]: ',args.f1/1e6)
-    print('  power [dBm]: ',args.power)
+    # print('     f0 [MHz]: ',args.f0/1e6)
+    # print('     f1 [MHz]: ',args.f1/1e6)
+    
     print('  rate [Msps]: ',args.rate/1e6)
     print('      Tx gain: ',args.txgain)
     print('      Rx gain: ',args.rxgain)
+    print('  Power [dBm]: ',args.power)
+    print(' F Span [kHz]: ',args.f_span_kHz)
     print('  N of points: ',args.points)
-    print('   Iterations: ',args.iter)
     print(' Duration (s): ',args.time)
+    # print('   Iterations: ',args.iter)
+    
 
     # Data acquisition
     for fi in range(len(args.LOfrq)):
