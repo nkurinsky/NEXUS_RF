@@ -27,8 +27,10 @@ except ImportError:
 sys.path.insert(1, "../BackendTools")
 try:
     import PyMKID_USRP_functions as puf
+    import PyMKID_USRP_import_functions as puif
 except ImportError:
     print("Cannot find the PyMKID_USRP_functions package")
+    print("Cannot find the PyMKID_USRP_import_functions package")
     exit()
 
 ## Temperature scan settings [K]
