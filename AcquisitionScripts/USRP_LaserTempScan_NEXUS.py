@@ -62,10 +62,8 @@ afg_pulse_params = {
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.000, stop=4.250, step=0.250)
-# LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
-# LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
-LED_voltages = LED_voltages[::-1]
+LED_voltages = np.arange(start=2.000, stop=6.000, step=1.000)
+# LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
 rate    = 100e6
@@ -90,7 +88,7 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers  = np.array([-30,-25,-20])
+powers  = np.array([-40,-35,-30])
 n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -101,13 +99,13 @@ n_c_deltas = len(cal_deltas)
 cal_lapse_sec = 10.
 
 ## Set the duration to wait after an LED timestream before doing the next USRP operation
-sleep_sec = 30.0
+sleep_sec = 15.0 # 30.0
 
 ## File handling options
 filename=None
 
 ## Where to save the output data (hdf5 files)
-dataPath = '/data/USRP_Laser_Data'
+dataPath = '/data/USRP_Laser_TempScan_Data'
 
 ## Sub directory definitions
 dateStr    = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
@@ -517,6 +515,7 @@ if __name__ == "__main__":
     fg3102 = AFG3102()
 
     ## Initialize the NEXUS MGC3 servers
+    nf2 = NEXUSThermometer()
     nf3 = NEXUSHeater()#server_ip="192.168.0.34",server_port=11034)
 
     ## Configure the AWG output
@@ -561,7 +560,7 @@ if __name__ == "__main__":
             start_T_mK   = None
             while start_T_mK is None:
                 try:
-                    start_T_mK   = nf3.getTemp()*1e3
+                    start_T_mK   = nf2.getTemperature()*1e3
                 except:
                     print("Socket Failed, trying again soon")
                     sleep(sleepTime)
@@ -574,7 +573,7 @@ if __name__ == "__main__":
             final_T_mK   = None
             while final_T_mK is None:
                 try:
-                    final_T_mK   = nf3.getTemp()*1e3
+                    final_T_mK   = nf3.getTemperature()*1e3
                 except:
                     print("Socket Failed, trying again soon")
                     sleep(sleepTime)
