@@ -160,7 +160,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15],
 	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None,
 	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, show_sub_plots=False, verbose=False,
-	f_data = [None] ):
+	f_data = [None], psd_to_file=False ):
 
 	## Determine how many powers we'll loop over
 	n_pwrs = len(series_list)
@@ -170,6 +170,28 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 		p_dict = {}
 		n_frqs = len(f_data)
 		n_vals = 6 if (MB_fit_result is not None) else 4
+
+	## Create some file names, delete the files if they already exist
+	if psd_to_file:
+		f_psd_radius = "PSD_data_radius.csv"
+		if os.path.exists(f_psd_radius):
+			os.remove(f_psd_radius)
+		f_psd_arclen = "PSD_data_arclength.csv"
+		if os.path.exists(f_psd_arclen):
+			os.remove(f_psd_arclen)
+		f_psd_dissip = "PSD_data_dissipation.csv"
+		if os.path.exists(f_psd_dissip):
+			os.remove(f_psd_dissip)
+		f_psd_freqcy = "PSD_data_frequency.csv"
+		if os.path.exists(f_psd_freqcy):
+			os.remove(f_psd_freqcy)
+		if (MB_fit_result is not None):
+			f_psd_kappa1 = "PSD_data_kappa1.csv"
+			if os.path.exists(f_psd_kappa1):
+				os.remove(f_psd_kappa1)
+			f_psd_kappa2 = "PSD_data_kappa2.csv"
+			if os.path.exists(f_psd_kappa2):
+				os.remove(f_psd_kappa2)
 		
 
 	## Create the axes
@@ -192,7 +214,6 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	axb.set_ylim(e_b_PSDrange)
 	axb.set_xscale('log')
 	axb.set_yscale('log')
-
 
 	fgA = plt.figure()
 	axA = fgA.gca()
@@ -262,6 +283,39 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBm")
 
 
+		if psd_to_file:
+			## Write the frequency line on the first pass only
+			if i ==0
+				h_line = "feedline_power," + ",".join(np.array(PSDs["f"]).astype('str')) + "\n"
+				with open(f_psd_radius, "a") as file:
+					file.write(h_line)
+				with open(f_psd_arclen, "a") as file:
+					file.write(h_line) 
+				with open(f_psd_dissip, "a") as file:
+					file.write(h_line)
+				with open(f_psd_freqcy, "a") as file:
+					file.write(h_line) 
+				if (MB_fit_result is not None):
+					with open(f_psd_kappa1, "a") as file:
+						file.write(h_line) 
+					with open(f_psd_kappa2, "a") as file:
+						file.write(h_line) 
+
+			## Now write the data line for this power
+			with open(f_psd_radius, "a") as file:
+				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["radius"]).astype('str')) + "\n")
+			with open(f_psd_arclen, "a") as file:
+				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["arc"]).astype('str')) + "\n")
+			with open(f_psd_dissip, "a") as file:
+				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["dissipation"]).astype('str')) + "\n")
+			with open(f_psd_freqcy, "a") as file:
+				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["frequency"]).astype('str')) + "\n")
+			if (MB_fit_result is not None):
+				with open(f_psd_kappa1, "a") as file:
+					file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["kappa_1"]).astype('str')) + "\n")
+				with open(f_psd_kappa2, "a") as file:
+					file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["kappa_2"]).astype('str')) + "\n")
+
 		if f_data[0] is not None:
 			p_data  = np.zeros(shape=(n_frqs,n_vals+1))
 			for jj in np.arange(n_frqs):
@@ -294,4 +348,3 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 
 	# plt.show()
 	return p_dict
-
