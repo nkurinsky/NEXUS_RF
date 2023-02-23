@@ -285,7 +285,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 
 		if psd_to_file:
 			## Write the frequency line on the first pass only
-			if i ==0
+			if i==0:
 				h_line = "feedline_power," + ",".join(np.array(PSDs["f"]).astype('str')) + "\n"
 				with open(f_psd_radius, "a") as file:
 					file.write(h_line)
