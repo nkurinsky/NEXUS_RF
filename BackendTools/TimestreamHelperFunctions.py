@@ -324,11 +324,11 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 			## Write the frequency line on the first pass only
 			if i==0:
 				h_line = "series," + ",".join(res.keys()) + "\n"
-				with open(f_psd_radius, "a") as file:
+				with open(f_res_fit, "a") as file:
 					file.write(h_line)
 
 				## Now write the data line for this power
-				with open(f_psd_radius, "a") as file:
+				with open(f_res_fit, "a") as file:
 					file.write(series_list[i] +","+ str(res.values()).split("[")[1].split("]")[0].replace(' ','') + "\n")
 
 		if f_data[0] is not None:
