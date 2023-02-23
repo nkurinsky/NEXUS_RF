@@ -90,8 +90,8 @@ class NEXUSHeater:
         elif(scale == "mK"):
             spf = float(sp)*1e-3
             
-        if(spf > 0.350):
-            raise ValueError("Temperature too high, limit is 350 mK")
+        if(spf > 0.351):
+            raise ValueError("Temperature too high, limit is 351 mK")
         elif(spf < 0.01):
             raise ValueError("Temperature too low, limit is 10 mK")
 

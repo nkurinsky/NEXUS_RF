@@ -39,8 +39,8 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 # LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set Resonator parameters
-res     = 4.24198300      ## Al   [GHz]
-# res     = 4.244760      ## Nb 7 [GHz]
+res     = 4.241983      ## Al   [GHz]
+# res     = 4.244553      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set some VNA sweep parameters
