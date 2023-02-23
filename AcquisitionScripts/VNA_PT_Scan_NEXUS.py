@@ -32,7 +32,7 @@ freqmax = 4.242733e9 ## 4.24293e9 # 4.244936e9   ## Hz
 n_samps = 15e3
 
 ## How many readings to take at each step of the sweep
-n_avs = 20
+n_avs = 15
 
 ## Temperature scan settings [K]
 Temp_base =  10e-3
