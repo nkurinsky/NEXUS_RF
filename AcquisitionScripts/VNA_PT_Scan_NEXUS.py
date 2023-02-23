@@ -7,11 +7,19 @@ from time import sleep
 
 ## Point to the backend function scripts
 sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/DeviceControl")
-from VNAfunctions import *  #using the VNA to do a power sweep
-from NEXUSFunctions import * #control NEXUS fridge
+try:
+    from VNAfunctions import *  #using the VNA to do a power sweep
+    from NEXUSFunctions import * #control NEXUS fridge
+except ImportError:
+    print("Cannot find the NEXUSFunctions package")
+    exit()
 
 sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/BackendTools")
-from VNAMeas import * #vna measurement class
+try:
+    from VNAMeas import * #vna measurement class
+except ImportError:
+    print("Cannot find the VNAMeas package")
+    exit()
 
 ## Parameters of the power sweep (in dB)
 P_min  = -55
@@ -19,35 +27,35 @@ P_max  = -15
 P_step =   5
 
 ## Set the VNA's frequency parameters
-freqmin = 4.24143e9 # 4.244585e9   ## Hz
-freqmax = 4.24293e9 # 4.244936e9   ## Hz
+freqmin = 4.241233e9 ## 4.24143e9 # 4.244585e9   ## Hz
+freqmax = 4.242733e9 ## 4.24293e9 # 4.244936e9   ## Hz
 n_samps = 15e3
 
 ## How many readings to take at each step of the sweep
 n_avs = 20
 
 ## Temperature scan settings [K]
-Temp_base =  11e-3
+Temp_base =  10e-3
 Temp_min  =  20e-3
 Temp_max  = 350e-3
 Temp_step =  10e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
-sleepTime     =  30        ## sec
-stableTime    =  30        ## sec
+sleepTime     =  30.0      ## sec
+stableTime    =  60.0      ## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
-## Use this if starting at the top temperature
-Temps = Temps[::-1] 
-if (Temp_base) < Temps[-1]:
-    Temps = np.append(Temps,Temp_base)
+# ## Use this if starting at the top temperature
+# Temps = Temps[::-1] 
+# if (Temp_base) < Temps[-1]:
+#     Temps = np.append(Temps,Temp_base)
 
-# ## Use this if starting at base temperature
-# if (Temp_base) < Temps[0]:
-#    Temps = np.append(Temp_base,Temps)
+## Use this if starting at base temperature
+if (Temp_base) < Temps[0]:
+   Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/TempSweeps/VNA'  #VNA subfolder of Tempsweeps
@@ -116,14 +124,28 @@ def create_series_dir():
 def temp_change_and_wait(new_sp_K,nf_inst):
 
     print("CHANGING SETPOINT TO",new_sp_K*1e3,"mK")
-    nf_inst.setSP(new_sp_K)
+    try:
+        nf_inst.setSP(new_sp_K)
+    except:
+        print("Socket Failed, trying again soon")
+        sleep(sleepTime)
+        nf_inst.setSP(new_sp_K)
 
-    cTemp=float(nf_inst.getTemp())
+    cTemp = None
+
+    while cTemp is None:
+        try:
+            cTemp=float(nf_inst.getTemp())
+        except:
+            print("Socket Failed, trying again soon")
+            sleep(sleepTime)
+
+
     print("Waiting for Fridge to Reach Temperature")
     print("Monitoring temp every",sleepTime,"seconds")
     print("...",cTemp*1e3,"mK")
     terr = new_sp_K-cTemp
-    ## This part doesn't work because getTemp only queries the setpoint
+
     while(np.abs(terr) > tempTolerance):
         sleep(sleepTime)
         try:
@@ -172,15 +194,28 @@ def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
       sweep.f_max   = freqmax + delta_Hz
 
       ## Grab and save the fridge temperature before starting sweep
-      sweep.start_T = np.array([ nf_inst.getTemp() ])
+      start_T = None
+      while start_T is None:
+        try:
+            start_T = nf_inst.getTemperature()
+        except:
+            print("Socket Failed, trying again soon")
+            sleep(sleepTime)
+      sweep.start_T = np.array([ start_T ])
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
       freqs, S21_real, S21_imag = v.takeSweep(freqmin + delta_Hz, freqmax + delta_Hz, n_samps, n_avs)
 
       ## Grab and save the fridge temperature after sweep
-      # sweep.final_T = np.array([nf1.getTemp(), nf2.getTemp()])
-      sweep.final_T = np.array([ nf_inst.getTemp() ])
+      final_T = None
+      while final_T is None:
+        try:
+            final_T = nf_inst.getTemperature()
+        except:
+            print("Socket Failed, trying again soon")
+            sleep(sleepTime)
+      sweep.final_T = np.array([ final_T ])
 
       ## Save the result to our class instance
       sweep.frequencies = np.array(freqs)
@@ -190,17 +225,15 @@ def run_power_scan(currTemp, seriesPath, nf_inst, delta_Hz=0):
       ## Write our class to a file (h5)
       print("Storing data at:", sweep.save_hdf5(output_filename))
 
-      ## Store the data in our file name (csv)
-      #v.storeData(freqs, S21_real, S21_imag, output_filename)
-
     ## Diagnostic text
-    #print("Current Fridge Temperature (mK): ", nf_inst.getTemp()*1e3)
+    print("Current Fridge Temperature (mK): ", sweep.final_T*1e3)
     print("Power scan complete.")
     return 0
 
 if __name__ == "__main__":
-    ## Initialize the NEXUS MGC3 servers
-    nf3 = NEXUSHeater()#server_ip="192.168.0.34",server_port=11034)
+    ## Initialize the NEXUS MGC3/MMR3 servers
+    nf2 = NEXUSThermometer()
+    nf3 = NEXUSHeater()
 
     ## Initialize the VNA
     v = VNA()
@@ -248,13 +281,13 @@ if __name__ == "__main__":
         series, seriesPath = create_series_dir()
 
         ## Run a power scan on Al resonator
-        run_power_scan(T, seriesPath, nf3)
+        run_power_scan(T, seriesPath, nf2)
 
         ## Create a new directory
         series, seriesPath = create_series_dir()
 
         ## Run a power scan on Nb 7 resonator
-        run_power_scan(T, seriesPath, nf3, delta_Hz=2.58e6)
+        run_power_scan(T, seriesPath, nf2, delta_Hz=2.58e6)
 
     ## Go back to base temperature
     # print("Reverting to base temperature of",Temp_base*1e3,"mK")
