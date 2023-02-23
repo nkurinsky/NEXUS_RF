@@ -160,7 +160,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15],
 	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None,
 	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, show_sub_plots=False, verbose=False,
-	f_data = [None], psd_to_file=False ):
+	f_data = [None], psd_to_file=False, res_to_file=False ):
 
 	## Determine how many powers we'll loop over
 	n_pwrs = len(series_list)
@@ -193,6 +193,10 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 			if os.path.exists(f_psd_kappa2):
 				os.remove(f_psd_kappa2)
 		
+	if res_to_file:
+		f_res_fit = "resonance_fits.csv"
+		if os.path.exists(f_res_fit):
+			os.remove(f_res_fit)
 
 	## Create the axes
 	fga = plt.figure()
@@ -315,6 +319,17 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 					file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["kappa_1"]).astype('str')) + "\n")
 				with open(f_psd_kappa2, "a") as file:
 					file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["kappa_2"]).astype('str')) + "\n")
+
+		if res_to_file:
+			## Write the frequency line on the first pass only
+			if i==0:
+				h_line = "series," + ",".join(res.keys()) + "\n"
+				with open(f_psd_radius, "a") as file:
+					file.write(h_line)
+
+				## Now write the data line for this power
+				with open(f_psd_radius, "a") as file:
+					file.write(series_list[i] +","+ str(res.values()).split("[")[1].split("]")[0].replace(' ','') + "\n")
 
 		if f_data[0] is not None:
 			p_data  = np.zeros(shape=(n_frqs,n_vals+1))
