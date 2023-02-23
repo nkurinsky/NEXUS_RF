@@ -303,9 +303,9 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 
 			## Now write the data line for this power
 			with open(f_psd_radius, "a") as file:
-				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["radius"]).astype('str')) + "\n")
+				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["radius"][:,0]).astype('str')) + "\n")
 			with open(f_psd_arclen, "a") as file:
-				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["arc"]).astype('str')) + "\n")
+				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["arc"][:,0]).astype('str')) + "\n")
 			with open(f_psd_dissip, "a") as file:
 				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["dissipation"]).astype('str')) + "\n")
 			with open(f_psd_freqcy, "a") as file:
