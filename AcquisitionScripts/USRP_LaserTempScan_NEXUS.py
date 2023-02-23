@@ -35,9 +35,9 @@ except ImportError:
 
 ## Temperature scan settings [K]
 Temp_base =  15e-3
-Temp_min  =  25e-3
+Temp_min  =  50e-3
 Temp_max  = 350e-3
-Temp_step =  25e-3
+Temp_step =  50e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4       ## K
@@ -47,24 +47,24 @@ stableTime    =  60.0        ## sec
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
-## Use this if starting at the top temperature
-# Temps = Temps[::-1] 
-# if (Temp_base) < Temps[-1]:
-#     Temps = np.append(Temps,Temp_base)
+# Use this if starting at the top temperature
+Temps = Temps[::-1] 
+if (Temp_base) < Temps[-1]:
+    Temps = np.append(Temps,Temp_base)
 
-# ## Use this if starting at base temperature
-if (Temp_base) < Temps[0]:
-   Temps = np.append(Temp_base,Temps)
+# # ## Use this if starting at base temperature
+# if (Temp_base) < Temps[0]:
+#    Temps = np.append(Temp_base,Temps)
 
 ## Set Laser parameters
 afg_pulse_params = {
-    "f_Hz" :  10.0,
-    "pw_us":   1.0,
+    "f_Hz" :   5.0,
+    "pw_us":   2.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.000, stop=6.000, step=1.000)
+LED_voltages = np.arange(start=3.000, stop=5.000, step=1.000)
 # LED_voltages = LED_voltages[::-1]
 
 ## Set DAQ parameters
@@ -90,7 +90,8 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers  = np.array([-40,-35,-30])
+powers  = np.array([-30])
+# powers  = np.array([-40,-35,-30])
 n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -234,7 +235,12 @@ def create_dirs():
 def temp_change_and_wait(new_sp_K,nf_inst):
 
     print("CHANGING SETPOINT TO",new_sp_K*1e3,"mK")
-    nf_inst.setSP(new_sp_K)
+    try:
+        nf_inst.setSP(new_sp_K)
+    except:
+        print("Socket Failed, trying again soon")
+        sleep(sleepTime)
+        nf_inst.setSP(new_sp_K)
 
     cTemp = None
 
@@ -249,7 +255,7 @@ def temp_change_and_wait(new_sp_K,nf_inst):
     print("Monitoring temp every",sleepTime,"seconds")
     print("...",cTemp*1e3,"mK")
     terr = new_sp_K-cTemp
-    ## This part doesn't work because getTemp only queries the setpoint
+    
     while(np.abs(terr) > tempTolerance):
         sleep(sleepTime)
         try:
