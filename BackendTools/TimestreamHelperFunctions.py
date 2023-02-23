@@ -286,7 +286,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 		if psd_to_file:
 			## Write the frequency line on the first pass only
 			if i==0:
-				h_line = "feedline_power," + ",".join(np.array(PSDs["f"]).astype('str')) + "\n"
+				h_line = "series,feedline_power," + ",".join(np.array(PSDs["f"]).astype('str')) + "\n"
 				with open(f_psd_radius, "a") as file:
 					file.write(h_line)
 				with open(f_psd_arclen, "a") as file:
@@ -303,18 +303,18 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 
 			## Now write the data line for this power
 			with open(f_psd_radius, "a") as file:
-				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["radius"][:,0]).astype('str')) + "\n")
+				file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["radius"][:,0]).astype('str')) + "\n")
 			with open(f_psd_arclen, "a") as file:
-				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["arc"][:,0]).astype('str')) + "\n")
+				file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["arc"][:,0]).astype('str')) + "\n")
 			with open(f_psd_dissip, "a") as file:
-				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["dissipation"]).astype('str')) + "\n")
+				file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["dissipation"]).astype('str')) + "\n")
 			with open(f_psd_freqcy, "a") as file:
-				file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["frequency"]).astype('str')) + "\n")
+				file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["frequency"]).astype('str')) + "\n")
 			if (MB_fit_result is not None):
 				with open(f_psd_kappa1, "a") as file:
-					file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["kappa_1"]).astype('str')) + "\n")
+					file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["kappa_1"]).astype('str')) + "\n")
 				with open(f_psd_kappa2, "a") as file:
-					file.write(str(powers_list[i]) + "," + ",".join(np.array(PSDs["kappa_2"]).astype('str')) + "\n")
+					file.write(series_list[i] +","+ str(powers_list[i]) +","+ ",".join(np.array(PSDs["kappa_2"]).astype('str')) + "\n")
 
 		if f_data[0] is not None:
 			p_data  = np.zeros(shape=(n_frqs,n_vals+1))
