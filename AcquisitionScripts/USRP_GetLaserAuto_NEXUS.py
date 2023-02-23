@@ -61,7 +61,7 @@ afg_pulse_params = {
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-LED_voltages = np.arange(start=2.000, stop=6.000, step=0.250)
+LED_voltages = np.arange(start=2.000, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=2.500, stop=6.250, step=0.250)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 # LED_voltages = LED_voltages[::-1]
@@ -90,7 +90,7 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 
 ## Set the stimulus powers to loop over
 # powers = np.array([-40])
-powers  = np.array([-40,-35,-30,-25,-20])
+powers  = np.array([-24,-22,-20,-18,-16])
 n_pwrs  = len(powers)
 
 ## Set the deltas to scan over in calibrations
@@ -424,6 +424,7 @@ def doRun(this_power):
 
     print("Initializing Noise Scan...")
     print(pwr_clc, 'dBm of power')
+    print(args.txgain, 'dB of additional gain')
     print(N_power, 'is the equivalent number of tones needed to split the DAQ power into the above amount')
 
     ## Create an h5 group for this data, store some general metadata
