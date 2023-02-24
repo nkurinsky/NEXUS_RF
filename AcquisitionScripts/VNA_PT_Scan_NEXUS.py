@@ -42,6 +42,7 @@ Temp_step =  10e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
+tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
 sleepTime     =  30.0      ## sec
 stableTime    =  60.0      ## sec
 
@@ -146,7 +147,9 @@ def temp_change_and_wait(new_sp_K,nf_inst):
     print("...",cTemp*1e3,"mK")
     terr = new_sp_K-cTemp
 
-    while(np.abs(terr) > tempTolerance):
+    tempTol = np.max(tempTolerance, tempTolFrac*new_sp_K)
+
+    while(np.abs(terr) > tempTol):
         sleep(sleepTime)
         try:
             cTemp=float(nf_inst.getTemp())
