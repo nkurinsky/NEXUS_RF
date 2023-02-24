@@ -117,7 +117,7 @@ def UnpackSummary(s_file_path, verbose=False):
 
 	return md_dict, mean_frqs, mean_S21s
 
-def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None, show_plots=True, verbose=True):
+def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, charZs=None, charFs=None, MBresults=None, i=None, rem_dec=1, show_plots=True, verbose=True):
 	
 	if series is not None:
 		sum_file, dly_file, vna_file, tone_files = GetFiles(series, verbose=verbose>1)
@@ -147,7 +147,7 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 									  extra_dec  = noise_decimation,
 									  num_chunks = num_chunks,
 									  blank_chunks = int(f_transient*num_chunks),
-									  removal_decimation = 1,
+									  removal_decimation = rem_dec,
 									  char_zs = charZs,
 									  char_fs = charFs,
 									  MB_results = MBresults,
@@ -159,8 +159,10 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 	e_b_PSDrange = [1e-13,1e-10], r_b_PSDrange = [1e-21,1e-15],
 	q_b_PSDrange = [1e-4,5e1], MB_fit_result=None,
-	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, show_sub_plots=False, verbose=False,
-	f_data = [None], psd_to_file=False, res_to_file=False ):
+	PSD_lo_f=1e2, PSD_hi_f=5e4, f_transient=0.3, rem_dec=1,
+	f_data = [None], 
+	show_sub_plots=False, verbose=False,
+	psd_to_file=False, res_to_file=False ):
 
 	## Determine how many powers we'll loop over
 	n_pwrs = len(series_list)
@@ -275,6 +277,7 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 											   PSD_lo_f    = PSD_lo_f, 
 											   PSD_hi_f    = PSD_hi_f, 
 											   f_transient = f_transient,
+											   rem_dec     = rem_dec,
 											   show_plots  = show_sub_plots,
 											   verbose     = verbose )
 		
