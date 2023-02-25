@@ -147,7 +147,7 @@ def temp_change_and_wait(new_sp_K,nf_inst):
     print("...",cTemp*1e3,"mK")
     terr = new_sp_K-cTemp
 
-    tempTol = np.max(tempTolerance, tempTolFrac*new_sp_K)
+    tempTol = np.max([tempTolerance, tempTolFrac*new_sp_K])
 
     while(np.abs(terr) > tempTol):
         sleep(sleepTime)
