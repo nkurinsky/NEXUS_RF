@@ -82,7 +82,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
         return sum( x2_t1 +  x2_t2 )
 
     ## Initialize parameters with a guess
-    f0_in     = f_fit[0]  ## Hz
+    f0_in     = np.max(f_fit)  ## Hz
     Delta0_in = 0.17e-3   ## eV
     alpha_in  = 0.03801   ## frac
     Qi0_in    = Qi_fit[0] if Qi_fit is not None else -9999
@@ -91,7 +91,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
     for j in range(int(max_iters)):
         minimizer = iminuit.Minuit(chisq, 
             f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, 
-            limit_f0     = (f_fit[0]*0.75,f_fit[0]*1.25), 
+            limit_f0     = (np.max(f_fit)*0.75,np.max(f_fit)*1.25), 
             limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-4), 
             limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (1.0e-4,5.0e-2), 
             limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e7), 
@@ -116,11 +116,13 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
         ndof -= 1.0
     if (fixed_delta):
         ndof -= 1.0
+    if (Qi_fit is None):
+        ndof -= 1.0
 
     chi_sq_dof = chisq(f0, Delta0, alpha, Qi0)/ndof
 
     ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
-    return f0/1.e9, Delta0*1000., alpha, Qi0, chi_sq_dof
+    return f0/1e9, Delta0*1e3., alpha, Qi0, chi_sq_dof
 
 ## Fits to Qr rather than Qi
 def MB_fitter_Qr(Tvals_K, Qr_fit, Fr_fit):
