@@ -93,7 +93,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
             f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, 
             limit_f0     = (f_fit[0]/1.1,f_fit[0]*1.1), 
             limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-4), 
-            limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (5.0e-4,5.0e-2), 
+            limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (1.0e-4,5.0e-2), 
             limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e7), 
             pedantic=False, print_level=-1 if not verbose else 0)
 
