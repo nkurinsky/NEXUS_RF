@@ -68,18 +68,18 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
 
     ## Define the chi-squared expression
     def chisq(f0, Delta0, alpha, Qi0):
-        ## Variances of input (f,Qi) vs T values to fit
-        var_Qi = np.var(Qi_fit)
-        var_f  = np.var(f_fit)
-
         ## First term in x^2 expression
-        x2_t1 = (Qi_T(T_fit, f0, Qi0, Delta0, alpha) - Qi_fit)**2./var_Qi
+        if Qi_fit is None:
+            x2_t1  = 0
+        else:
+            var_Qi = np.var(Qi_fit)
+            x2_t1  = (Qi_T(T_fit, f0, Qi0, Delta0, alpha) - Qi_fit)**2./var_Qi
 
         ## Second term in x^2 expression
+        var_f = np.var(f_fit)
         x2_t2 = (f_T(T_fit, f0, Delta0, alpha) - f_fit)**2./var_f
 
         return sum( x2_t1 +  x2_t2 )
-        #return sum((f_T(T_fit, f0, Delta0, alpha_f) - f_fit)**2./var_f )
 
     ## Initialize parameters with a guess
     f0_in     = f_fit[0]  ## Hz
@@ -108,7 +108,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
     f0     = minimizer.values["f0"]
     Delta0 = minimizer.values["Delta0"]
     alpha  = minimizer.values["alpha"]
-    Qi0    = minimizer.values["Qi0"]
+    Qi0    = minimizer.values["Qi0"] if Qi_fit is not None else None
 
     ## Get the degrees of freedom and reduced chisq
     ndof   = 4.0
@@ -121,60 +121,6 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
 
     ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
     return f0/1.e9, Delta0*1000., alpha, Qi0, chi_sq_dof
-
-## Fits to f only, all parameters free
-def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
-
-    ## Define the chi-squared expression
-    def chisq(f0, Delta0, alpha):
-        ## Variances of input f vs T values to fit
-        var_f  = np.var(f_fit)
-
-        ## First term in x^2 expression
-        x2_t1 = 0 
-
-        ## Second term in x^2 expression
-        x2_t2 = (f_T(T_fit, f0, Delta0, alpha) - f_fit)**2./var_f
-
-        return sum( x2_t1 +  x2_t2 )
-        #return sum((f_T(T_fit, f0, Delta0, alpha_f) - f_fit)**2./var_f )
-
-    ## Initialize parameters with a guess
-    f0_in     = f_fit[0]  ## Hz
-    Delta0_in = 0.17e-3   ## eV
-    alpha_in  = 0.03801   ## frac
-
-    ## Do the minimization problem for 500 iterations
-    for j in range(500):
-        minimizer = iminuit.Minuit(chisq, 
-            f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, 
-            limit_f0     = (f_fit[0]/1.1,f_fit[0]*1.1), 
-            limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.2e-4,2.2e-4), 
-            limit_alpha  = (alpha_in ,alpha_in ) if fixed_delta else (0.002,0.05),
-            pedantic=False, print_level=-1)
-
-        f0_in     = minimizer.values["f0"]
-        Delta0_in = minimizer.values["Delta0"]
-        alpha_in  = minimizer.values["alpha"]
-
-        minimizer.migrad()
-
-    ## Extract the final values from the minimization problem
-    f0     = minimizer.values["f0"]
-    Delta0 = minimizer.values["Delta0"]
-    alpha  = minimizer.values["alpha"]
-
-    ## Get the degrees of freedom and reduced chisq
-    ndof   = 4.0
-    if (fixed_alpha):
-        ndof -= 1.0
-    if (fixed_delta):
-        ndof -= 1.0
-
-    chi_sq_dof = chisq(f0, Delta0, alpha)/ndof
-
-    ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
-    return f0/1.e9, Delta0*1000., alpha, -9999, chi_sq_dof
 
 ## Fits to Qr rather than Qi
 def MB_fitter_Qr(Tvals_K, Qr_fit, Fr_fit):
