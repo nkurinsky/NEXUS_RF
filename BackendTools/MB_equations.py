@@ -127,13 +127,13 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
 ## Fits to Qr rather than Qi
 def MB_fitter_Qr(T_fit, Qr_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_iters=500, verbose=False):
     ## Define the chi-squared expression
-    def chisq(f0, Delta0, alpha, Qi0):
+    def chisq(f0, Delta0, alpha, Qr0):
         ## First term in x^2 expression
         if Qr_fit is None:
             x2_t1  = 0
         else:
             var_Qr = np.var(Qr_fit)
-            x2_t1  = (Qr_T(T_fit, f0, Qi0, Delta0, alpha) - Qr_fit)**2./var_Qr
+            x2_t1  = (Qr_T(T_fit, f0, Qr0, Delta0, alpha) - Qr_fit)**2./var_Qr
 
         ## Second term in x^2 expression
         var_f = np.var(f_fit)
