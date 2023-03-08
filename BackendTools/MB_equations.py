@@ -182,7 +182,7 @@ def MB_fitter_Qr(T_fit, Qr_fit, f_fit, fixed_alpha=False, fixed_delta=False, max
     chi_sq_dof = chisq(f0, Delta0, alpha, Qr0)/ndof
 
     ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
-    return f0/1e9, Delta0*1e3., alpha, Qr0, chi_sq_dof
+    return f0/1e9, Delta0*1e3, alpha, Qr0, chi_sq_dof
 
 #appends caltech data for f0 to higher temp vals. doesn't really work, too much of a jump
 def MB_fitter2(T_fit, Qi_fit, f_fit,added_points=11):
