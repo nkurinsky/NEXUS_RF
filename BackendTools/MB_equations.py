@@ -121,60 +121,68 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
 
     chi_sq_dof = chisq(f0, Delta0, alpha, Qi0)/ndof
 
-    ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
+    ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qi(T=0) ; reduced x2
     return f0/1e9, Delta0*1e3., alpha, Qi0, chi_sq_dof
 
 ## Fits to Qr rather than Qi
-def MB_fitter_Qr(Tvals_K, Qr_fit, Fr_fit):
-    fit_result = []
+def MB_fitter_Qr(T_fit, Qr_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_iters=500, verbose=False):
+    ## Define the chi-squared expression
+    def chisq(f0, Delta0, alpha, Qi0):
+        ## First term in x^2 expression
+        if Qr_fit is None:
+            x2_t1  = 0
+        else:
+            var_Qr = np.var(Qr_fit)
+            x2_t1  = (Qr_T(T_fit, f0, Qi0, Delta0, alpha) - Qr_fit)**2./var_Qr
 
-    def chisq(f0, D0, a, Qr0):
-        ## Variances of input (f,Qi) vs T values to fit
-        var_Qr = np.var(Qr_fit)
-        var_fr = np.var(Fr_fit)
+        ## Second term in x^2 expression
+        var_f = np.var(f_fit)
+        x2_t2 = (f_T(T_fit, f0, Delta0, alpha) - f_fit)**2./var_f
 
-        ## First term in the chisq expression
-        x2_t1 = np.power(Qr_T(Tvals_K, f0, Qr0, D0, a) - Qr_fit, 2) / var_Qr
-
-        ## Second term in the chisq expression
-        x2_t2 = np.power(f_T( Tvals_K, f0,      D0, a) - Fr_fit, 2) / var_fr 
-
-        ## Calculate and return chi-squared
-        x2 = np.sum( x2_t1 + x2_t2 )
-        return x2
+        return sum( x2_t1 +  x2_t2 )
 
     ## Initialize parameters with a guess
-    f0_in  = Fr_fit[0]
-    D0_in  = 0.17e-3 ## eV
-    a_in   = 0.03801 ## frac
-    Qr0_in = Qr_fit[0]
+    f0_in     = np.max(f_fit)  ## Hz
+    Delta0_in = 0.17e-3   ## eV
+    alpha_in  = 0.03801   ## frac
+    Qr0_in    = Qr_fit[0] if Qr_fit is not None else -9999
 
     ## Do the minimization problem for 500 iterations
-    for j in range(500):
+    for j in range(int(max_iters)):
         minimizer = iminuit.Minuit(chisq, 
-            f0=f0_in, D0=D0_in, a=alpha_in, Qr0=Qr0_in, 
-            limit_f0  = (Fr_fit[0]/1.1,Fr_fit[0]*1.1), 
-            limit_D0  = (1.2e-4,2.2e-4), 
-            limit_a   = (0.002,0.05), 
-            limit_Qr0 = (1.e2,1.e7), 
-            pedantic=False, print_level=-1)
+            f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qr0=Qr0_in, 
+            limit_f0     = (np.max(f_fit)*0.75,np.max(f_fit)*1.25), 
+            limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-4), 
+            limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (1.0e-4,5.0e-2), 
+            limit_Qr0    = (-9999    ,-9999 ) if Qr_fit is None else (1.e2,1.e7), 
+            pedantic=False, print_level=-1 if not verbose else 0)
 
-        f0_in  = minimizer.values["f0"]
-        D0_in  = minimizer.values["D0"]
-        a_in   = minimizer.values["a"]
-        Qr0_in = minimizer.values["Qr0"]
+        f0_in     = minimizer.values["f0"]
+        Delta0_in = minimizer.values["Delta0"]
+        alpha_in  = minimizer.values["alpha"]
+        Qr0_in    = minimizer.values["Qr0"]
 
         minimizer.migrad()
 
     ## Extract the final values from the minimization problem
-    f0_out  = minimizer.values["f0"]
-    D0_out  = minimizer.values["D0"]
-    a_out   = minimizer.values["a"]
-    Qr0_out = minimizer.values["Qr0"]
-    red_x2  = chisq(f0_out, D0_out, a_out, Qr0_out)/4.
+    f0     = minimizer.values["f0"]
+    Delta0 = minimizer.values["Delta0"]
+    alpha  = minimizer.values["alpha"]
+    Qr0    = minimizer.values["Qr0"]
+
+    ## Get the degrees of freedom and reduced chisq
+    ndof   = 4.0
+    if (fixed_alpha):
+        ndof -= 1.0
+    if (fixed_delta):
+        ndof -= 1.0
+    if (Qr_fit is None):
+        ndof -= 1.0
+
+    chi_sq_dof = chisq(f0, Delta0, alpha, Qr0)/ndof
 
     ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qr(T=0) ; reduced x2
-    return f0_out/1.e9, D0_out*1000., a_out, Qr0_out, red_x2
+    return f0/1e9, Delta0*1e3., alpha, Qr0, chi_sq_dof
 
 #appends caltech data for f0 to higher temp vals. doesn't really work, too much of a jump
 def MB_fitter2(T_fit, Qi_fit, f_fit,added_points=11):
