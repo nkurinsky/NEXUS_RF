@@ -122,7 +122,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
     chi_sq_dof = chisq(f0, Delta0, alpha, Qi0)/ndof
 
     ## F(T=0) [GHz] ; Delta(T=0) [meV] ; alpha(T=0) [frac.] ; Qi(T=0) ; reduced x2
-    return f0/1e9, Delta0*1e3., alpha, Qi0, chi_sq_dof
+    return f0/1e9, Delta0*1e3, alpha, Qi0, chi_sq_dof
 
 ## Fits to Qr rather than Qi
 def MB_fitter_Qr(T_fit, Qr_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_iters=500, verbose=False):
