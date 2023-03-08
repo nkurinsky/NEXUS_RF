@@ -85,7 +85,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
     f0_in     = f_fit[0]  ## Hz
     Delta0_in = 0.17e-3   ## eV
     alpha_in  = 0.03801   ## frac
-    Qi0_in    = Qi_fit[0]
+    Qi0_in    = Qi_fit[0] if Qi_fit is not None else -9999
 
     ## Do the minimization problem for 500 iterations
     for j in range(500):
@@ -93,8 +93,8 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
             f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, 
             limit_f0     = (f_fit[0]/1.1,f_fit[0]*1.1), 
             limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.2e-4,2.2e-4), 
-            limit_alpha  = (alpha_in ,alpha_in ) if fixed_delta else (0.002,0.05), 
-            limit_Qi0    = (1.e2,1.e7), 
+            limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (0.002,0.05), 
+            limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e7), 
             pedantic=False, print_level=-1)
 
         f0_in     = minimizer.values["f0"]
@@ -108,7 +108,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
     f0     = minimizer.values["f0"]
     Delta0 = minimizer.values["Delta0"]
     alpha  = minimizer.values["alpha"]
-    Qi0    = minimizer.values["Qi0"] if Qi_fit is not None else None
+    Qi0    = minimizer.values["Qi0"]
 
     ## Get the degrees of freedom and reduced chisq
     ndof   = 4.0
