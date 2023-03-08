@@ -64,7 +64,7 @@ def S_2(fr,T,Delta):
     return 1+np.sqrt(2*Delta/(np.pi*Boltz_k*T))*np.exp(-1*xi)*spec.i0(xi) # unitless
 
 ## Fits to f + Qi, all parameters free
-def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
+def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_iters=500, verbose=False):
 
     ## Define the chi-squared expression
     def chisq(f0, Delta0, alpha, Qi0):
@@ -88,14 +88,14 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False):
     Qi0_in    = Qi_fit[0] if Qi_fit is not None else -9999
 
     ## Do the minimization problem for 500 iterations
-    for j in range(500):
+    for j in range(int(max_iters)):
         minimizer = iminuit.Minuit(chisq, 
             f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, 
             limit_f0     = (f_fit[0]/1.1,f_fit[0]*1.1), 
-            limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-4,2.5e-4), 
+            limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-4), 
             limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (5.0e-4,5.0e-2), 
             limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e7), 
-            pedantic=False, print_level=-1)
+            pedantic=False, print_level=-1 if not verbose else 0)
 
         f0_in     = minimizer.values["f0"]
         Delta0_in = minimizer.values["Delta0"]
