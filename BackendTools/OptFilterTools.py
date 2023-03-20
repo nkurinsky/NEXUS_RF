@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
@@ -235,7 +236,7 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
         
         ## Start the loop over pulse windows
         k=0
-        for pulse_i in range(pulse_start,int(total_pulses),1):
+        for pulse_i in range(pulse_start,int(p_params["total_pulses"]),1):
             
             ## Define the sample index where this pulse window ends
             pulse_i_end = int((pulse_i+1)*samples_per_pulse)
@@ -345,8 +346,69 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
     ## Return the cut dictionaries
     return mean_dict, sdev_dict, maxv_dict
 
-## Create a plot for each pulse arrival window in the timestream and define a pre-trigger 
-## region in which we collect statistics on which to do cuts to remove bad windows
+## Create the dataframe that 
+## ARGUMENTS
+## 	- LED_files			<array of string>	Each entry is full path to the h5 file containig pulse data
+##	- mean_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline mean for each pulse window
+##	- sdev_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline sdev for each pulse window
+##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
+##	- p1				<float>				Percentile to draw low-end cut line on distribution plots
+##	- p2				<float>				Percentile to draw high-end cut line on distribution plots
+##	- force_save		<bool>				Force a new cut definition file to be written
+## RETURNS
+## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
+def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, p1=5, p2=90, force_save=False):
+    ## Define a file path and name where cut limits will be stored
+    save_path = "/".join(LED_files[0].split("/")[:5])
+    series    = save_path.split("/")[-1]
+    save_name = series + "_bl_cutvals" 
+    save_key  = series+"_cuts"
+    if PHASE:
+        save_name += "_phase" 
+        save_key  += "_phase"
+
+    ## Check if cuts already exist
+    if ( os.path.exists(os.path.join(save_path,save_name+".h5")) ) and not force_save:
+        cut_df = pd.read_hdf(os.path.join(save_path,save_name+".h5"), key=save_key)
+        save_cuts = False
+        print("H5 cuts file exists, not overwriting...")
+    elif ( os.path.exists(os.path.join(save_path,save_name+".csv")) ) and not force_save:
+        cut_df = pd.read_csv(os.path.join(save_path,save_name+".csv"))
+        save_cuts = False
+        print("CSV cuts file exists, not overwriting...")
+    else:
+        save_cuts = True
+        print("Saving new cut definitions to:",save_name)
+        
+        ## Create a pandas dataframe for the cut limits
+        cut_df = pd.DataFrame(index=LED_files,columns=None)
+
+        ## Define the columns we'll use to store cut limits
+        cut_df["sdev_min"] = np.ones(len(LED_files))
+        cut_df["sdev_max"] = np.ones(len(LED_files))
+        cut_df["mean_min"] = np.ones(len(LED_files))
+        cut_df["mean_max"] = np.ones(len(LED_files))
+        cut_df["wfmx_min"] = np.array([None] * len(LED_files))
+        cut_df["wfmx_max"] = np.array([None] * len(LED_files))
+
+        ## Now populate each row in the dataframe (one entry per LED file)
+        _i = 0
+        for _i in np.arange(len(LED_files)):
+            cut_df["mean_min"].loc[LED_files[_i]] = np.percentile(mean_dict[LED_files[_i]],p1)
+            cut_df["mean_max"].loc[LED_files[_i]] = np.percentile(mean_dict[LED_files[_i]],p2)
+            cut_df["sdev_min"].loc[LED_files[_i]] = np.percentile(sdev_dict[LED_files[_i]],p1) 
+            cut_df["sdev_max"].loc[LED_files[_i]] = np.percentile(sdev_dict[LED_files[_i]],p2) 
+            cut_df["wfmx_max"].loc[LED_files[_i]] = None
+            cut_df["wfmx_max"].loc[LED_files[_i]] = None
+        
+        if (save_cuts or force_save):
+            print("Saving cuts to file", os.path.join(save_path,save_name))
+            cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
+            # cut_df.to_csv( os.path.join(save_path,save_name+".csv"))
+            
+    return cut_df
+
+## Find the indeces for pulse windows, by file, that should be removed from analysis
 ## ARGUMENTS
 ## 	- LED_files			<array of string>	Each entry is full path to the h5 file containig pulse data
 ## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
@@ -355,7 +417,7 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
 ##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
 ## RETURNS
 ##	- bad_pls_idxs		<dictionary>		Each key is an LED file and the item is an array containing the indeces of windows which should be removed
-def apply_window_cuts(LED_files, cut_df, mean_dict, sdev_dict, maxv_dict):
+def get_bad_pulse_idxs(LED_files, cut_df, mean_dict, sdev_dict, maxv_dict):
     ## Create a dictionary that will contain arrays of bad pulse indeces
     bad_pls_idxs = {}
 
