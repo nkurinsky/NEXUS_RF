@@ -93,6 +93,7 @@ def parse_metadata(summary_file, blank_fraction=0.2, verbose=False):
         "total_pulses"  : total_pulses,
         "time_btw_pulse": time_btw_pulse,
         "num_pulses"    : num_pulses,
+        "blank_fraction": blank_fraction,
     }
 
     return voltages, p_params, charFs, charZs
@@ -198,7 +199,7 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
         ## =====================================
         
         ## This defines where (in # of pulse windows) to start looking for pulse windows
-        pulse_start = int(p_params["total_pulses"] * blank_fraction)
+        pulse_start = int(p_params["total_pulses"] * p_params["blank_fraction"])
         samples_per_pulse = int(p_params["time_btw_pulse"]*samp_rate)
         
         ## How many samples to shift the pulse window definition
