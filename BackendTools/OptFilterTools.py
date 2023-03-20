@@ -521,7 +521,7 @@ def clean_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs,
 	        ax1.set_title(".".join(pulse_file.split("/")[-1].split(".")[0:-1]))
 
 	    ## Count how many good pulses there are
-	    n_good_pulses = num_pulses - len(bad_pls_idxs[pulse_file])
+	    n_good_pulses = p_params["num_pulses"] - len(bad_pls_idxs[pulse_file])
 	    
 	    ## Start the loop over pulse windows
 	    k=0
@@ -671,7 +671,7 @@ def clean_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs,
 	    
 	    ## Loop over pulses
 	    k = 0
-	    for pulse_i in range(pulse_start,int(total_pulses),1):
+	    for pulse_i in range(pulse_start,int(p_params["total_pulses"]),1):
 	        ## Skip the bad pulse windows
 	        if k in bad_pls_idxs[pulse_file]:
 	            ## Increment the counter
