@@ -18,7 +18,7 @@ def parse_metadata(summary_file, blank_fraction=0.2, verbose=False):
 
     ## Load the summary file
     ## Show this function's output only if verbosity level 2 or greater selected
-    md, charFs, charZs = Thf.UnpackSummary(sum_file, verbose=True if verbose > 1 else False)
+    md, charFs, charZs = Thf.UnpackSummary(summary_file, verbose=True if verbose > 1 else False)
     rf_power = md['power']
     
     if verbose > 0:
@@ -169,11 +169,9 @@ def get_timing_params(pulse_file, p_params, decimate_down_to, pulse_cln_dec=None
 ## 	- PHASE				<bool>				Whether to plot timestreams in phase or log-mag
 ##	- show_plots		<bool>				Flag to render plots
 ## RETURNS
-##	- N					<int>				Total number of samples in each pulse window
-##	- T 				<float> 			Total time for each pulse window (in sec)
-##	- t 				<array of float> 	Time domain space array for waveforms (in sec)
-##	- f 				<array of float>	Frequency space array for PSDs (in Hz)
-##	- pulse_fs 			<float> 			Effective sampling rate after decimation (in Hz)
+##	- mean_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline mean for each pulse window
+##	- sdev_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline sdev for each pulse window
+##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
 def plot_pulse_windows(LED_files, noise_file, vna_file, p_params, 
     p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None,
     PHASE=True, show_plots=False,):
