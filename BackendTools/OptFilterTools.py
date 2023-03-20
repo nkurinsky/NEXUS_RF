@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -357,7 +359,7 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
 ##	- force_save		<bool>				Force a new cut definition file to be written
 ## RETURNS
 ## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
-def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, p1=5, p2=90, force_save=False):
+def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, p1=5, p2=90, force_save=False):
     ## Define a file path and name where cut limits will be stored
     save_path = "/".join(LED_files[0].split("/")[:5])
     series    = save_path.split("/")[-1]
@@ -384,10 +386,10 @@ def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, p1=5, p2=90,
         cut_df = pd.DataFrame(index=LED_files,columns=None)
 
         ## Define the columns we'll use to store cut limits
-        cut_df["sdev_min"] = np.ones(len(LED_files))
-        cut_df["sdev_max"] = np.ones(len(LED_files))
         cut_df["mean_min"] = np.ones(len(LED_files))
         cut_df["mean_max"] = np.ones(len(LED_files))
+        cut_df["sdev_min"] = np.ones(len(LED_files))
+        cut_df["sdev_max"] = np.ones(len(LED_files))
         cut_df["wfmx_min"] = np.array([None] * len(LED_files))
         cut_df["wfmx_max"] = np.array([None] * len(LED_files))
 
@@ -407,6 +409,25 @@ def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, p1=5, p2=90,
             # cut_df.to_csv( os.path.join(save_path,save_name+".csv"))
             
     return cut_df
+
+def update_cut_limit(cut_df, LED_files, idx, key, value):
+    ## Update the key, item pair for this index
+    cut_df[key].loc[LED_files[idx]] = value
+    return cut_df
+
+def save_cut_df(cut_df, LED_files, PHASE=True):
+    ## Define a file path and name where cut limits will be stored
+    save_path = "/".join(LED_files[0].split("/")[:5])
+    series    = save_path.split("/")[-1]
+    save_name = series + "_bl_cutvals" 
+    save_key  = series+"_cuts"
+    if PHASE:
+        save_name += "_phase" 
+        save_key  += "_phase"
+
+    print("Saving cuts to file", os.path.join(save_path,save_name))
+    cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
+
 
 ## Find the indeces for pulse windows, by file, that should be removed from analysis
 ## ARGUMENTS
