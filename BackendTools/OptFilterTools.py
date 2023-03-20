@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
 import TimestreamHelperFunctions as Thf
