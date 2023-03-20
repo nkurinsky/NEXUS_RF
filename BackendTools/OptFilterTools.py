@@ -141,28 +141,6 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
     return pulse_noise, N, T, t, f, pulse_fs
 
 
-# ## Given some waveform and pulse arrival parameters, pull a specific pulse window ROI
-# ## By default the ROI starts at the first sample in the window and extends the full window
-# ## The user can shrink or expand the window in time, as well as shift it relative to the start of the window
-# def get_pulse_window(waveform, pls_window_idx, samples_per_pulse, sampling_rate, frac_to_keep=1.0, offset_sec=0.0):
-
-#     ## Define the sample index where this pulse window ends
-#     window_i_end  = int((pls_window_idx+1)*samples_per_pulse)
-
-#     ## Define how many samples the ROI is
-#     N_samps_roi   = int(frac_to_keep*samples_per_pulse) - 1
-
-#     ## Caclulate how many samples by which to shift the window
-#     N_samps_shift = int(offset_sec*sampling_rate)
-    
-#     ## Define the edges of the pulse window
-#     pulse_idx_start = pulse_i_end + N_samps_shift - N_samps_roi 
-#     pulse_idx_end   = pulse_i_end + N_samps_shift
-
-#     return waveform[pulse_idx_start:pulse_idx_end,:]
-
-
-
 ## Create a plot for each pulse arrival window in the timestream and define a pre-trigger 
 ## region in which we collect statistics on which to do cuts to remove bad windows
 ## ARGUMENTS
@@ -490,3 +468,250 @@ def get_bad_pulse_idxs(LED_files, cut_df, mean_dict, sdev_dict, maxv_dict):
         print(pulse_file, ":", len(bad_pulses), "bad pulses")
 
     return bad_pls_idxs
+
+
+def clean_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs,
+	decimate_down_to=5e4, pulse_cln_dec=None, window_shift_seconds=0,
+	PHASE=True, show_plots=False, verbose=False):
+	j = 0
+	for pulse_file in LED_files:
+	    print('===================')
+	    print('cleaning pulse file:',pulse_file)
+	    print('using VNA file:     ',vna_file)
+	    print('using noise file:   ',noise_file)
+
+	    ## Get the decimated timestream and frequency step
+	    pulse_noise, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+	    time = 1e3*(p_params["time_btw_pulse"]-t[::-1])
+	    
+	    ## Define the regions where pulses exist
+	    ## =====================================
+	    
+		## This defines where (in # of pulse windows) to start looking for pulse windows
+	    pulse_start = int(p_params["total_pulses"] * p_params["blank_fraction"])
+	    samples_per_pulse = int(p_params["time_btw_pulse"]*samp_rate)
+	    if verbose:
+	        print("Starting pulse partitioning after", pulse_start, "windows (of",p_params["total_pulses"],")")
+	    
+	    ## How many samples to shift the pulse window definition
+	    window_shift = int(window_shift_seconds * samp_rate)
+	    if verbose:
+	        print("Shifting pulse window by", window_shift, "samples")
+	    
+	    ## Create empty arrays to store our results in
+	    noise_averages = np.zeros((3),dtype=np.complex128)
+	    J_r = np.zeros((N,3)); J_arc = np.zeros((N,3))
+	    
+	    ## Create empty arrays to store values for histograms
+	    bl_means = np.array([],dtype=np.complex128)
+	    bl_sdevs = np.array([])#,dtype=np.complex128)
+	    
+	    ## Create a plot to store waveforms
+	    if show_plots:
+	        fi0 = plt.figure(pulse_file+"_a")
+	        ax0 = fi0.gca()
+	        ax0.set_xlabel("Time [ms]")
+	        ax0.set_ylabel(r"$\log_{10}|S_{21}|$")
+	        ax0.set_title(".".join(pulse_file.split("/")[-1].split(".")[0:-1]))
+	        
+	        fi1 = plt.figure(pulse_file+"_b")
+	        ax1 = fi1.gca()
+	        ax1.set_xlabel(r"$\Re(S_{21})$")
+	        ax1.set_ylabel(r"$\Im(S_{21})$")
+	        ax1.set_title(".".join(pulse_file.split("/")[-1].split(".")[0:-1]))
+
+	    ## Count how many good pulses there are
+	    n_good_pulses = num_pulses - len(bad_pls_idxs[pulse_file])
+	    
+	    ## Start the loop over pulse windows
+	    k=0
+	    for pulse_i in range(pulse_start,int(total_pulses),1):
+	        
+	        ## Skip the bad pulse windows
+	        if k in bad_pls_idxs[pulse_file]:
+	            ## Increment the counter
+	            k += 1
+	            continue
+	        
+	        ## Define the sample index where this pulse window ends
+	        pulse_i_end = int((pulse_i+1)*samples_per_pulse)
+	        
+	        ## Define the start of the pulse free region (period after pulse, before the next one, where it should be baseline noise)
+	        no_pulse_idx_start = pulse_i_end + window_shift - N 
+	        
+	        ## Define the end of the window (where the pulse-free region ends)
+	        no_pulse_idx_end   = pulse_i_end + window_shift
+	        
+	        ## Grab the timestream in that region and average it
+	        no_pulse_chunk = pulse_noise[no_pulse_idx_start:no_pulse_idx_end,:]
+	        
+	        ## Calculate some means and stdevs of this pulse-free timestream
+	        m = np.mean(no_pulse_chunk,axis=0,dtype=np.complex128) ; bl_means = np.append(bl_means,m[0])
+	        
+	        if PHASE:
+	            s = np.std( np.angle(    no_pulse_chunk[:,0])  ) ; bl_sdevs = np.append(bl_sdevs,s)
+	        else:
+	            s = np.std( np.log10(abs(no_pulse_chunk[:,0])) ) ; bl_sdevs = np.append(bl_sdevs,s)
+	        
+	        ## Keep a running average of the noise across all pulse regions
+	        noise_averages += m / n_good_pulses    
+	        
+	        ## Plot the pulse free region against time
+	        if show_plots: # and (k==0):
+	            ax0.plot(time, np.log10(abs(no_pulse_chunk[:,0])),alpha=0.25)
+	            ax1.scatter(no_pulse_chunk[:,0].real,no_pulse_chunk[:,0].imag,alpha=0.25)
+
+	        ## Convert to the electronics basis and compute the J objects
+	        r_chunk,arc_chunk,_,_= Prf.electronics_basis(no_pulse_chunk)
+	        J_r += abs(Prf.discrete_FT(r_chunk))**2 / n_good_pulses * 2 * T
+	        J_arc += abs(Prf.discrete_FT(arc_chunk))**2 / n_good_pulses * 2 * T
+	        
+	        ## Increment the counter
+	        k += 1
+	    
+	    if verbose:
+	        print("Searched",n_good_pulses,"pulse windows")
+	        print('used ' + str(n_good_pulses) + ' chunks to find quiescent point')
+	    
+	    if show_plots:
+	        ax0.axhline(y=np.log10(abs(noise_averages[0])),color="k",ls='--')
+	        
+	        fi2 = plt.figure(pulse_file+"_c")
+	        ax2 = fi2.gca()
+	        if PHASE:
+	            ax2.hist(np.angle(bl_means))
+	            ax2.set_xlabel(r"Pre-trigger BL mean $\arg(S_{21})$")
+	        else:
+	            ax2.hist(np.log10(abs(bl_means)))
+	            ax2.set_xlabel(r"Pre-trigger BL mean $\log_{10}(|S_{21}|)$")
+	        ax2.set_ylabel("Occurences")
+	        ax2.set_title(".".join(pulse_file.split("/")[-1].split(".")[0:-1]))
+	        
+	        fi3 = plt.figure(pulse_file+"_d")
+	        ax3 = fi3.gca()
+	        if PHASE:
+	            ax3.hist(bl_sdevs)
+	            ax3.set_xlabel(r"Pre-trigger BL sdev $\arg(S_{21})$")
+	        else:
+	            ax3.hist(bl_sdevs)
+	            ax3.set_xlabel(r"Pre-trigger BL sdev $\log_{10}(|S_{21}|)$")
+	        ax3.set_ylabel("Occurences")
+	        ax3.set_title(".".join(pulse_file.split("/")[-1].split(".")[0:-1]))
+
+	    ## Pull the two real quantities from the complex timestream averages
+	    radius_averages = abs(noise_averages)
+	    angle_averages  = np.angle(noise_averages)
+	    if verbose:
+	        print(radius_averages)
+	        print(angle_averages)
+
+	    ## Rotate the timestream by the averange angle, then get the rotated phase timestream
+	    pulse_timestream_rotated = pulse_noise*np.exp(-1j*angle_averages)
+	    angle_timestream = np.angle(pulse_timestream_rotated)
+
+	    ## Subtract off the average magnitude value and calculate an arc length
+	    radius = abs(pulse_noise) - radius_averages
+	    arc    = angle_timestream*radius_averages
+
+	    ## Create output containers for the clean timestreams
+	    radius_clean = np.zeros(radius.shape)
+	    arc_clean    = np.zeros(arc.shape)
+
+	    if verbose:
+	        print('built radius and arc length timestreams given by quiescent point')
+	        print(noise_file)
+	        
+	    ## Pull the dictionary containing cleaning coefficients from the noise timestream
+	    _,data_info = PUf.clean_noi(noise_file[:-3]+'_cleaned.h5')
+
+	    ## Loop over each tone in the radius timestream
+	    for t in range(radius.shape[1]):
+	        ## Pull the coefficients from the noise cleaning
+	        radius_coefficient = data_info['radius cleaning coefficient'][t]
+	        arc_coefficient    = data_info['arc cleaning coefficient'][t]
+
+	        ## Clean each tone with the off-resonance tones
+	        if t == 0:
+	            off_tone_idcs = [1,2]
+	        elif t == 1:
+	            off_tone_idcs = [2]
+	        elif t == 2:
+	            off_tone_idcs = [1]
+
+	        ## Perform the radius cleaning
+	        off_tone_radius = np.mean(radius[:,off_tone_idcs],axis=1,dtype=np.float64)
+	        radius_clean[:,t] = radius[:,t] - radius_coefficient*off_tone_radius
+
+	        ## Perform the arc length cleaning
+	        off_tone_arc = np.mean(arc[:,off_tone_idcs],axis=1,dtype=np.float64)
+	        arc_clean[:,t] = arc[:,t] - arc_coefficient*off_tone_arc
+
+	        if verbose: 
+	            print('cleaned tone ' + str(t))
+
+	    ## Subtract off the mean from cleaned radius and arc length timestreams
+	    radius_clean -= np.mean(radius_clean,axis=0,dtype='float64')
+	    arc_clean -= np.mean(arc_clean,axis=0,dtype='float64')
+	    
+	    ## Save the clean timestreams to a file
+	    pulse_noise_clean = Prf.save_clean_timestreams(pulse_file,
+	                                                   radius_averages,
+	                                                   angle_averages,
+	                                                   radius_clean,
+	                                                   arc_clean,
+	                                                   samp_rate,
+	                                                   timestreams['radius coefficient'],
+	                                                   timestreams['arc coefficient'],
+	                                                   override=True)
+
+	    ## Calculate the PSDs for each of the cleaned pulses
+	    
+	    ## Create containers for our output PSDs
+	    J_r_clean = np.zeros((N,3)); J_arc_clean = np.zeros((N,3))
+	    
+	    ## Loop over pulses
+	    k = 0
+	    for pulse_i in range(pulse_start,int(total_pulses),1):
+	        ## Skip the bad pulse windows
+	        if k in bad_pls_idxs[pulse_file]:
+	            ## Increment the counter
+	            k += 1
+	            continue
+	        
+	        ## Define the sample index where this pulse window ends
+	        pulse_i_end = int((pulse_i+1)*samples_per_pulse) 
+	        
+	        ## Define the start of the pulse free region (period after pulse, before the next one, where it should be baseline noise)
+	        no_pulse_idx_start = pulse_i_end + window_shift - N 
+	        
+	        ## Define the end of the window (where the pulse-free region ends)
+	        no_pulse_idx_end   = pulse_i_end + window_shift
+	        
+	        ## Grab the timestream in that region
+	        no_pulse_chunk = pulse_noise_clean[no_pulse_idx_start:no_pulse_idx_end,:]
+
+	        ## Convert the pulse-free region to electronics basis
+	        r_chunk,arc_chunk,_,_= Prf.electronics_basis(no_pulse_chunk)
+	        
+	        ## Compute the PSDs
+	        J_r_clean += abs(Prf.discrete_FT(r_chunk))**2 / n_good_pulses * 2 * T
+	        J_arc_clean += abs(Prf.discrete_FT(arc_chunk))**2 / n_good_pulses * 2 * T
+	        
+	        ## Increment the counter
+	        k += 1
+
+	    ## Trim the output to the positive frequency region only
+	    J_r = J_r[f>=0]; J_r_clean = J_r_clean[f>=0]; J_arc = J_arc[f>=0]; J_arc_clean = J_arc_clean[f>=0]
+	    
+	    ## Every tenth files, show the PSDs
+	    if j % 1 == 0:
+	        print(pulse_file)
+	        fig_0, axes_0 = plt.subplots(2,3,sharex=True,sharey='row',figsize=(5*3,10))
+	        
+	        Prf.plot_PSDs(f[f>0],J_r,J_arc,pulse_file,\
+	                      ['radius','arc length'],units=['ADCu','ADCu'],savefig='electronics',\
+	                      data_freqs=pulse_info['search freqs'],\
+	                      P_1_clean=J_r_clean,P_2_clean=J_arc_clean,\
+	                      fig_0=fig_0,axes_0=axes_0)
+
+	    j += 1
