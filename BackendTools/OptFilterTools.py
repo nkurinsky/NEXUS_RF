@@ -110,23 +110,24 @@ def parse_metadata(summary_file, blank_fraction=0.2, verbose=False):
 ##	- decimate_down_to	<float>				Maximum frequency desired in PSDs (in Hz)
 ##	- pulse_cln_dec		<int>				An explicit decimation factor, used instead of decimate_down_to
 ## RETURNS
+##	- pulse_noise		<array of complex>	Decimated timestream
 ##	- N					<int>				Total number of samples in each pulse window
 ##	- T 				<float> 			Total time for each pulse window (in sec)
 ##	- t 				<array of float> 	Time domain space array for waveforms (in sec)
 ##	- f 				<array of float>	Frequency space array for PSDs (in Hz)
 ##	- pulse_fs 			<float> 			Effective sampling rate after decimation (in Hz)
-def get_timing_params(pulse_file, p_params, decimate_down_to, pulse_cln_dec=None):
+def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec=None):
     ## Determine how much additional decimation to apply
     pulse_noise, pulse_info = PUf.unavg_noi(pulse_file)
     pulse_fs = 1./pulse_info['sampling period']
     if (pulse_cln_dec is None):
-        pulse_cleaning_decimation = int(pulse_fs/decimate_down_to)
+        pls_cln_dec = int(pulse_fs/decimate_down_to)
     else:
-        pulse_cleaning_decimation = int(pulse_cln_dec)
+        pls_cln_dec = int(pulse_cln_dec)
 
-    ## Get the decimated timestream and frequency step
-    pulse_noise = Prf.average_decimate(pulse_noise,pulse_cleaning_decimation)
-    pulse_fs   /= pulse_cleaning_decimation ## sampling_rate
+    ## Get the decimated frequency step
+    pulse_noise = Prf.average_decimate(pulse_noise,pls_cln_dec)
+    pulse_fs   /= pls_cln_dec ## sampling_rate
     
     ## Determine the number of samples in, and length of time of, a full pulse window
     N = int(p_params["time_btw_pulse"]*pulse_fs)    ## Total # of samples pulse window
@@ -137,7 +138,7 @@ def get_timing_params(pulse_file, p_params, decimate_down_to, pulse_cln_dec=None
     ## Get time- and frequency- space arrays for the full pulse window
     t,f = Prf.build_t_and_f(N,pulse_fs)
 
-    return N, T, t, f, pulse_fs
+    return pulse_noise, N, T, t, f, pulse_fs
 
 
 # ## Given some waveform and pulse arrival parameters, pull a specific pulse window ROI
@@ -198,8 +199,9 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
         print('using VNA file:     ',vna_file)
         print('using noise file:   ',noise_file)
 
-        N, T, t, f, samp_rate = get_timing_params(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
-        
+        ## Get the decimated timestream and frequency step
+        pulse_noise, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+
         ## Define the regions where pulses exist
         ## =====================================
         
