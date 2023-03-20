@@ -344,3 +344,64 @@ def plot_pulse_windows(LED_files, noise_file, vna_file, p_params,
 
     ## Return the cut dictionaries
     return mean_dict, sdev_dict, maxv_dict
+
+## Create a plot for each pulse arrival window in the timestream and define a pre-trigger 
+## region in which we collect statistics on which to do cuts to remove bad windows
+## ARGUMENTS
+## 	- LED_files			<array of string>	Each entry is full path to the h5 file containig pulse data
+## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
+##	- mean_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline mean for each pulse window
+##	- sdev_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline sdev for each pulse window
+##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
+## RETURNS
+##	- bad_pls_idxs		<dictionary>		Each key is an LED file and the item is an array containing the indeces of windows which should be removed
+def apply_window_cuts(LED_files, cut_df, mean_dict, sdev_dict, maxv_dict):
+    ## Create a dictionary that will contain arrays of bad pulse indeces
+    bad_pls_idxs = {}
+
+    ## Loop over every file (LED voltage)
+    for pulse_file in LED_files:
+        
+        ## Extract the cut criteria limits
+        bl_mean_min = cut_df["mean_min"].loc[pulse_file]
+        bl_mean_max = cut_df["mean_max"].loc[pulse_file]
+        bl_sdev_min = cut_df["sdev_min"].loc[pulse_file]
+        bl_sdev_max = cut_df["sdev_max"].loc[pulse_file]
+        wf_max__min = cut_df["wfmx_min"].loc[pulse_file]
+        wf_max__max = cut_df["wfmx_max"].loc[pulse_file]
+        
+        ## Extract the cut criteria dictionaries
+        bl_means = mean_dict[pulse_file]
+        bl_sdevs = sdev_dict[pulse_file]
+        pls_maxs = maxv_dict[pulse_file]
+        
+        ## Create an empty array for the bad pulse indeces
+        bad_pulses = np.array([])
+        
+        ## Loop over pulse windows
+        for k in np.arange(len(bl_means)):
+            
+            ## Check the cuts for baseline mean
+            if (bl_means[k] < bl_mean_min) or (bl_means[k] > bl_mean_max):
+                bad_pulses = np.append(bad_pulses, k)
+                continue
+                
+            ## Check the cuts for baseline sdev
+            if (bl_sdevs[k] < bl_sdev_min) or (bl_sdevs[k] > bl_sdev_max):
+                bad_pulses = np.append(bad_pulses, k)
+                continue
+                
+            if wf_max__max is not None:
+                if (pls_maxs[k] > wf_max__max):
+                    bad_pulses = np.append(bad_pulses, k)
+                    continue
+                    
+            if wf_max__min is not None:
+                if (pls_maxs[k] < wf_max__min):
+                    bad_pulses = np.append(bad_pulses, k)
+                    continue
+        
+        bad_pls_idxs[pulse_file] = bad_pulses
+        print(pulse_file, ":", len(bad_pulses), "bad pulses")
+
+    return bad_pls_idxs
