@@ -525,7 +525,7 @@ def clean_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs,
 	    
 	    ## Start the loop over pulse windows
 	    k=0
-	    for pulse_i in range(pulse_start,int(total_pulses),1):
+	    for pulse_i in range(pulse_start,int(p_params["total_pulses"]),1):
 	        
 	        ## Skip the bad pulse windows
 	        if k in bad_pls_idxs[pulse_file]:
