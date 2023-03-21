@@ -660,8 +660,8 @@ def clean_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs,
 	                                                   radius_clean,
 	                                                   arc_clean,
 	                                                   samp_rate,
-	                                                   timestreams['radius coefficient'],
-	                                                   timestreams['arc coefficient'],
+	                                                   data_info['radius cleaning coefficient'],
+	                                                   data_info['arc cleaning coefficient'],
 	                                                   override=True)
 
 	    ## Calculate the PSDs for each of the cleaned pulses
