@@ -513,7 +513,7 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
     print('using noise file:   ',noise_file)
 
     ## Get the decimated timestream and frequency step
-    pulse_noise, pulse_info, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+    pulse_noise, _, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
     time = 1e3*(p_params["time_btw_pulse"]-t[::-1])
     
     ## Define the regions where pulses exist
@@ -692,8 +692,8 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
                                                    radius_clean,
                                                    arc_clean,
                                                    samp_rate,
-                                                   pulse_info['radius coefficient'],
-                                                   pulse_info['arc coefficient'],
+                                                   data_info['radius coefficient'],
+                                                   data_info['arc coefficient'],
                                                    override=True)
 
     ## Calculate the PSDs for each of the cleaned pulses
