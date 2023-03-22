@@ -755,7 +755,7 @@ def clean_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_i
             show_plots=show_plots, verbose=verbose)
 
 
-def get_average_pulse(pulse_file, vna_file, p_params, extra_decimation=1, fraction_to_keep=0.5, window_shift_seconds=0, save_shape=True, show_plots=False, verbose=False, idx=0):
+def get_average_pulse(pulse_file, vna_file, p_params, bad_pls_idxs, extra_decimation=1, fraction_to_keep=0.5, window_shift_seconds=0, save_shape=True, show_plots=False, verbose=False, idx=0):
     print('===================')
     print('averaging pulse file: ' + pulse_file)
 
@@ -862,9 +862,9 @@ def get_average_pulse(pulse_file, vna_file, p_params, extra_decimation=1, fracti
 
     return pulse_avg, sampling_rate
 
-def get_all_average_pulse(LED_files, vna_file, p_params, extra_decimation=1, fraction_to_keep=0.5, window_shift_seconds=0, save_shape=True, show_plots=False, verbose=False):
+def get_all_average_pulse(LED_files, vna_file, p_params, bad_pls_idxs, extra_decimation=1, fraction_to_keep=0.5, window_shift_seconds=0, save_shape=True, show_plots=False, verbose=False):
     for j in np.arange(len(LED_files)):        
-        get_average_pulse(LED_files[j], vna_file, p_params, 
+        get_average_pulse(LED_files[j], vna_file, p_params, bad_pls_idxs,
             extra_decimation=extra_decimation, fraction_to_keep=fraction_to_keep, 
             window_shift_seconds=window_shift_seconds, save_shape=save_shape, 
             show_plots=show_plots, verbose=verbose, idx=j)
