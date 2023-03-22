@@ -140,7 +140,7 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
     ## Get time- and frequency- space arrays for the full pulse window
     t,f = Prf.build_t_and_f(N,pulse_fs)
 
-    return pulse_noise, N, T, t, f, pulse_fs
+    return pulse_noise, pulse_info, N, T, t, f, pulse_fs
 
 ## Create a plot for each pulse arrival window in the timestream and define a pre-trigger 
 ## region in which we collect statistics on which to do cuts to remove bad windows
@@ -170,7 +170,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
     print('using noise file:   ',noise_file)
 
     ## Get the decimated timestream and frequency step
-    pulse_noise, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+    pulse_noise, _, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
 
     ## Define the regions where pulses exist
     ## =====================================
@@ -513,7 +513,7 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
     print('using noise file:   ',noise_file)
 
     ## Get the decimated timestream and frequency step
-    pulse_noise, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+    pulse_noise, pulse_info, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
     time = 1e3*(p_params["time_btw_pulse"]-t[::-1])
     
     ## Define the regions where pulses exist
@@ -692,8 +692,8 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
                                                    radius_clean,
                                                    arc_clean,
                                                    samp_rate,
-                                                   data_info['radius cleaning coefficient'],
-                                                   data_info['arc cleaning coefficient'],
+                                                   pulse_info['radius coefficient'],
+                                                   pulse_info['arc coefficient'],
                                                    override=True)
 
     ## Calculate the PSDs for each of the cleaned pulses
