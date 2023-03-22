@@ -692,8 +692,8 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
                                                    radius_clean,
                                                    arc_clean,
                                                    samp_rate,
-                                                   data_info['radius coefficient'],
-                                                   data_info['arc coefficient'],
+                                                   data_info['radius cleaning coefficient'],
+                                                   data_info['arc cleaning coefficient'],
                                                    override=True)
 
     ## Calculate the PSDs for each of the cleaned pulses
