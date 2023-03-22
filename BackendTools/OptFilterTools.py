@@ -1,4 +1,4 @@
-import os
+import os, h5py
 
 import numpy as np
 import matplotlib.pyplot as plt
