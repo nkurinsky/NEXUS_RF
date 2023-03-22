@@ -370,26 +370,23 @@ def save_clean_timestreams(h5_file,radius,angle,cd1_clean,cd2_clean,fs,cd1_coeff
 
     cleaned_filename = h5_file[:-3]+'_cleaned.h5'
 
-    if os.path.exists(cleaned_filename) and override == True:
-        os.remove(cleaned_filename)
-        print('saving clean_data to {} because override=True!'.format(cleaned_filename))
+    if override:
+        if os.path.exists(cleaned_filename):
+            os.remove(cleaned_filename)
+            print('saving clean_data to {} because override=True!'.format(cleaned_filename))
+
         with h5py.File(cleaned_filename, 'w') as fyle:
             fyle['cleaned_data'] = data_clean
             fyle['sampling_rate'] = fs
             fyle['radius'] = radius
             fyle['angle'] = angle
             for i in range(len(cd1_coeff)):
-                fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
-                fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
-    elif override == True:
-        with h5py.File(cleaned_filename, 'w') as fyle:
-            fyle['cleaned_data'] = data_clean
-            fyle['sampling_rate'] = fs
-            fyle['radius'] = radius
-            fyle['angle'] = angle
-            for i in range(len(cd1_coeff)):
-                fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
-                fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
+                try:
+                    fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i]['normalized']
+                    fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i]['normalized']
+                except:
+                    fyle['radius cleaning coefficient/'+str(i)] = cd1_coeff[i][0]
+                    fyle['arc cleaning coefficient/'+str(i)] = cd2_coeff[i][0]
 
     return data_clean
 
