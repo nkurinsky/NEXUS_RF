@@ -764,7 +764,7 @@ def get_average_pulse(pulse_file, vna_file, p_params, extra_decimation=1, fracti
 
     ## Load the clean pulse data
     clean_pulse_file = pulse_file[:-3] + '_cleaned.h5'
-    pulse_noise_clean,data_info = PUf.clean_noi(clean_pulse_file)
+    pulse_noise_clean, data_info = PUf.clean_noi(clean_pulse_file)
     if verbose: 
         print('loaded clean pulse data')        
         print('sampling_rate: ' + str(data_info['sampling_rate']))
@@ -773,6 +773,7 @@ def get_average_pulse(pulse_file, vna_file, p_params, extra_decimation=1, fracti
     samples_per_pulse = data_info['sampling_rate'] * p_params["time_btw_pulse"]
 
     ## Do extra decimation if needed (1 = no decimation) 
+    _, pulse_info = PUf.unavg_noi(pulse_file)
     time = Prf.average_decimate(pulse_info['time'],extra_decimation)
     pulse_noise_clean = Prf.average_decimate(pulse_noise_clean,extra_decimation)
     
