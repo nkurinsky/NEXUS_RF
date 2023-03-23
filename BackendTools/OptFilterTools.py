@@ -736,14 +736,14 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
     J_r = J_r[f>=0]; J_r_clean = J_r_clean[f>=0]; J_arc = J_arc[f>=0]; J_arc_clean = J_arc_clean[f>=0]
     
     ## Show the PSDs
-    print(pulse_file)
-    fig_0, axes_0 = plt.subplots(2,3,sharex=True,sharey='row',figsize=(5*3,10))
-    
-    Prf.plot_PSDs(f[f>0],J_r,J_arc,pulse_file,
-                  ['radius','arc length'],units=['ADCu','ADCu'],savefig='electronics',
-                  data_freqs=pulse_info['search freqs'],
-                  P_1_clean=J_r_clean,P_2_clean=J_arc_clean,
-                  fig_0=fig_0,axes_0=axes_0)
+    if show_plots:
+        fig_0, axes_0 = plt.subplots(2,3,sharex=True,sharey='row',figsize=(5*3,10))
+        
+        Prf.plot_PSDs(f[f>0],J_r,J_arc,pulse_file,
+                      ['radius','arc length'],units=['ADCu','ADCu'],savefig='electronics',
+                      data_freqs=pulse_info['search freqs'],
+                      P_1_clean=J_r_clean,P_2_clean=J_arc_clean,
+                      fig_0=fig_0,axes_0=axes_0)
 
 
 
