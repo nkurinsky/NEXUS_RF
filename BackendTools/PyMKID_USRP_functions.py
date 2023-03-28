@@ -129,7 +129,7 @@ def template(filename,time_threshold=20e-3,ythreshold=0.01,left_time=2e-3,right_
 
     return trigNum, temp_array, temp_time, search_freqs
 
-def vna_file_fit(filename,pickedres,show=False,save=False):
+def vna_file_fit(filename,pickedres,show=False,save=False,verbose=False):
     pickedres = np.array(pickedres)
     VNA_f, VNA_z = read_vna(filename, decimation=1)
     VNA_f = VNA_f*1e-3 #VNA_f in units of GHz after this line
