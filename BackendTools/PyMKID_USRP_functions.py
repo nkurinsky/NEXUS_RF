@@ -150,7 +150,7 @@ def vna_file_fit(filename,pickedres,show=False,save=False,verbose=False):
         MKID_f = VNA_f[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         MKID_z = VNA_z[max(MKID_index-index_range,0):min(MKID_index+index_range,len(VNA_f))]
         # frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau, Qc = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum])
-        res_pars, res_errs = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum], restrict_fit_MHz=None, plot=False, verbose=verbose)
+        res_pars, res_errs = fitres.finefit(MKID_f, MKID_z, pickedres[MKIDnum], restrict_fit_MHz=None, plot=True, verbose=verbose)
         frs[MKIDnum] = res_pars["f0"]
         Qrs[MKIDnum] = res_pars["Qr"]
         Qc_hat = res_pars["QcHat"]
@@ -169,8 +169,8 @@ def vna_file_fit(filename,pickedres,show=False,save=False,verbose=False):
             axV.plot(MKID_z.real,MKID_z.imag,ls='',marker='.')
             axV.plot(fit_z.real,fit_z.imag,color='lightgrey')
             axV.plot(fit_z[fr_idx].real,fit_z[fr_idx].imag,marker='*')
-            axV.plot(MKID_f,20*np.log10(abs(MKID_z)))
-            axV.plot(MKID_f,20*np.log10(abs(fit_z)))
+            # axV.plot(MKID_f,20*np.log10(abs(MKID_z)))
+            # axV.plot(MKID_f,20*np.log10(abs(fit_z)))
 
             axV.set_aspect('equal', adjustable='box')
             axV.set_xlabel('ADC units')
