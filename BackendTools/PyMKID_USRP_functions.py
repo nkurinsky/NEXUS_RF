@@ -129,7 +129,7 @@ def template(filename,time_threshold=20e-3,ythreshold=0.01,left_time=2e-3,right_
 
     return trigNum, temp_array, temp_time, search_freqs
 
-def vna_file_fit(filename,pickedres,show=False,save=False,verbose=True):
+def vna_file_fit(filename,pickedres,show=False,save=False):
     pickedres = np.array(pickedres)
     VNA_f, VNA_z = read_vna(filename, decimation=1)
     VNA_f = VNA_f*1e-3 #VNA_f in units of GHz after this line
@@ -159,29 +159,25 @@ def vna_file_fit(filename,pickedres,show=False,save=False,verbose=True):
         tau = res_pars["tau"]
         Qcs[MKIDnum] = res_pars["Qc"]
 
-        if show:
-            fit_z = fitres.resfunc3(MKID_f, frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau)
-            #MKID_z_corrected = 1-((1-MKID_z/(a*np.exp(-2j*np.pi*(MKID_f-frs[MKIDnum])*tau)))*(np.cos(phi)/np.exp(1j*phi)))
-            #fit_z_corrected = 1-(Qrs[MKIDnum]/Qc)/(1+2j*Qrs[MKIDnum]*(MKID_f-frs[MKIDnum])/frs[MKIDnum])
-            fr_idx = find_closest(MKID_f,frs[MKIDnum])
-            plt.figure('how does the fit look')
-            plt.plot(MKID_z.real,MKID_z.imag,ls='',marker='.')
-            plt.plot(fit_z.real,fit_z.imag,color='lightgrey')
-            plt.plot(fit_z[fr_idx].real,fit_z[fr_idx].imag,marker='*')
-            # plt.plot(MKID_f,20*np.log10(abs(MKID_z)))
-            # plt.plot(MKID_f,20*np.log10(abs(fit_z)))
+        fit_z = fitres.resfunc3(MKID_f, frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau)
+        #MKID_z_corrected = 1-((1-MKID_z/(a*np.exp(-2j*np.pi*(MKID_f-frs[MKIDnum])*tau)))*(np.cos(phi)/np.exp(1j*phi)))
+        #fit_z_corrected = 1-(Qrs[MKIDnum]/Qc)/(1+2j*Qrs[MKIDnum]*(MKID_f-frs[MKIDnum])/frs[MKIDnum])
+        fr_idx = find_closest(MKID_f,frs[MKIDnum])
 
-            plt.gca().set_aspect('equal', adjustable='box')
-            plt.xlabel('ADC units')
-            plt.ylabel('ADC units')
-            plt.axvline(x=0, color='gray')
-            plt.axhline(y=0, color='gray')
+        if show:
+            ax0 = plt.figure('how does the fit look').gca()
+            ax0.plot(MKID_z.real,MKID_z.imag,ls='',marker='.')
+            ax0.plot(fit_z.real,fit_z.imag,color='lightgrey')
+            ax0.plot(fit_z[fr_idx].real,fit_z[fr_idx].imag,marker='*')
+            ax0.plot(MKID_f,20*np.log10(abs(MKID_z)))
+            ax0.plot(MKID_f,20*np.log10(abs(fit_z)))
+
+            ax0.set_aspect('equal', adjustable='box')
+            ax0.set_xlabel('ADC units')
+            ax0.set_ylabel('ADC units')
+            ax0.axvline(x=0, color='gray')
+            ax0.axhline(y=0, color='gray')
         if save:
-            fit_z = fitres.resfunc3(MKID_f, frs[MKIDnum], Qrs[MKIDnum], Qc_hat, a, phi, tau)
-            #MKID_z_corrected = 1-((1-MKID_z/(a*np.exp(-2j*np.pi*(MKID_f-frs[MKIDnum])*tau)))*(np.cos(phi)/np.exp(1j*phi)))
-            #fit_z_corrected = 1-(Qrs[MKIDnum]/Qc)/(1+2j*Qrs[MKIDnum]*(MKID_f-frs[MKIDnum])/frs[MKIDnum])
-            plt.plot(MKID_f,20*np.log10(abs(MKID_z)))
-            plt.plot(MKID_f,20*np.log10(abs(fit_z)))
             plt.savefig(filename[:-3]+'_res'+str(MKIDnum)+'.png')
             plt.close()
 
@@ -392,8 +388,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     f = f[::5]
     z = z[::5]
 
-
-    resonances, _, _ = vna_file_fit(filename,[4.24218])#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
+    resonances, _, _, _, _, _, _ = vna_file_fit(filename,[4.24218])#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
     near = .0007
     near_res = []
     for resonance in resonances:
