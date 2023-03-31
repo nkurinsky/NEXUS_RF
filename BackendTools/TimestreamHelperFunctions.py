@@ -139,6 +139,9 @@ def CleanPSDs(ts_file, vna_file, series=None, PSD_lo_f=1e2, PSD_hi_f=5e4, f_tran
 	num_chunks = int(noise_total_time*PSD_lo_f)
 	noise_decimation = int(noise_fs/PSD_hi_f)
 
+	print(len(noise_info['time']))
+	print(num_chunks)
+
 	if verbose>0:
 		print("Will separate data into ", num_chunks	  , "chunks to achieve the requested", "{:.2e}".format(PSD_lo_f),' Hz low  end of the PSD')
 		print("Additional decimation by", noise_decimation, "needed to achieve the requested", "{:.2e}".format(PSD_hi_f),' Hz high end of the PSD')
