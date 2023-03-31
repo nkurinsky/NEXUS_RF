@@ -400,6 +400,7 @@ def create_chunks(timestreams,num_chunks):
     """
     dtype = timestreams.dtype
     L = int(timestreams.shape[0])
+    print(L,num_chunks)
     if timestreams.ndim == 1:
         timestreams = np.expand_dims(timestreams,axis=1)
     N = int(timestreams.shape[1])
