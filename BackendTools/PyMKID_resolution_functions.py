@@ -546,6 +546,14 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
     if extra_dec:
         if verbose:
             print('doing additional decimation by factor of',extra_dec)
+
+        ## Check the modulo
+        mod = len(data_noise)%extra_dec
+        if mod != 0:
+            if verbose:
+                print("Cannot decimate by this factor, instead using:",extra_dec+mod)
+            extra_dec = extra_dec+mod
+
         data_noise = average_decimate(data_noise,extra_dec)
         time_correction *= extra_dec
         time = time[::extra_dec]
