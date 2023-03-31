@@ -405,6 +405,8 @@ def create_chunks(timestreams,num_chunks):
     N = int(timestreams.shape[1])
     if L%num_chunks != 0:
         print("Remaining samples:",L%num_chunks)
+        print(np.shape(timestreams))
+        print(np.shape(timestreams[:-1*(L%num_chunks),]))
         raise Exception('timestream must be divisible into equal sized chunks')
     chunk_L = int(L / num_chunks)
     chunked_timestreams = np.zeros((chunk_L,num_chunks,N),dtype=dtype)
