@@ -96,7 +96,6 @@ def fit_single_file(file_name):
 
     ## Extract the RF power from the h5 file
     print("Extracting data for power:",sweep.power,"dBm")
-    power_list.append(sweep.power)
 
     ## Parse the file, get a complex S21 and frequency in GHz
     f = sweep.frequencies / 1.0e9
@@ -163,6 +162,7 @@ if __name__ == "__main__":
     for i in np.arange(len(vna_files)):
         ## Fit this data file
         pwr, fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
+        power_list.append(pwr)
         result.file_fits[i] = res 
         result.powers[i] = pwr
         result.fit_fr[i] = fr
