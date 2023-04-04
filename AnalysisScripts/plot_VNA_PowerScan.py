@@ -89,7 +89,7 @@ def get_input_files(series_str):
         print("-",fname)
     return vna_file_list
 
-def fit_single_file(file_name):
+def fit_single_file(file_name, show_plots=True):
     ## Open the h5 file for this power and extract the class
     sweep = decode_hdf5(file_name)
     sweep.show()
@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
     for i in np.arange(len(vna_files)):
         ## Fit this data file
-        pwr, fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
+        pwr, fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i], show_plots=show_plots)
         result.file_fits[i] = res 
         result.powers[i] = pwr
         result.fit_fr[i] = fr
