@@ -162,7 +162,6 @@ if __name__ == "__main__":
     for i in np.arange(len(vna_files)):
         ## Fit this data file
         pwr, fr, Qr, Qc, Qi, res = fit_single_file(vna_files[i])
-        power_list.append(pwr)
         result.file_fits[i] = res 
         result.powers[i] = pwr
         result.fit_fr[i] = fr
@@ -173,6 +172,7 @@ if __name__ == "__main__":
         ## Store the fit results
         fr_list.append(fr); Qr_list.append(Qr)
         Qc_list.append(Qc); Qi_list.append(Qi)
+        power_list.append(pwr)
 
     ## Store the fit results
     result.save_to_file(out_path)
