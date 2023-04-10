@@ -365,4 +365,4 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 		ax2.legend(loc='lower right')
 
 	# plt.show()
-	return p_dict
+	return p_dict if f_data[0] is not None else None
