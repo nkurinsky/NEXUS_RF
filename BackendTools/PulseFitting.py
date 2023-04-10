@@ -81,7 +81,9 @@ def estimate_params(t_vals, p_vals, t_cutoff_ms=15.0, verbose=False):
     
     ## Initialize our guess array for fitting to a single exponential
     if verbose > 0:
-    	print("-- Exp. guess:", popt[1], "ms", "Amp:",amp_guess,"at t=0")
+    	print("-- Parameter guess for single exponential -- ")
+    	print("     Decay time constant: ", popt[1], "ms")
+    	print("     Amplitude at t=0:    ", amp_guess)
 
     param_est = {"amp": amp_guess,
     			 "tau": tau_guess,
