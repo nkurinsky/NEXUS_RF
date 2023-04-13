@@ -46,7 +46,7 @@ Temp_step =  10e-3
 tempTolerance =   1e-4     ## K
 tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
 sleepTime     =  30.0      ## sec
-stableTime    = 150.0      ## sec
+stableTime    =  10.0 * 60.## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
