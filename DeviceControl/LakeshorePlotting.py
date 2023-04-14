@@ -32,7 +32,7 @@ def get_column(series,channel,colname='Resistance',datapath="/data/SlowDataLogCo
     return np.array(time_vals),np.array(data_vals)
 
 if __name__ == "__main__":
-    Time,Temperature = LakeShoreTemp("20230413",5,colname="Temperature")
+    Time,Temperature = get_column("20230413",5,colname="Temperature")
 
     mask = (Time < datetime.datetime(2023, 4, 13, 9, 50, 14, 425000))
     plt.plot(Time[::1][mask],Temperature[::1][mask],"-o")
