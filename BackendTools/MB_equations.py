@@ -100,7 +100,7 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
     for j in range(int(max_iters)):
         minimizer = iminuit.Minuit(chisq, 
             f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, 
-            limit_f0     = (np.max(f_fit)*0.50,np.max(f_fit)*2.00), 
+            limit_f0     = (np.max(f_fit)*1.00,np.max(f_fit)*2.00), 
             limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-2), 
             limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (1.0e-4,5.0e-1), 
             limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e8), 
