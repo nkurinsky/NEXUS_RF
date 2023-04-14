@@ -1,6 +1,7 @@
 import numpy as np
 import iminuit
 import scipy.special as spec
+from scipy.integrate import quad
 
 #############################
 # iMinuit fitting functions #
@@ -18,9 +19,17 @@ def signed_log10(x):
     return np.log10(np.abs(x)) * x/np.abs(x)
 
 ## Mazin thesis, equation 2.3: The density of thermally-excited quasiparticles
+## This equation comes from the integral presentein Gao thesis, equation 2.83
+## Gao evaluates it and presents equation 2.87 which is the same as Mazin eq 2.3
 def n_qp(T, Delta0):
     # [K, eV]
     return 2.*N_0*np.sqrt(2.*np.pi*Boltz_k*T*Delta0)*np.exp(-1.*Delta0/(Boltz_k*T))
+
+## Mazin thesis, equation 7.19:
+def n_qp_gs(T, Delta0, Gamma):
+    prefac   = 4.*N_0
+    fermidos = lambda E: 1./(1.+np.exp(E/(Boltz_k*T))) * np.real(E/np.sqrt( np.power(E,2) - np.power((Delta0-1j*Gamma),2)))
+    return prefac * quad(fermidos, 0, np.inf)
 
 ## Siegel thesis, equation 2.43
 def kappa_1(T, f0, Delta0):
@@ -91,10 +100,10 @@ def MB_fitter(T_fit, Qi_fit, f_fit, fixed_alpha=False, fixed_delta=False, max_it
     for j in range(int(max_iters)):
         minimizer = iminuit.Minuit(chisq, 
             f0=f0_in, Delta0=Delta0_in, alpha=alpha_in, Qi0=Qi0_in, 
-            limit_f0     = (np.max(f_fit)*0.75,np.max(f_fit)*1.25), 
-            limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-4), 
-            limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (1.0e-4,5.0e-2), 
-            limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e7), 
+            limit_f0     = (np.max(f_fit)*0.50,np.max(f_fit)*2.00), 
+            limit_Delta0 = (Delta0_in,Delta0_in) if fixed_delta else (1.0e-5,2.5e-2), 
+            limit_alpha  = (alpha_in ,alpha_in ) if fixed_alpha else (1.0e-4,5.0e-1), 
+            limit_Qi0    = (-9999    ,-9999 ) if Qi_fit is None else (1.e2,1.e8), 
             pedantic=False, print_level=-1 if not verbose else 0)
 
         f0_in     = minimizer.values["f0"]
