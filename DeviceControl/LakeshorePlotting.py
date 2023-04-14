@@ -44,4 +44,3 @@ if __name__ == "__main__":
     plt.ylabel("Temperature [K]")
     plt.xlabel("Time")
     plt.show()
-    return
