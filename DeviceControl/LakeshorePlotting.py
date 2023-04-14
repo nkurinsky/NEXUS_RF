@@ -27,7 +27,7 @@ def get_column(series,channel,colname='Resistance',datapath="/data/SlowDataLogCo
 
     ## Pull the data defined by our mask, apply an offset from UTC to C(D/S)T
     offset = datetime.timedelta(days=0, hours=offset_hrs, minutes=0)
-    data_vals = [float(i[0:-1]) for i in data[colname][mask]]
+    data_vals = [float(i[0:-1].split(" ")[0]) for i in data[colname][mask]]
     time_vals = [datetime.datetime.strptime(elem, '%Y-%m-%d %H:%M:%S.%f')+offset for elem in data['Time'][mask]]
     
     return np.array(time_vals),np.array(data_vals)
