@@ -195,6 +195,12 @@ def dt_to_plc_str(dt):
 def dt_to_mmr_str(dt):
     return dt.strftime("%Y-%m-%d")
 
+def pd_td_to_hrs(tdelta):
+    return tdelta.total_seconds()/3600.
+
+def pd_td_to_days(tdelta):
+    return tdelta.total_seconds()/(24.*3600.)
+
 def read_plclog_data(date_series, offset):
     ## The format for creating a date series is "%y%m%d"
     datalist=[]
