@@ -189,6 +189,12 @@ class NEXUSThermometer:
 remote_path = "/gpfs/slac/staas/fs1/g/supercdms/www/nexus/fridge/files/"
 local_path  = "/data/SlowDataLogCopies/"
 
+def dt_to_plc_str(dt):
+    return dt.strftime("%y%m%d")
+                       
+def dt_to_mmr_str(dt):
+    return dt.strftime("%Y-%m-%d")
+
 def read_plclog_data(date_series, offset):
     ## The format for creating a date series is "%y%m%d"
     datalist=[]
