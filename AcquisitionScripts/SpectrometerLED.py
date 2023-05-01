@@ -18,23 +18,33 @@ except ImportError:
         exit()
 
 ## Import the usb spectrometer driver
-try: 
-    import stellarnet_driver as sn
-except ImportError:
-    print("Cannot find the StellarNet Spectrometer driver")
-    exit()
+#try: 
+#    import stellarnet_driver as sn
+#except ImportError:
+#    print("Cannot find the StellarNet Spectrometer driver")
+#    exit()
+
+try:
+    from stellarnet_driverLibs import stellarnet_driver3 as sn
+except:
+    print("\n\n************************************ ERROR *****************************************")
+    print("             ERROR:    Compatible Python Driver DOES NOT EXIST")
+    print(" ** See \"stellarnet_driverLibs\" and documentation for all available compiled Drivers")
+    print(" **      Contact Stellarnet Inc. ContactUs@StellarNet.us for additional support.")
+    print("************************************ ERROR *****************************************\n\n")
+    quit()
 
 ## Set Laser parameters
 afg_pulse_params = {
     "f_Hz" :   1.0,
-    "pw_us":   1.0,
+    "pw_us":  10.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
-    "d_ms" :   5.0,
+    "d_ms" :  10.0,
     "NpB"  :   1.0,
 }
-LED_voltages = np.arange(start=2.000, stop=6.250, step=0.250)
-N_pulses     = 1000
+LED_voltages = [3.0] # np.arange(start=2.000, stop=6.250, step=0.250)
+N_pulses     = 100
 
 ## Set Spectrometer parameters
 spectro_params = {
@@ -48,7 +58,7 @@ spectro_params = {
 filename=None
 
 ## Where to save the output data (hdf5 files)
-dataPath = '/data/Spectrometer_Data'
+dataPath = '.'#'/data/Spectrometer_Data'
 
 ## Sub directory definitions
 dateStr    = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
@@ -99,13 +109,9 @@ def configure_awg(awg_obj, pulse_pars):
 
 # function to set device parameter and return spectrum
 def getSpectrum(spectrometer, wav, spec_params):
-    spectrometer[‘device’].set_config(
-        int_time     = spec_params["inttime"], 
-        scans_to_avg = spec_params["scansavg"],
-        x_smooth     = spec_params["smooth"], 
-        x_timing     = spec_params["xtiming"])
-   spectrum = sn.array_spectrum(spectrometer, wav)
-   return spectrum
+    sn.setParam(spectrometer, spec_params["inttime"], spec_params["scansavg"], spec_params["smooth"], spec_params["xtiming"], True) 
+    spectrum = sn.array_spectrum(spectrometer, wav)
+    return spectrum
 
 
 if __name__ == "__main__":
@@ -117,7 +123,11 @@ if __name__ == "__main__":
     create_dirs()
 
     ## Connect to the spectrometer instance
-    spectrometer, wav = sn.array_get_spec()
+    spectrometer, wav = sn.array_get_spec(0)
+    version = sn.version()
+    print(version)
+    print(spectrometer)
+    sn.ext_trig(spectrometer, True)	
 
     ## Instantiate the GPIB devices
     e3631a = E3631A()
