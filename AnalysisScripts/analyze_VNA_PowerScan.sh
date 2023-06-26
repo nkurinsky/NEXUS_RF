@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ## Define the range of scans you want to process
-day_min=20220201
-tme_min=000000
+day_min=20230404
+tme_min=120000
 
-day_max=20220203
+day_max=20230404
 tme_max=235959
 
 day=$day_min
