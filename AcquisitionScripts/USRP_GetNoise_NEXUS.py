@@ -54,9 +54,9 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cle
 
 ## Set the stimulus powers to loop over
 # powers = np.array([-30])
-# powers = np.array([-60,-55,-50,-45,-40,-35,-30])
+powers = np.array([-60,-55,-50,-45,-40,-35,-30])
 # powers = np.arange(start=-60,stop=-10,step=5)
-powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
+# powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
 # powers = np.array([-50,-45,-40,-35,-30,-25,-20,-15])
 n_pwrs = len(powers)
 
