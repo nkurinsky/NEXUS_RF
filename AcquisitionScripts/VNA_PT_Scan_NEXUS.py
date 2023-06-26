@@ -35,28 +35,28 @@ n_samps = 15e3
 n_avs = 15
 
 ## Temperature scan settings [K]
-Temp_base =  10e-3
+Temp_base =  11e-3
 Temp_min  =  20e-3
-Temp_max  = 350e-3
+Temp_max  = 340e-3
 Temp_step =  10e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
 tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
 sleepTime     =  30.0      ## sec
-stableTime    =  60.0      ## sec
+stableTime    = 150.0      ## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
 # ## Use this if starting at the top temperature
-# Temps = Temps[::-1] 
-# if (Temp_base) < Temps[-1]:
-#     Temps = np.append(Temps,Temp_base)
+Temps = Temps[::-1] 
+if (Temp_base) < Temps[-1]:
+    Temps = np.append(Temps,Temp_base)
 
 ## Use this if starting at base temperature
-if (Temp_base) < Temps[0]:
-   Temps = np.append(Temp_base,Temps)
+# if (Temp_base) < Temps[0]:
+#   Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/TempSweeps/VNA'  #VNA subfolder of Tempsweeps
@@ -286,11 +286,11 @@ if __name__ == "__main__":
         ## Run a power scan on Al resonator
         run_power_scan(T, seriesPath, nf2)
 
-        ## Create a new directory
-        series, seriesPath = create_series_dir()
+        # ## Create a new directory
+        # series, seriesPath = create_series_dir()
 
-        ## Run a power scan on Nb 7 resonator
-        run_power_scan(T, seriesPath, nf2, delta_Hz=2.58e6)
+        # ## Run a power scan on Nb 7 resonator
+        # run_power_scan(T, seriesPath, nf2, delta_Hz=2.58e6)
 
     ## Go back to base temperature
     # print("Reverting to base temperature of",Temp_base*1e3,"mK")
