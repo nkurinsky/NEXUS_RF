@@ -184,6 +184,10 @@ def run_noise(series, delay, f, q, cal_deltas, tracking_tones, tx_gain, rx_gain,
         gScan.create_dataset("duration",       data=np.array([dur_noise]))
 
         print("Starting Noise Run...")
+        ## Record the start time
+        start_time = datetime.datetime.now()
+        start_tstr = str(start_time.strftime('%Y%m%d_%H%M%S'))
+
         ## Do a noise run with the USRP
         noise_file = u.get_tones_noise(relative_tones, 
                                     #measure_t  = lapse_noise,  ## passed in sec
@@ -203,6 +207,10 @@ def run_noise(series, delay, f, q, cal_deltas, tracking_tones, tx_gain, rx_gain,
                                     shared_lo  = False,
                                     subfolder  = None,#seriesPath,
                                     output_filename = outfname)
+
+        ## Save the start time to the h5 data object
+        gScan.create_dataset("start_time",   data=np.array([start_time]))
+        gScan.create_dataset("start_string", data=np.array([start_tstr]))
 
         ## Wait for the chip to cool off?
         print("Waiting for chip to cool...")
