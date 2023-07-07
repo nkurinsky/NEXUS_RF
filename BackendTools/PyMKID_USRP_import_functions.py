@@ -210,8 +210,10 @@ def run_noise(series, delay, f, q, cal_deltas, tracking_tones, tx_gain, rx_gain,
                                     output_filename = outfname)
 
         ## Save the start time to the h5 data object
-        gScan.create_dataset("start_time",   data=np.array([start_time]))
-        gScan.create_dataset("start_string", data=np.array([start_tstr]))
+        gScan.attrs.create("start_time", start_time)
+        gScan.create_dataset("start_string", data=np.array([bytes( 
+            str(start_dttm.strftime('%Y%m%d_%H%M%S')) ,
+            encoding='UTF-8')]))
 
         ## Wait for the chip to cool off?
         print("Waiting for chip to cool...")
