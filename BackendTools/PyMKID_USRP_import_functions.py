@@ -185,7 +185,8 @@ def run_noise(series, delay, f, q, cal_deltas, tracking_tones, tx_gain, rx_gain,
 
         print("Starting Noise Run...")
         ## Record the start time
-        start_time = datetime.datetime.now()
+        start_dttm = datetime.datetime.now()
+        start_time = time.mktime(start_dttm.timetuple())
         start_tstr = str(start_time.strftime('%Y%m%d_%H%M%S'))
 
         ## Do a noise run with the USRP
