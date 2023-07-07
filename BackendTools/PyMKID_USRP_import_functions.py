@@ -186,8 +186,6 @@ def run_noise(series, delay, f, q, cal_deltas, tracking_tones, tx_gain, rx_gain,
         print("Starting Noise Run...")
         ## Record the start time
         start_dttm = datetime.datetime.now()
-        start_time = int(time.mktime(start_dttm.timetuple()))
-        start_tstr = str(start_dttm.strftime('%Y%m%d_%H%M%S'))
 
         ## Do a noise run with the USRP
         noise_file = u.get_tones_noise(relative_tones, 
@@ -208,6 +206,10 @@ def run_noise(series, delay, f, q, cal_deltas, tracking_tones, tx_gain, rx_gain,
                                     shared_lo  = False,
                                     subfolder  = None,#seriesPath,
                                     output_filename = outfname)
+
+        
+        start_time = int(time.mktime(start_dttm.timetuple()))
+        start_tstr = str(start_dttm.strftime('%Y%m%d_%H%M%S'))
 
         ## Save the start time to the h5 data object
         gScan.attrs.create("start_time", start_time)
