@@ -274,7 +274,10 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
             a  = np.argmax(full_win) ## Fin the sample with the maximum height in the full window
 
             ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
-            noise_averages += m0
+            if PHASE and (q=='phase'):
+                noise_averages += m0
+            if not PHASE and (q=='logmag'):
+                noise_averages += m0
 
             ## Append our RQs to our lists
             rqs[q][RQ_names[0]].append(m0) ; rqs[q][RQ_names[1]].append(s0)
