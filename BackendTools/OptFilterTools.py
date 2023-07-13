@@ -285,6 +285,15 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
     noise_averages /= k
     
     ## Create plots that inform our cuts
+    if PHASE:
+        bl_means = rqs['phase'][RQ_names[0]]
+        bl_sdevs = rqs['phase'][RQ_names[1]]
+        pls_maxs = rqs['phase'][RQ_names[4]]
+    else:
+        bl_means = rqs['logmag'][RQ_names[0]]
+        bl_sdevs = rqs['logmag'][RQ_names[1]]
+        pls_maxs = rqs['logmag'][RQ_names[4]]
+
     if show_plots:
 
         ## Draw some lines to mark the pulse window regions
