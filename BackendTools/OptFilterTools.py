@@ -183,9 +183,9 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
     pulse_start = int(p_params['total_pulses'] * p_params['blank_fraction'])
     
     ## Define some times of interest in units of samples
-    pretrig = int(sampling_rate * pretrig_seconds) ## Region before pulse rising edge / trigger
-    pstpuls = int(sampling_rate * postpls_seconds) ## Region after pulse has returned to baseline
-    plstrig = int(sampling_rate * p_params['delay_ms']*1e-3) ## Sample at the trigger time
+    pretrig = int(samp_rate * pretrig_seconds) ## Region before pulse rising edge / trigger
+    pstpuls = int(samp_rate * postpls_seconds) ## Region after pulse has returned to baseline
+    plstrig = int(samp_rate * p_params['delay_ms']*1e-3) ## Sample at the trigger time
 
     ## Create an output dictionary containing arrays of 2-tuples
     ## Each 2-tuple is a calculated RQ for each event, with the first component as logmag, second as phase
