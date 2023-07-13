@@ -426,27 +426,27 @@ def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, 
         return cut_df
     else:
         
-    ## Create a pandas dataframe for the cut limits
-    cut_df = pd.DataFrame(index=file_list,columns=None)
+        ## Create a pandas dataframe for the cut limits
+        cut_df = pd.DataFrame(index=file_list,columns=None)
 
-    ## Define the columns we'll use to store cut limits
-    cut_df["sdev_min"] = np.ones(len(file_list))
-    cut_df["sdev_max"] = np.ones(len(file_list))
-    
-    cut_df["mean_min"] = np.ones(len(file_list))
-    cut_df["mean_max"] = np.ones(len(file_list))
+        ## Define the columns we'll use to store cut limits
+        cut_df["sdev_min"] = np.ones(len(file_list))
+        cut_df["sdev_max"] = np.ones(len(file_list))
+        
+        cut_df["mean_min"] = np.ones(len(file_list))
+        cut_df["mean_max"] = np.ones(len(file_list))
 
-    # Now populate each row in the dataframe
-    _i = 0
-    for _i in np.arange(len(file_list)):
-        cut_df["mean_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p1)
-        cut_df["mean_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p2)
-        cut_df["sdev_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p1) 
-        cut_df["sdev_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p2) 
+        # Now populate each row in the dataframe
+        _i = 0
+        for _i in np.arange(len(file_list)):
+            cut_df["mean_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p1)
+            cut_df["mean_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p2)
+            cut_df["sdev_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p1) 
+            cut_df["sdev_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p2) 
 
-    print("Saving cuts to file", os.path.join(save_path,save_name))
-    cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
-    # cut_df.to_csv( os.path.join(save_path,save_name+".csv"))
+        print("Saving cuts to file", os.path.join(save_path,save_name))
+        cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
+        # cut_df.to_csv( os.path.join(save_path,save_name+".csv"))
             
     return cut_df
 
