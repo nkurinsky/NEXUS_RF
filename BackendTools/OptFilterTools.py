@@ -240,7 +240,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
         full_pulse_chunk  = pulse_noise[pulse_idx_start:pulse_idx_end,:]
         pre_trigger_chunk = pulse_noise[pulse_idx_start:pulse_idx_start+pretrig,:]
         post_pulse_chunk  = pulse_noise[pulse_idx_start+pstpuls:pulse_idx_end,:]
-        peak_pulse_chunk  = pulse_noise[pulse_idx_start+plstrig-peak_area_nsamp:pulse_idx_start+plstrig+peak_area_nsamp]
+        peak_pulse_chunk  = pulse_noise[pulse_idx_start+plstrig-4:pulse_idx_start+plstrig+4]
         
         ## Plot the full pulse window
         if ax_polar is not None: ax_polar.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
