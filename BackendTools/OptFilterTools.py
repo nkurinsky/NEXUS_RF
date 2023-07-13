@@ -409,7 +409,7 @@ def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, p1=5, p2=9
 ## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
 def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, p1=5, p2=90, force_save=False):
     ## Define a file path and name where cut limits will be stored
-    save_path = "/".join(LED_files[0].split("/")[:5])
+    save_path = "/".join(file_list[0].split("/")[:5])
     series    = save_path.split("/")[-1]
     save_name = series + "_bl_cutvals" 
     save_key  = series+"_cuts"
@@ -420,41 +420,33 @@ def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, 
     ## Check if cuts already exist
     if ( os.path.exists(os.path.join(save_path,save_name+".h5")) ) and not force_save:
         cut_df = pd.read_hdf(os.path.join(save_path,save_name+".h5"), key=save_key)
-        save_cuts = False
-        print("H5 cuts file exists, not overwriting...")
+        return cut_df
     elif ( os.path.exists(os.path.join(save_path,save_name+".csv")) ) and not force_save:
         cut_df = pd.read_csv(os.path.join(save_path,save_name+".csv"))
-        save_cuts = False
-        print("CSV cuts file exists, not overwriting...")
+        return cut_df
     else:
-        save_cuts = True
-        print("Saving new cut definitions to:",save_name)
         
-        ## Create a pandas dataframe for the cut limits
-        cut_df = pd.DataFrame(index=LED_files,columns=None)
+    ## Create a pandas dataframe for the cut limits
+    cut_df = pd.DataFrame(index=file_list,columns=None)
 
-        ## Define the columns we'll use to store cut limits
-        cut_df["mean_min"] = np.ones(len(LED_files))
-        cut_df["mean_max"] = np.ones(len(LED_files))
-        cut_df["sdev_min"] = np.ones(len(LED_files))
-        cut_df["sdev_max"] = np.ones(len(LED_files))
-        cut_df["wfmx_min"] = np.array([None] * len(LED_files))
-        cut_df["wfmx_max"] = np.array([None] * len(LED_files))
+    ## Define the columns we'll use to store cut limits
+    cut_df["sdev_min"] = np.ones(len(file_list))
+    cut_df["sdev_max"] = np.ones(len(file_list))
+    
+    cut_df["mean_min"] = np.ones(len(file_list))
+    cut_df["mean_max"] = np.ones(len(file_list))
 
-        ## Now populate each row in the dataframe (one entry per LED file)
-        _i = 0
-        for _i in np.arange(len(LED_files)):
-            cut_df["mean_min"].loc[LED_files[_i]] = np.percentile(mean_dict[LED_files[_i]],p1)
-            cut_df["mean_max"].loc[LED_files[_i]] = np.percentile(mean_dict[LED_files[_i]],p2)
-            cut_df["sdev_min"].loc[LED_files[_i]] = np.percentile(sdev_dict[LED_files[_i]],p1) 
-            cut_df["sdev_max"].loc[LED_files[_i]] = np.percentile(sdev_dict[LED_files[_i]],p2) 
-            cut_df["wfmx_max"].loc[LED_files[_i]] = None
-            cut_df["wfmx_max"].loc[LED_files[_i]] = None
-        
-        if (save_cuts or force_save):
-            print("Saving cuts to file", os.path.join(save_path,save_name))
-            cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
-            # cut_df.to_csv( os.path.join(save_path,save_name+".csv"))
+    # Now populate each row in the dataframe
+    _i = 0
+    for _i in np.arange(len(file_list)):
+        cut_df["mean_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p1)
+        cut_df["mean_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p2)
+        cut_df["sdev_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p1) 
+        cut_df["sdev_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p2) 
+
+    print("Saving cuts to file", os.path.join(save_path,save_name))
+    cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
+    # cut_df.to_csv( os.path.join(save_path,save_name+".csv"))
             
     return cut_df
 
