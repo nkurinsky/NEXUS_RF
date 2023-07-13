@@ -193,6 +193,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
     
     ## This defines where (in # of pulse windows) to start looking for pulse windows
     pulse_start = int(p_params['total_pulses'] * p_params['blank_fraction'])
+    samples_per_pulse = int(p_params['time_btw_pulse']*samp_rate)
     
     ## Define some times of interest in units of samples
     pretrig = int(samp_rate * pretrig_seconds) ## Region before pulse rising edge / trigger
