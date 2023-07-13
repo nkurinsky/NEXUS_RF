@@ -417,6 +417,8 @@ def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, 
         save_name += "_phase" 
         save_key  += "_phase"
 
+    q = 'phase' if PHASE else 'logmag'
+
     ## Check if cuts already exist
     if ( os.path.exists(os.path.join(save_path,save_name+".h5")) ) and not force_save:
         cut_df = pd.read_hdf(os.path.join(save_path,save_name+".h5"), key=save_key)
@@ -439,10 +441,10 @@ def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, 
         # Now populate each row in the dataframe
         _i = 0
         for _i in np.arange(len(file_list)):
-            cut_df["mean_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p1)
-            cut_df["mean_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_mean"],p2)
-            cut_df["sdev_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p1) 
-            cut_df["sdev_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]]["pre_trig_bl_sdev"],p2) 
+            cut_df["mean_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_mean"],p1)
+            cut_df["mean_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_mean"],p2)
+            cut_df["sdev_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_sdev"],p1) 
+            cut_df["sdev_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_sdev"],p2) 
 
         print("Saving cuts to file", os.path.join(save_path,save_name))
         cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
