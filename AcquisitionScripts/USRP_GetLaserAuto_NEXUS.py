@@ -337,6 +337,9 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
         gScan.create_dataset("duration",       data=np.array([lapse_laser]))
         
         print("Starting Laser/LED Run...")
+        ## Record the start time
+        start_dttm = datetime.datetime.now()
+
         ## Do a noise run with the USRP
         laser_file = u.get_tones_noise(relative_tones, 
                                     measure_t  = lapse_laser, 
@@ -355,6 +358,16 @@ def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
                                     shared_lo  = False,
                                     subfolder  = None,#seriesPath,
                                     output_filename = outfname)
+
+
+        start_time = int(time.mktime(start_dttm.timetuple()))
+        start_tstr = str(start_dttm.strftime('%Y%m%d_%H%M%S'))
+
+        ## Save the start time to the h5 data object
+        gScan.attrs.create("start_time", start_time)
+        gScan.create_dataset("start_string", data=np.array([bytes( 
+            str(start_dttm.strftime('%Y%m%d_%H%M%S')) ,
+            encoding='UTF-8')]))
 
         ## Add an extension to the file path
         laser_file += '.h5'

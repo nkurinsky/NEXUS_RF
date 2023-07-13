@@ -159,6 +159,8 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
 ##  - bl_means          <array of float>    Array containig the pre-trig baseline mean for each pulse window
 ##  - bl_sdevs          <array of float>    Array containig the pre-trig baseline sdev for each pulse window
 ##  - pls_maxs          <array of float>    Array containig the maximum value for each pulse window
+## - rqs                        dict containing two dicts (one for each quadrature), each containing lists 
+##                              of RQ values, one key per RQ defined above
 def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
 
     ## Define the time that separates "pre-trigger" region from rest of pulse window
@@ -174,23 +176,25 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
 
     ## Define the regions where pulses exist
     ## =====================================
+    pretrig_seconds = (p_params['delay_ms']-pre_trig_sep_ms)*1e-3
+    postpls_seconds = (p_params['delay_ms']+post_pls_sep_ms)*1e-3
     
     ## This defines where (in # of pulse windows) to start looking for pulse windows
-    pulse_start = int(p_params["total_pulses"] * p_params["blank_fraction"])
-    samples_per_pulse = int(p_params["time_btw_pulse"]*samp_rate)
+    pulse_start = int(p_params['total_pulses'] * p_params['blank_fraction'])
     
-    ## How many samples to shift the pulse window definition
-    pretrig = int(pretrig_seconds * samp_rate)
+    ## Define some times of interest in units of samples
+    pretrig = int(sampling_rate * pretrig_seconds) ## Region before pulse rising edge / trigger
+    pstpuls = int(sampling_rate * postpls_seconds) ## Region after pulse has returned to baseline
+    plstrig = int(sampling_rate * p_params['delay_ms']*1e-3) ## Sample at the trigger time
+
+    ## Create an output dictionary containing arrays of 2-tuples
+    ## Each 2-tuple is a calculated RQ for each event, with the first component as logmag, second as phase
+    qdrtrs = ['phase', 'logmag']
+    rqs = { q : {key: [] for key in RQ_names} for q in qdrtrs }
     
     ## Create an empty array to store our results in
     ## This is the average baseline of the three timestreams across all pulse windows
     noise_averages = 0 # np.zeros((3),dtype=np.complex128)
-    
-    ## Create empty arrays to store values which we will use to perform quality cuts
-    ## These will have an entry for each pulse window
-    bl_means = np.array([])#,dtype=np.complex128)
-    bl_sdevs = np.array([])#,dtype=np.complex128)
-    pls_maxs = np.array([])#,dtype=np.complex128)
     
     ## Create plots to store waveforms
     if show_plots:
@@ -219,23 +223,32 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
         pulse_idx_start = pulse_i_end - N
         pulse_idx_end   = pulse_i_end
         
-        ## Grab the timestream in that region and average it
+        ## Grab the timestreams in the various regions
         full_pulse_chunk  = pulse_noise[pulse_idx_start:pulse_idx_end,:]
-        pretrig_pls_chunk = pulse_noise[pulse_idx_start:pulse_idx_start+pretrig,:]
+        pre_trigger_chunk = pulse_noise[pulse_idx_start:pulse_idx_start+pretrig,:]
+        post_pulse_chunk  = pulse_noise[pulse_idx_start+pstpuls:pulse_idx_end,:]
+        peak_pulse_chunk  = pulse_noise[pulse_idx_start+plstrig-peak_area_nsamp:pulse_idx_start+plstrig+peak_area_nsamp]
         
-        ## Determine the two quadratures we care about
-        phase  = np.angle(pretrig_pls_chunk[:,0])
-        logmag = np.log10(abs(pretrig_pls_chunk[:,0]))
-    
-        ## Find the mean, sdev of pre-trigger window and maximum pulse height in full window
-        if PHASE:
-            m = np.mean(phase ) ; bl_means = np.append(bl_means,m)
-            s = np.std( phase ) ; bl_sdevs = np.append(bl_sdevs,s)
-            x = np.max(np.angle(full_pulse_chunk[:,0])) ; pls_maxs = np.append(pls_maxs,x)
-        else:
-            m = np.mean(logmag) ; bl_means = np.append(bl_means,m)
-            s = np.std( logmag) ; bl_sdevs = np.append(bl_sdevs,s)
-            x = np.max(np.log10(abs(full_pulse_chunk[:,0]))) ; pls_maxs = np.append(pls_maxs,x)
+        ## Plot the full pulse window
+        if ax_polar is not None: ax_polar.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
+
+        ## Determine the two quadratures we care about 
+        for q in qdrtrs:
+
+            if q=='phase':
+                full_win = np.angle(full_pulse_chunk[:,0])
+                pre_trig = np.angle(pre_trigger_chunk[:,0])
+                post_pls = np.angle(post_pulse_chunk[:,0])
+                peak_reg = np.angle(peak_pulse_chunk[:,0])
+                ## Plot the full pulse window
+                if ax_phase is not None: ax_phase.plot(t*1e3,full_win,alpha=0.25)
+            else:
+                full_win = np.log10(abs(full_pulse_chunk[:,0]))
+                pre_trig = np.log10(abs(pre_trigger_chunk[:,0]))
+                post_pls = np.log10(abs(post_pulse_chunk[:,0]))
+                peak_reg = np.log10(abs(peak_pulse_chunk[:,0]))
+                ## Plot the full pulse window
+                if ax_logmag is not None: ax_logmag.plot(t*1e3,full_wins,alpha=0.25)
         
         ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
         noise_averages += m    
@@ -248,8 +261,25 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
                 ax0.plot(t*1e3,np.log10(abs(full_pulse_chunk[:,0])),alpha=0.25)
             ax1.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
         
-        ## Increment the good pulse counter
-        k += 1
+        ## Calculate the RQs for this pulse window
+        m0 = np.mean(pre_trig)   ## Find mean of pre-trigger window
+        s0 = np.std( pre_trig)   ## Find sdev of pre-trigger window
+        m1 = np.mean(post_pls)   ## Find mean of post-pulse window
+        s1 = np.std( post_pls)   ## Find sdev of post-pulse window
+        x  = np.max( full_win)   ## Find maximum pulse height in full window
+        x0 = np.max( pre_trig)   ## Find maximum pulse height in pre-pulse window
+        x1 = np.max( post_pls)   ## Find maximum pulse height in post-pulse window
+        p  = np.max( peak_reg)   ## Find maximum pulse height in a window right around the trigger
+        a  = np.argmax(full_win) ## Fin the sample with the maximum height in the full window
+
+        ## Append our RQs to our lists
+        rqs[q][RQ_names[0]].append(m0) ; rqs[q][RQ_names[1]].append(s0)
+        rqs[q][RQ_names[2]].append(m1) ; rqs[q][RQ_names[3]].append(s1)
+        rqs[q][RQ_names[4]].append( x) ; rqs[q][RQ_names[5]].append( a)
+        rqs[q][RQ_names[6]].append(x0) ; rqs[q][RQ_names[7]].append(x1) ; rqs[q][RQ_names[8]].append(p)
+
+        ## Increment pulse counter
+        k+=1
     
     ## Average the baseline mean over every pulse window
     noise_averages /= k
@@ -314,7 +344,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
 
     ## Clean up and return the arrays of cut criteria for each pulse window
     del pulse_noise
-    return bl_means, bl_sdevs, pls_maxs
+    return rqs
 
 ## Create a plot for each pulse arrival window in the timestream and define a pre-trigger 
 ## region in which we collect statistics on which to do cuts to remove bad windows
@@ -330,27 +360,26 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, 
 ## 	- PHASE				<bool>				Whether to plot timestreams in phase or log-mag
 ##	- show_plots		<bool>				Flag to render plots
 ## RETURNS
+## - pulse_rqs                  dict containing dicts of RQ values, one key per file
 ##	- mean_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline mean for each pulse window
 ##	- sdev_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline sdev for each pulse window
 ##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
 def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
     
-    ## Create dictionaries to store the cut criteria parameters
-    mean_dict = {}
-    sdev_dict = {}
-    maxv_dict = {}
+    ## Create a dictionary to store the RQ results, one key per file
+    pulse_rqs = {}
 
     ## Loop over every file provided
     for pulse_file in LED_files:
 
         ## Save the cut criteria to our dictionaries
-        mean_dict[pulse_file], sdev_dict[pulse_file], maxv_dict[pulse_file] = plot_pulse_windows(
+        pulse_rqs[pulse_file] =  = plot_pulse_windows(
             pulse_file, noise_file, vna_file, p_params, 
             p1=p1, p2=p2, decimate_down_to=decimate_down_to, pulse_cln_dec=pulse_cln_dec, 
             PHASE=PHASE, show_plots=show_plots)
 
     ## Return the cut dictionaries
-    return mean_dict, sdev_dict, maxv_dict
+    return pulse_rqs
 
 ## Create the dataframe that 
 ## ARGUMENTS
