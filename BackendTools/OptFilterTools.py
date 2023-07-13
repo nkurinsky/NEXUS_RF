@@ -407,7 +407,7 @@ def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, p1=5, p2=9
 ##	- force_save		<bool>				Force a new cut definition file to be written
 ## RETURNS
 ## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
-def define_default_cuts(LED_files, mean_dict, sdev_dict, maxv_dict, PHASE=True, p1=5, p2=90, force_save=False):
+def define_default_cuts(LED_files, pulse_RQs, PHASE=True, p1=5, p2=90, force_save=False):
     ## Define a file path and name where cut limits will be stored
     save_path = "/".join(file_list[0].split("/")[:5])
     series    = save_path.split("/")[-1]
