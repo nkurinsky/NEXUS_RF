@@ -241,9 +241,6 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
         pre_trigger_chunk = pulse_noise[pulse_idx_start:pulse_idx_start+pretrig,:]
         post_pulse_chunk  = pulse_noise[pulse_idx_start+pstpuls:pulse_idx_end,:]
         peak_pulse_chunk  = pulse_noise[pulse_idx_start+plstrig-4:pulse_idx_start+plstrig+4]
-        
-        ## Plot the full pulse window
-        if ax_polar is not None: ax_polar.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
 
         ## Determine the two quadratures we care about 
         for q in qdrtrs:
@@ -253,15 +250,11 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
                 pre_trig = np.angle(pre_trigger_chunk[:,0])
                 post_pls = np.angle(post_pulse_chunk[:,0])
                 peak_reg = np.angle(peak_pulse_chunk[:,0])
-                ## Plot the full pulse window
-                if ax_phase is not None: ax_phase.plot(t*1e3,full_win,alpha=0.25)
             else:
                 full_win = np.log10(abs(full_pulse_chunk[:,0]))
                 pre_trig = np.log10(abs(pre_trigger_chunk[:,0]))
                 post_pls = np.log10(abs(post_pulse_chunk[:,0]))
                 peak_reg = np.log10(abs(peak_pulse_chunk[:,0]))
-                ## Plot the full pulse window
-                if ax_logmag is not None: ax_logmag.plot(t*1e3,full_wins,alpha=0.25)
         
         ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
         noise_averages += m    
