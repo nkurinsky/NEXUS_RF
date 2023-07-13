@@ -250,42 +250,43 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
                 pre_trig = np.angle(pre_trigger_chunk[:,0])
                 post_pls = np.angle(post_pulse_chunk[:,0])
                 peak_reg = np.angle(peak_pulse_chunk[:,0])
+                ## Plot the full pulse window against time
+                if show_plots and PHASE:
+                    ax0.plot(t*1e3,np.angle(full_pulse_chunk[:,0]),alpha=0.25)
             else:
                 full_win = np.log10(abs(full_pulse_chunk[:,0]))
                 pre_trig = np.log10(abs(pre_trigger_chunk[:,0]))
                 post_pls = np.log10(abs(post_pulse_chunk[:,0]))
                 peak_reg = np.log10(abs(peak_pulse_chunk[:,0]))
-        
-        ## Plot the full pulse window against time
-        if show_plots:
-            if PHASE:
-                ax0.plot(t*1e3,np.angle(full_pulse_chunk[:,0]),alpha=0.25)
-            else:
-                ax0.plot(t*1e3,np.log10(abs(full_pulse_chunk[:,0])),alpha=0.25)
-            ax1.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
-        
-        ## Calculate the RQs for this pulse window
-        m0 = np.mean(pre_trig)   ## Find mean of pre-trigger window
-        s0 = np.std( pre_trig)   ## Find sdev of pre-trigger window
-        m1 = np.mean(post_pls)   ## Find mean of post-pulse window
-        s1 = np.std( post_pls)   ## Find sdev of post-pulse window
-        x  = np.max( full_win)   ## Find maximum pulse height in full window
-        x0 = np.max( pre_trig)   ## Find maximum pulse height in pre-pulse window
-        x1 = np.max( post_pls)   ## Find maximum pulse height in post-pulse window
-        p  = np.max( peak_reg)   ## Find maximum pulse height in a window right around the trigger
-        a  = np.argmax(full_win) ## Fin the sample with the maximum height in the full window
+                ## Plot the full pulse window against time
+                if show_plots and not PHASE:
+                    ax0.plot(t*1e3,np.log10(abs(full_pulse_chunk[:,0])),alpha=0.25)
 
-        ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
-        noise_averages += m0
+            ## Calculate the RQs for this pulse window
+            m0 = np.mean(pre_trig)   ## Find mean of pre-trigger window
+            s0 = np.std( pre_trig)   ## Find sdev of pre-trigger window
+            m1 = np.mean(post_pls)   ## Find mean of post-pulse window
+            s1 = np.std( post_pls)   ## Find sdev of post-pulse window
+            x  = np.max( full_win)   ## Find maximum pulse height in full window
+            x0 = np.max( pre_trig)   ## Find maximum pulse height in pre-pulse window
+            x1 = np.max( post_pls)   ## Find maximum pulse height in post-pulse window
+            p  = np.max( peak_reg)   ## Find maximum pulse height in a window right around the trigger
+            a  = np.argmax(full_win) ## Fin the sample with the maximum height in the full window
 
-        ## Append our RQs to our lists
-        rqs[q][RQ_names[0]].append(m0) ; rqs[q][RQ_names[1]].append(s0)
-        rqs[q][RQ_names[2]].append(m1) ; rqs[q][RQ_names[3]].append(s1)
-        rqs[q][RQ_names[4]].append( x) ; rqs[q][RQ_names[5]].append( a)
-        rqs[q][RQ_names[6]].append(x0) ; rqs[q][RQ_names[7]].append(x1) ; rqs[q][RQ_names[8]].append(p)
+            ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
+            noise_averages += m0
+
+            ## Append our RQs to our lists
+            rqs[q][RQ_names[0]].append(m0) ; rqs[q][RQ_names[1]].append(s0)
+            rqs[q][RQ_names[2]].append(m1) ; rqs[q][RQ_names[3]].append(s1)
+            rqs[q][RQ_names[4]].append( x) ; rqs[q][RQ_names[5]].append( a)
+            rqs[q][RQ_names[6]].append(x0) ; rqs[q][RQ_names[7]].append(x1) ; rqs[q][RQ_names[8]].append(p)
 
         ## Increment pulse counter
         k+=1
+
+        if show_plots:
+            ax1.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
     
     ## Average the baseline mean over every pulse window
     noise_averages /= k
