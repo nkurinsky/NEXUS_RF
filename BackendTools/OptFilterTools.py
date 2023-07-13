@@ -256,9 +256,6 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
                 post_pls = np.log10(abs(post_pulse_chunk[:,0]))
                 peak_reg = np.log10(abs(peak_pulse_chunk[:,0]))
         
-        ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
-        noise_averages += m    
-        
         ## Plot the full pulse window against time
         if show_plots:
             if PHASE:
@@ -277,6 +274,9 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
         x1 = np.max( post_pls)   ## Find maximum pulse height in post-pulse window
         p  = np.max( peak_reg)   ## Find maximum pulse height in a window right around the trigger
         a  = np.argmax(full_win) ## Fin the sample with the maximum height in the full window
+
+        ## Keep a running average of the baseline noise in pre-trigger region across all pulse regions
+        noise_averages += m0
 
         ## Append our RQs to our lists
         rqs[q][RQ_names[0]].append(m0) ; rqs[q][RQ_names[1]].append(s0)
