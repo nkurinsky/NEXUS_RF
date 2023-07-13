@@ -413,7 +413,7 @@ def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, p1=5, p2=9
 ## 	- cut_df			<dataframe>			Dataframe containing min/max cut values for each LED file
 def define_default_cuts(LED_files, pulse_RQs, PHASE=True, p1=5, p2=90, force_save=False):
     ## Define a file path and name where cut limits will be stored
-    save_path = "/".join(file_list[0].split("/")[:5])
+    save_path = "/".join(LED_files[0].split("/")[:5])
     series    = save_path.split("/")[-1]
     save_name = series + "_bl_cutvals" 
     save_key  = series+"_cuts"
@@ -433,22 +433,22 @@ def define_default_cuts(LED_files, pulse_RQs, PHASE=True, p1=5, p2=90, force_sav
     else:
         
         ## Create a pandas dataframe for the cut limits
-        cut_df = pd.DataFrame(index=file_list,columns=None)
+        cut_df = pd.DataFrame(index=LED_files,columns=None)
 
         ## Define the columns we'll use to store cut limits
-        cut_df["sdev_min"] = np.ones(len(file_list))
-        cut_df["sdev_max"] = np.ones(len(file_list))
+        cut_df["sdev_min"] = np.ones(len(LED_files))
+        cut_df["sdev_max"] = np.ones(len(LED_files))
         
-        cut_df["mean_min"] = np.ones(len(file_list))
-        cut_df["mean_max"] = np.ones(len(file_list))
+        cut_df["mean_min"] = np.ones(len(LED_files))
+        cut_df["mean_max"] = np.ones(len(LED_files))
 
         # Now populate each row in the dataframe
         _i = 0
-        for _i in np.arange(len(file_list)):
-            cut_df["mean_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_mean"],p1)
-            cut_df["mean_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_mean"],p2)
-            cut_df["sdev_min"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_sdev"],p1) 
-            cut_df["sdev_max"].loc[file_list[_i]] = np.percentile(pulse_RQs[file_list[_i]][q]["pre_trig_bl_sdev"],p2) 
+        for _i in np.arange(len(LED_files)):
+            cut_df["mean_min"].loc[LED_files[_i]] = np.percentile(pulse_RQs[LED_files[_i]][q]["pre_trig_bl_mean"],p1)
+            cut_df["mean_max"].loc[LED_files[_i]] = np.percentile(pulse_RQs[LED_files[_i]][q]["pre_trig_bl_mean"],p2)
+            cut_df["sdev_min"].loc[LED_files[_i]] = np.percentile(pulse_RQs[LED_files[_i]][q]["pre_trig_bl_sdev"],p1) 
+            cut_df["sdev_max"].loc[LED_files[_i]] = np.percentile(pulse_RQs[LED_files[_i]][q]["pre_trig_bl_sdev"],p2) 
 
         print("Saving cuts to file", os.path.join(save_path,save_name))
         cut_df.to_hdf( os.path.join(save_path,save_name+".h5") , save_key)
