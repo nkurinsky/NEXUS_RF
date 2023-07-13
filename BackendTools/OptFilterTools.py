@@ -163,6 +163,18 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
 ##                              of RQ values, one key per RQ defined above
 def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_ms=0.250, post_pls_sep_ms=2.500, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
 
+    RQ_names = [
+        "pre_trig_bl_mean",
+        "pre_trig_bl_sdev",
+        "post_pls_bl_mean",
+        "post_pls_bl_sdev",
+        "full_win_max",
+        "full_win_maxsamp",
+        "pre_pls_max",
+        "post_pls_max",
+        "peak_pls_max",
+    ]
+
     ## Define the time that separates "pre-trigger" region from rest of pulse window
     pretrig_seconds = (p_params["delay_ms"]-0.25)*1e-3
 
