@@ -161,7 +161,7 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
 ##  - pls_maxs          <array of float>    Array containig the maximum value for each pulse window
 ## - rqs                        dict containing two dicts (one for each quadrature), each containing lists 
 ##                              of RQ values, one key per RQ defined above
-def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
+def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_ms=0.250, post_pls_sep_ms=2.500, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
 
     ## Define the time that separates "pre-trigger" region from rest of pulse window
     pretrig_seconds = (p_params["delay_ms"]-0.25)*1e-3
