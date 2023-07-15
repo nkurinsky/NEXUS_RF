@@ -561,7 +561,7 @@ def get_all_bad_pulse_idxs(file_list, cut_df, pulse_rqs, PHASE=True, verbose=Fal
     ## Loop over every file (LED voltage)
     for pulse_file in file_list:
         
-        bad_pls_idxs[pulse_file] = apply_cuts_to_file(pulse_file, cut_df, pulse_rqs, PHASE=PHASE, verbose=verbose)
+        bad_pls_idxs[pulse_file] = get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, PHASE=PHASE, verbose=verbose)
 
     return bad_pls_idxs
 
