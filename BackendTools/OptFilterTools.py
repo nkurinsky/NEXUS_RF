@@ -8,6 +8,18 @@ import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
 import TimestreamHelperFunctions as Thf
 
+RQ_names = [
+        "pre_trig_bl_mean",
+        "pre_trig_bl_sdev",
+        "post_pls_bl_mean",
+        "post_pls_bl_sdev",
+        "full_win_max",
+        "full_win_maxsamp",
+        "pre_pls_max",
+        "post_pls_max",
+        "peak_pls_max",
+]
+
 ## This method pulls the metadata from the summary file and extracts the LED pulse
 ## profile as well as some derived quantities, assuming the LED settings are the 
 ## same for every file in the dataset (which is normally the case)
@@ -162,18 +174,6 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
 ## - rqs                        dict containing two dicts (one for each quadrature), each containing lists 
 ##                              of RQ values, one key per RQ defined above
 def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_ms=0.250, post_pls_sep_ms=2.500, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
-
-    RQ_names = [
-        "pre_trig_bl_mean",
-        "pre_trig_bl_sdev",
-        "post_pls_bl_mean",
-        "post_pls_bl_sdev",
-        "full_win_max",
-        "full_win_maxsamp",
-        "pre_pls_max",
-        "post_pls_max",
-        "peak_pls_max",
-    ]
 
     ## Define the time that separates "pre-trigger" region from rest of pulse window
     pretrig_seconds = (p_params["delay_ms"]-0.25)*1e-3
@@ -483,47 +483,66 @@ def save_cut_df(cut_df, LED_files, PHASE=True):
 ##  - maxv_dict         <dictionary>        Each key is an LED file and the item is an array containig the maximum value for each pulse window
 ## RETURNS
 ##  - bad_pulses        <array of int>      Array containing the indeces of windows which should be removed
-def get_bad_pulse_idxs(pulse_file, cut_df, mean_dict, sdev_dict, maxv_dict):
+def get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, PHASE=True, verbose=False):
     ## Extract the cut criteria limits
     bl_mean_min = cut_df["mean_min"].loc[pulse_file]
     bl_mean_max = cut_df["mean_max"].loc[pulse_file]
     bl_sdev_min = cut_df["sdev_min"].loc[pulse_file]
     bl_sdev_max = cut_df["sdev_max"].loc[pulse_file]
-    wf_max__min = cut_df["wfmx_min"].loc[pulse_file]
-    wf_max__max = cut_df["wfmx_max"].loc[pulse_file]
+
+    ## Pick which quadrature we care about
+    q  = 'phase' if PHASE else 'logmag'
     
     ## Extract the cut criteria dictionaries
-    bl_means = mean_dict[pulse_file]
-    bl_sdevs = sdev_dict[pulse_file]
-    pls_maxs = maxv_dict[pulse_file]
+    bl_means_pre = pulse_rqs[pulse_file][q][RQ_names[0]]
+    bl_sdevs_pre = pulse_rqs[pulse_file][q][RQ_names[1]]
+    
+    bl_means_pst = pulse_rqs[pulse_file][q][RQ_names[2]]
+    bl_sdevs_pst = pulse_rqs[pulse_file][q][RQ_names[3]]
+    
+    pls_maxs  = pulse_rqs[pulse_file][q][RQ_names[4]]
+    # pls_amaxs = pulse_rqs[pulse_file][q][RQ_names[5]]
+    pre_maxs  = pulse_rqs[pulse_file][q][RQ_names[6]]
+    pst_maxs  = pulse_rqs[pulse_file][q][RQ_names[7]]
+    pk_maxs   = pulse_rqs[pulse_file][q][RQ_names[8]]
     
     ## Create an empty array for the bad pulse indeces
     bad_pulses = np.array([])
     
     ## Loop over pulse windows
-    for k in np.arange(len(bl_means)):
+    for k in np.arange(len(bl_means_pre)):
         
-        ## Check the cuts for baseline mean
-        if (bl_means[k] < bl_mean_min) or (bl_means[k] > bl_mean_max):
+        ## Check the cuts for pre-pulse baseline mean
+        if (bl_means_pre[k] < bl_mean_min) or (bl_means_pre[k] > bl_mean_max):
             bad_pulses = np.append(bad_pulses, k)
             continue
             
-        ## Check the cuts for baseline sdev
-        if (bl_sdevs[k] < bl_sdev_min) or (bl_sdevs[k] > bl_sdev_max):
+        ## Check the cuts for pre-pulse  baseline sdev
+        if (bl_sdevs_pre[k] < bl_sdev_min) or (bl_sdevs_pre[k] > bl_sdev_max):
             bad_pulses = np.append(bad_pulses, k)
             continue
             
-        if wf_max__max is not None:
-            if (pls_maxs[k] > wf_max__max):
-                bad_pulses = np.append(bad_pulses, k)
+        ## Check that no point in post-pulse region is more than +/-Nx RMS from post-pulse baseline mean
+        if (np.abs(pst_maxs[k]-bl_means_pst[k]) > 4.0*bl_sdevs_pst[k]):
+            bad_pulses = np.append(bad_pulses, k)
+            continue
+        
+        ## Check that no point in pre -pulse region is more than +/-Nx RMS from pre -pulse baseline mean
+        if (np.abs(pre_maxs[k]-bl_means_pre[k]) > 3.5*bl_sdevs_pre[k]):
+            bad_pulses = np.append(bad_pulses, k)
+            continue
+            
+        ## Check that the maximum occurs in the right window, or that no point in full wf is 
+        ## more than +/-Nx RMS from pre -pulse baseline mean
+        if (pls_maxs[k] != pk_maxs[k]):
+            if (np.abs(pls_maxs[k]-bl_means_pre[k]) < 5.0*bl_sdevs_pre[k]):
                 continue
-                
-        if wf_max__min is not None:
-            if (pls_maxs[k] < wf_max__min):
-                bad_pulses = np.append(bad_pulses, k)
-                continue
-    
-    print(pulse_file, ":", len(bad_pulses), "bad pulses")
+            bad_pulses = np.append(bad_pulses, k)
+            continue
+
+    if verbose:
+        print(pulse_file.split('/')[-1], ":", len(bad_pulses), "bad pulses", 
+              str(int(1e3*len(bad_pulses)/len(bl_means_pre))/10)+"%")
     return bad_pulses
 
 ## Find the indeces for pulse windows, by file, that should be removed from analysis
@@ -535,14 +554,14 @@ def get_bad_pulse_idxs(pulse_file, cut_df, mean_dict, sdev_dict, maxv_dict):
 ##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
 ## RETURNS
 ##	- bad_pls_idxs		<dictionary>		Each key is an LED file and the item is an array containing the indeces of windows which should be removed
-def get_all_bad_pulse_idxs(LED_files, cut_df, mean_dict, sdev_dict, maxv_dict):
+def get_all_bad_pulse_idxs(file_list, cut_df, pulse_rqs, PHASE=True, verbose=False):
     ## Create a dictionary that will contain arrays of bad pulse indeces
     bad_pls_idxs = {}
 
     ## Loop over every file (LED voltage)
-    for pulse_file in LED_files:
+    for pulse_file in file_list:
         
-        bad_pls_idxs[pulse_file] = get_bad_pulse_idxs(pulse_file, cut_df, mean_dict, sdev_dict, maxv_dict)
+        bad_pls_idxs[pulse_file] = apply_cuts_to_file(pulse_file, cut_df, pulse_rqs, PHASE=PHASE, verbose=verbose)
 
     return bad_pls_idxs
 
