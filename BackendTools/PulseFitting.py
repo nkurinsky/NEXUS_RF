@@ -42,6 +42,13 @@ def dbl_pls_shape(t,aD,tD,kD,aP,tP,kP):
     delay = aD * (1 - expit(-(t-t0)/tD)) * expit(-(t-t0)/kD)
     return (prmpt+delay)*np.heaviside(t-t0,0.5)
 
+def dbl_pls_shape_conv(t,aD,tD,kD,aP,tP,kP):
+    t0 = get_fixed_param("t0_ms")
+    prmpt = aP * (1 - expit(-(t-t0)/tP)) * expit(-(t-t0)/kP)
+    dly_x =      (1 - expit(-(t-t0)/tD)) * expit(-(t-t0)/kD)
+    delay = aD * np.convolve(prmpt,dly_x)
+    return (prmpt+delay)*np.heaviside(t-t0,0.5)
+
 #### Fit routine methods ####
 
 ## For a pulse timestream, estimate the amplitude and time constants
