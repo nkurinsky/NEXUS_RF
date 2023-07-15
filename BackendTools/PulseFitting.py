@@ -113,7 +113,7 @@ def estimate_params(t_vals, p_vals, t_cutoff_ms=15.0, verbose=False):
 ##   - param_guess     <array of float>    1D Ordered array of estimated parameters for pulse shape function: aD, tD, kD, aP, tP, kP
 ##   - param_guess     <array of float>    1D Ordered array of optimal parameters for pulse shape function: aD, tD, kD, aP, tP, kP
 ##   - param_guess     <array of float>    2D Covariance matrix of optimal parameters
-def run_fit(t_vals, p_vals, param_est, tp_guess=0.01, td_guess=0.1, kd_fac_guess=10.0, ad_fac_guess=10.0, t_cutoff_ms=15.0):
+def run_fit(t_vals, p_vals, param_est, tp_guess=0.01, td_guess=0.1, kd_fac_guess=10.0, ad_fac_guess=10.0, t_cutoff_ms=15.0, convolve=False):
 
     ## Extract the values from parameter estimation
     kp_guess = param_est["tau"]
@@ -138,7 +138,10 @@ def run_fit(t_vals, p_vals, param_est, tp_guess=0.01, td_guess=0.1, kd_fac_guess
     t_vals = t_vals[t_vals<t_cutoff_ms]
     
     ## Fit the overall shape
-    param_opt, param_cov = curve_fit(dbl_pls_shape,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+    if convolve:
+        param_opt, param_cov = curve_fit(dbl_pls_shape_conv,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+    else:
+        param_opt, param_cov = curve_fit(dbl_pls_shape,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
 
     return param_guess, param_opt, param_cov
 
