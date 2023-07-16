@@ -173,7 +173,7 @@ def get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_d
 ##  - pls_maxs          <array of float>    Array containig the maximum value for each pulse window
 ## - rqs                        dict containing two dicts (one for each quadrature), each containing lists 
 ##                              of RQ values, one key per RQ defined above
-def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_ms=0.250, post_pls_sep_ms=2.500, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
+def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idx_arr=[None], pre_trig_sep_ms=0.250, post_pls_sep_ms=2.500, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
 
     ## Define the time that separates "pre-trigger" region from rest of pulse window
     pretrig_seconds = (p_params["delay_ms"]-0.25)*1e-3
@@ -228,6 +228,10 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
     ## Start the loop over pulse windows
     k=0
     for pulse_i in range(pulse_start,int(p_params["total_pulses"]),1):
+
+        ## Skip this pulse if it's bad
+        if k in bad_pls_idx_arr:
+            continue
         
         ## Define the sample index where this pulse window ends
         pulse_i_end = int((pulse_i+1)*samples_per_pulse)
@@ -383,7 +387,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, pre_trig_sep_
 ##	- mean_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline mean for each pulse window
 ##	- sdev_dict			<dictionary>		Each key is an LED file and the item is an array containig the pre-trig baseline sdev for each pulse window
 ##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
-def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
+def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs=None, p1=5, p2=90, decimate_down_to=5e4, pulse_cln_dec=None, PHASE=True, show_plots=False,):
     
     ## Create a dictionary to store the RQ results, one key per file
     pulse_rqs = {}
@@ -394,6 +398,7 @@ def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, p1=5, p2=9
         ## Save the cut criteria to our dictionaries
         pulse_rqs[pulse_file] = plot_pulse_windows(
             pulse_file, noise_file, vna_file, p_params, 
+            bad_pls_idx_arr=[None] if bad_pls_idxs is None else bad_pls_idxs[pulse_noise],
             p1=p1, p2=p2, decimate_down_to=decimate_down_to, pulse_cln_dec=pulse_cln_dec, 
             PHASE=PHASE, show_plots=show_plots)
 
