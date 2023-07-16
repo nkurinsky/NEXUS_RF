@@ -231,6 +231,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idx_a
 
         ## Skip this pulse if it's bad
         if k in bad_pls_idx_arr:
+            k+=1
             continue
         
         ## Define the sample index where this pulse window ends
