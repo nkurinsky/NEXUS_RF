@@ -587,7 +587,7 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
     samples_per_pulse = int(p_params['time_btw_pulse']*samp_rate)
     N = int(frac_to_keep * samples_per_pulse) ## We look at the second half of a pulse window only
     T = N/samp_rate
-    t,_ = Prf.build_t_and_f(N,samp_rate)
+    t,f = Prf.build_t_and_f(N,samp_rate)
 
     time = 1e3*(p_params["time_btw_pulse"]-t[::-1])
     
