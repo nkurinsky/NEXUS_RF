@@ -554,14 +554,15 @@ def get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, z_pre=3.5, z_post=4.0, z_f
 ##	- maxv_dict			<dictionary>		Each key is an LED file and the item is an array containig the maximum value for each pulse window
 ## RETURNS
 ##	- bad_pls_idxs		<dictionary>		Each key is an LED file and the item is an array containing the indeces of windows which should be removed
-def get_all_bad_pulse_idxs(file_list, cut_df, pulse_rqs, PHASE=True, verbose=False):
+def get_all_bad_pulse_idxs(file_list, cut_df, pulse_rqs, z_pre=3.5, z_post=4.0, z_full=5.0, PHASE=True, verbose=False):
     ## Create a dictionary that will contain arrays of bad pulse indeces
     bad_pls_idxs = {}
 
     ## Loop over every file (LED voltage)
     for pulse_file in file_list:
         
-        bad_pls_idxs[pulse_file] = get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, PHASE=PHASE, verbose=verbose)
+        bad_pls_idxs[pulse_file] = get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, 
+            z_pre=3.5, z_post=4.0, z_full=5.0, PHASE=PHASE, verbose=verbose)
 
     return bad_pls_idxs
 
