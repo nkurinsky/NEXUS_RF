@@ -398,7 +398,7 @@ def plot_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_id
         ## Save the cut criteria to our dictionaries
         pulse_rqs[pulse_file] = plot_pulse_windows(
             pulse_file, noise_file, vna_file, p_params, 
-            bad_pls_idx_arr=[None] if bad_pls_idxs is None else bad_pls_idxs[pulse_noise],
+            bad_pls_idx_arr=[None] if bad_pls_idxs is None else bad_pls_idxs[pulse_file],
             p1=p1, p2=p2, decimate_down_to=decimate_down_to, pulse_cln_dec=pulse_cln_dec, 
             PHASE=PHASE, show_plots=show_plots)
 
