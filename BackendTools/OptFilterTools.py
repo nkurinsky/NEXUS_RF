@@ -574,14 +574,21 @@ def get_all_bad_pulse_idxs(file_list, cut_df, pulse_rqs, z_pre=3.5, z_post=4.0, 
 
 
 
-def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs, decimate_down_to=5e4, pulse_cln_dec=None, window_shift_seconds=0, PHASE=True, show_plots=False, verbose=False):
+def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs, frac_to_keep=0.5, decimate_down_to=5e4, pulse_cln_dec=None, window_shift_seconds=0, PHASE=True, show_plots=False, verbose=False):
     print('===================')
     print('cleaning pulse file:',pulse_file)
     print('using VNA file:     ',vna_file)
     print('using noise file:   ',noise_file)
 
     ## Get the decimated timestream and frequency step
-    pulse_noise, pulse_info, N, T, t, f, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+    pulse_noise, _, _, _, _, _, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+
+    ## Create a new array of of frequency space with the applied decimation
+    samples_per_pulse = int(p_params['time_btw_pulse']*samp_rate)
+    N = int(frac_to_keep * samples_per_pulse) ## We look at the second half of a pulse window only
+    T = N/samp_rate
+    t,_ = Prf.build_t_and_f(N,samp_rate)
+
     time = 1e3*(p_params["time_btw_pulse"]-t[::-1])
     
     ## Define the regions where pulses exist
@@ -589,7 +596,6 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
     
     ## This defines where (in # of pulse windows) to start looking for pulse windows
     pulse_start = int(p_params["total_pulses"] * p_params["blank_fraction"])
-    samples_per_pulse = int(p_params["time_btw_pulse"]*samp_rate)
     if verbose:
         print("Starting pulse partitioning after", pulse_start, "windows (of",p_params["total_pulses"],")")
     
@@ -815,9 +821,10 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
 
 
 
-def clean_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs, decimate_down_to=5e4, pulse_cln_dec=None, window_shift_seconds=0, PHASE=True, show_plots=False, verbose=False):
+def clean_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_idxs, frac_to_keep=0.5, decimate_down_to=5e4, pulse_cln_dec=None, window_shift_seconds=0, PHASE=True, show_plots=False, verbose=False):
     for pulse_file in LED_files:
         clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs, 
+            frac_to_keep=frac_to_keep,
             decimate_down_to=decimate_down_to, pulse_cln_dec=pulse_cln_dec, 
             window_shift_seconds=window_shift_seconds, PHASE=PHASE, 
             show_plots=show_plots, verbose=verbose)
