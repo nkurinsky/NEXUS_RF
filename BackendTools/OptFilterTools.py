@@ -483,7 +483,7 @@ def save_cut_df(cut_df, LED_files, PHASE=True):
 ##  - maxv_dict         <dictionary>        Each key is an LED file and the item is an array containig the maximum value for each pulse window
 ## RETURNS
 ##  - bad_pulses        <array of int>      Array containing the indeces of windows which should be removed
-def get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, PHASE=True, verbose=False):
+def get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, z_pre=3.5, z_post=4.0, z_full=5.0, PHASE=True, verbose=False):
     ## Extract the cut criteria limits
     bl_mean_min = cut_df["mean_min"].loc[pulse_file]
     bl_mean_max = cut_df["mean_max"].loc[pulse_file]
@@ -523,19 +523,19 @@ def get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, PHASE=True, verbose=False)
             continue
             
         ## Check that no point in post-pulse region is more than +/-Nx RMS from post-pulse baseline mean
-        if (np.abs(pst_maxs[k]-bl_means_pst[k]) > 4.0*bl_sdevs_pst[k]):
+        if (np.abs(pst_maxs[k]-bl_means_pst[k]) > z_post*bl_sdevs_pst[k]):
             bad_pulses = np.append(bad_pulses, k)
             continue
         
         ## Check that no point in pre -pulse region is more than +/-Nx RMS from pre -pulse baseline mean
-        if (np.abs(pre_maxs[k]-bl_means_pre[k]) > 3.5*bl_sdevs_pre[k]):
+        if (np.abs(pre_maxs[k]-bl_means_pre[k]) > z_pre*bl_sdevs_pre[k]):
             bad_pulses = np.append(bad_pulses, k)
             continue
             
         ## Check that the maximum occurs in the right window, or that no point in full wf is 
         ## more than +/-Nx RMS from pre -pulse baseline mean
         if (pls_maxs[k] != pk_maxs[k]):
-            if (np.abs(pls_maxs[k]-bl_means_pre[k]) < 5.0*bl_sdevs_pre[k]):
+            if (np.abs(pls_maxs[k]-bl_means_pre[k]) < z_full*bl_sdevs_pre[k]):
                 continue
             bad_pulses = np.append(bad_pulses, k)
             continue
