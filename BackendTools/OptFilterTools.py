@@ -297,7 +297,7 @@ def plot_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idx_a
             ax1.scatter(full_pulse_chunk[:,0].real,full_pulse_chunk[:,0].imag,alpha=0.25)
     
     ## Average the baseline mean over every pulse window
-    noise_averages /= k
+    noise_averages /= (k- (0 if bad_pls_idx_arr[0] is None else len(bad_pls_idx_arr))
     
     ## Create plots that inform our cuts
     if PHASE:
