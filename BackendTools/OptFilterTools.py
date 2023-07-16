@@ -581,7 +581,7 @@ def clean_pulse_windows(pulse_file, noise_file, vna_file, p_params, bad_pls_idxs
     print('using noise file:   ',noise_file)
 
     ## Get the decimated timestream and frequency step
-    pulse_noise, _, _, _, _, _, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
+    pulse_noise, pulse_info, _, _, _, _, samp_rate = get_decimated_timestream(pulse_file, p_params, decimate_down_to, pulse_cln_dec)
 
     ## Create a new array of of frequency space with the applied decimation
     samples_per_pulse = int(p_params['time_btw_pulse']*samp_rate)
