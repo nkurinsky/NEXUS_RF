@@ -562,7 +562,7 @@ def get_all_bad_pulse_idxs(file_list, cut_df, pulse_rqs, z_pre=3.5, z_post=4.0, 
     for pulse_file in file_list:
         
         bad_pls_idxs[pulse_file] = get_bad_pulse_idxs(pulse_file, cut_df, pulse_rqs, 
-            z_pre=3.5, z_post=4.0, z_full=5.0, PHASE=PHASE, verbose=verbose)
+            z_pre=z_pre, z_post=z_post, z_full=z_full, PHASE=PHASE, verbose=verbose)
 
     return bad_pls_idxs
 
