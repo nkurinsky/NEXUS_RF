@@ -1117,7 +1117,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     ## Loop over the noise files again
     for ai in np.arange(len(nse_files)):
         ## Get the noise timestream and average
-        frequencies_scanned, noise_mean_scanned = PUf.avg_noi(nse_files[ai],time_threshold=30.0*blank_fraction)
+        frequencies_scanned, noise_mean_scanned = PUf.avg_noi(nse_files[ai],time_threshold=15.0*p_params["blank_fraction"])
         ## Draw the points
         plt.plot(noise_mean_scanned[0].real,noise_mean_scanned[0].imag,marker='*',markersize=10,markeredgecolor='k',ls='None',color='y',zorder=-5*i+200,alpha=ai*.2,label="Noise Averages")
 
