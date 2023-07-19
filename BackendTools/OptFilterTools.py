@@ -1036,9 +1036,9 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         ylbl  = r"Frequency Shift $\delta f / f$"
 
         ## Dissipation direction quasiparticle basis
-    #     template = dk2 - np.mean(dk2[:20])
-    #     noise = dk2_timestream - np.mean(dk2[:20])
-    #     ylbl  = r"Dissipation qp shift $\delta \kappa_2$ [$\mu$m$^{-3}$]"
+        # template = dk2 - np.mean(dk2[:20])
+        # noise = dk2_timestream - np.mean(dk2[:20])
+        # ylbl  = r"Dissipation qp shift $\delta \kappa_2$ [$\mu$m$^{-3}$]"
 
         # template = pulse_avg_rotated.real
         # noise = pulse_timestream_rotated.real
@@ -1145,6 +1145,7 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
     with h5py.File(clean_pulse_file, "r") as fyle:
         pulse_avg = np.array(fyle['df_f_template'])
         sampling_rate = np.array(fyle['sampling_rate'])
+    ylbl  = r"Frequency Shift $\delta f / f$"
 
     ## Determine a window size equivalent to the full pulse template window
     N = len(pulse_avg)
