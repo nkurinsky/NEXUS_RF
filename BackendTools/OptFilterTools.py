@@ -1,8 +1,10 @@
 import os, h5py
 
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
+
+from scipy.optimize import curve_fit
 
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
