@@ -1246,7 +1246,7 @@ def get_noise_template(template_file, p_params, bad_pls_idxs, window_shift_J=0, 
     J = np.zeros(N)
         
     ## Count how many good pulses there are in this file
-    n_good_pulses = p_params['num_pulses'] - len(bad_pls_idxs[pulse_file])
+    n_good_pulses = p_params['num_pulses'] - len(bad_pls_idxs[template_file])
 
     ## This defines where (in # of pulse windows) to start looking for pulse windows
     pulse_start = int(p_params['total_pulses'] * p_params['blank_fraction'])
