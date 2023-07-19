@@ -1106,7 +1106,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         plt.xlabel('milliseconds')
         plt.ylabel(ylbl)
         plt.title(title_2)
-        plt.plot(time_window/1e3,template,ls='-',marker=None,markersize=5,label=str(Voltages[::-1][i])+" V",color=cmap( (Voltages[::-1][i]-1.5) / (np.max(Voltages)-1.5) ))#'C'+str(i))
+        plt.plot(time_window/1e3,template,ls='-',marker=None,markersize=5,label=str(Voltages[i])+" V",color=cmap( (Voltages[i]-1.5) / (np.max(Voltages)-1.5) ))#'C'+str(i))
 
         ## Increment our file counter
         i += 1
