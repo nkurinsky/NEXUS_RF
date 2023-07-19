@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.optimize import curve_fit
+from scipy.special import expit
 
 import PyMKID_USRP_functions as PUf
 import PyMKID_resolution_functions as Prf
