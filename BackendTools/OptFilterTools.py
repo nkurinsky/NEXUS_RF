@@ -831,6 +831,7 @@ def clean_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_i
 
 
 def get_average_pulse(pulse_file, vna_file, p_params, bad_pls_idxs, extra_decimation=1, fraction_to_keep=0.5, window_shift_seconds=0, PHASE=True, save_shape=True, show_plots=False, verbose=False, idx=0):
+    cmap   = plt.get_cmap('OrRd')
     print('===================')
     print('averaging pulse file: ' + pulse_file)
 
