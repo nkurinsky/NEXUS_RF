@@ -1213,12 +1213,12 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
     ax1p7.set_ylabel("Fit residual")
     plt.legend()
 
-    return S_mag
+    return S_mag, s, A
 
-def get_noise_template(template_file, p_params, bad_pls_idxs, window_shift_J=0, f_max=1e4):
+def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=0, f_max=1e4):
 
     ## Create titles for the plots
-    title      = 'readout power ' + str(p_params['rf_power']) + ': '
+    title = 'readout power ' + str(p_params['rf_power']) + ': '
 
     print("Using file:",template_file,"to characterize noise")
 
@@ -1241,7 +1241,7 @@ def get_noise_template(template_file, p_params, bad_pls_idxs, window_shift_J=0, 
     ## Determine how many samples to shift the window when calculating J
     samples_per_pulse  = sampling_rate*p_params['time_btw_pulse']
     window_shift_J_idx = int(window_shift_J*sampling_rate)
-        
+    
     ## Create a container to store J in temporarily
     J = np.zeros(N)
         
