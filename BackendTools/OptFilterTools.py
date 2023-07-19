@@ -945,9 +945,10 @@ def get_all_average_pulse(LED_files, vna_file, p_params, bad_pls_idxs, extra_dec
             show_plots=show_plots, verbose=verbose, idx=j)
         
 
-def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs, charZs, MB_fit_vals, Voltages, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3):
+def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs, charZs, MB_fit_vals, Voltages, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3, cmap=None):
     
-    cmap   = plt.get_cmap('OrRd')
+    if cmap is None:
+        cmap = plt.get_cmap('OrRd')
     ## Initialize an index to count files as we loop
     i = 0
 
@@ -1125,3 +1126,175 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
     plt.figure(title_2)
     plt.legend(loc='best')
+
+
+def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use_fit_as_template=False):
+
+    ## Create titles for the plots
+    title      = 'readout power ' + str(p_params['rf_power']) + ': '
+
+    ## Pick the highest LED voltage data to use as signal template
+    print("Using file:",template_file,"as pulse template")
+
+    ## Find the clean pulse file, use the last one in the set that's been analyzed so far
+    clean_pulse_file = template_file[:-3] + '_cleaned.h5'
+
+    with h5py.File(clean_pulse_file, "r") as fyle:
+        pulse_avg = np.array(fyle['df_f_template'])
+
+    ## Determine a window size equivalent to the full pulse template window
+    N = len(pulse_avg)
+    print(N, "samples per window")
+
+    ## Determine total period of the template and create a time-domain array and a freq-domain array
+    T = N/sampling_rate
+    time, f = Prf.build_t_and_f(N,sampling_rate)
+
+    ## Define an offset function to recenter the pulse
+    t_offset = lambda N: int( (p_params['delay_ms']*1e-3) * sampling_rate)
+    # t_offset = lambda N: int(N * (2*delay_ms*1e-3/time_btw_pulse) / frac_to_keep)
+
+    ## Define an exponential function
+    exponential = lambda x, A, tau: np.heaviside(x-time[t_offset(N)],0.5) * A * expit(-1*(x-time[t_offset(N)])/tau)
+    dbl_expA    = lambda x, A, t1, t2: np.heaviside(x-time[t_offset(N)],0.5) * A * ( expit(-1*(x-time[t_offset(N)])/t1) + expit(-1*(x-time[t_offset(N)])/t2) )
+    
+    ## Fit the average pulse to an exponential (in k2)
+    popt, pcov  = curve_fit(exponential,time,pulse_avg,p0=[5.0,       1.24e-3])
+    popt2,pcov2 = curve_fit(dbl_expA,time,pulse_avg   ,p0=[5.0,       1.24e-3/5.,1.24e-3*5.])
+        
+    ## Calculate the best fit curve for the average pulse
+    pulse_fit  = exponential(time,*popt)
+    pulse_fit2 = dbl_expA(time,*popt2)
+        
+    ## Numerically integrate the fit, then FT it
+    if use_fit_as_template:   
+        A = np.trapz(pulse_fit,dx = time[1]-time[0])
+        s = Prf.discrete_FT(pulse_fit)
+    else:
+        A = np.trapz(pulse_avg,dx = time[1]-time[0])
+        s = Prf.discrete_FT(pulse_avg)
+
+    ## Define a mask for evaluating fourier space components
+    f_mask = np.logical_and(f <= f_max, f >= -1*f_max)
+    N_mask = len(f[f_mask])
+    f_plot = np.logical_and(f > 0, f <= f_max)
+    new_fs = max(f[f_mask])
+
+    ## Get the magnitude of s^2 for the masked region
+    S_mag = abs(s[f_mask]**2)
+
+    ## Create a plot to store the template waveform and best fit
+    f1p5  = plt.figure()
+    ax1p5 = f1p5.gca()
+    ax1p5.plot(time*1e3,pulse_fit, 'C7',linewidth=3,label='time constant: {:.2e}ms'.format(popt[-1]*1e3), ls='--' )
+    # ax1p5.plot(time*1e3,pulse_fit3,'C6',linewidth=3,label='Float weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt3[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt3[-1]*1e3))
+    ax1p5.plot(time*1e3,pulse_fit2,'k' ,linewidth=1,label='Equal weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt2[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt2[-1]*1e3))
+    ax1p5.plot(time*1e3,pulse_avg, label="Average pulse")
+    ax1p5.axhline(y=0,color='r',ls='--')
+    ax1p5.set_title(title + 'signal pulse timestream and fit')
+    ax1p5.set_xlabel("Time [ms]")
+    ax1p5.set_ylabel(ylbl)
+    # ax1p5.set_ylabel(r"Dissipation $\delta \kappa_2$ [$\mu$m$^{-3}$]")
+    plt.legend()
+
+    f1p7  = plt.figure()
+    ax1p7 = f1p7.gca()
+    ax1p7.plot(time*1e3,pulse_fit -pulse_avg,'C7',linewidth=3,label=r'$\tau=$ {:.2e}ms'.format(popt[-1]*1e3) , ls='--' )
+    # ax1p7.plot(time*1e3,pulse_fit3-pulse_avg,'C6',linewidth=3,label='Float weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt3[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt3[-1]*1e3))
+    ax1p7.plot(time*1e3,pulse_fit2-pulse_avg,'k' ,linewidth=1,label='Equal weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt2[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt2[-1]*1e3))
+    ax1p7.axhline(y=0,color='r',ls='--')
+    ax1p7.set_title(title + 'fit residuals')
+    ax1p7.set_xlabel("Time [ms]")
+    ax1p7.set_ylabel("Fit residual")
+    plt.legend()
+
+    return S_mag
+
+def get_noise_template(template_file, p_params, bad_pls_idxs, window_shift_J=0, f_max=1e4):
+
+    ## Create titles for the plots
+    title      = 'readout power ' + str(p_params['rf_power']) + ': '
+
+    print("Using file:",template_file,"to characterize noise")
+
+    ## Find the clean noise file, use the last one in the set that's been analyzed so far
+    clean_noise_file = template_file[:-3] + '_cleaned.h5'
+
+    ## Open the cleaned data and pull the data sampling rate, pulse template, and pulse noise
+    with h5py.File(clean_noise_file, "r") as fyle:
+        sampling_rate = np.array(fyle['sampling_rate'])          
+        pulse_noise   = np.array(fyle["df_f_pulse_noise"])
+
+    ## Determine total period of the template and create a time-domain array and a freq-domain array
+    T = N/sampling_rate
+    time, f = Prf.build_t_and_f(N,sampling_rate)
+
+    ## Determine how many samples to shift the window when calculating J
+    samples_per_pulse  = sampling_rate*p_params['time_btw_pulse']
+    window_shift_J_idx = int(window_shift_J*sampling_rate)
+        
+    ## Create a container to store J in temporarily
+    J = np.zeros(N)
+        
+    ## Count how many good pulses there are in this file
+    n_good_pulses = p_params['num_pulses'] - len(bad_pls_idxs[pulse_file])
+
+    ## This defines where (in # of pulse windows) to start looking for pulse windows
+    pulse_start = int(p_params['total_pulses'] * p_params['blank_fraction'])
+    samples_per_pulse = int(p_params['time_btw_pulse']*sampling_rate)
+
+    ## Loop over all the pulse windows in the file
+    ## We want to skip the windows cut out when finding noise free region
+    k = 0
+    for pulse_i in range(pulse_start,int(p_params['total_pulses']),1):
+
+        ## Skip the bad pulse windows
+        if k in bad_pls_idxs[pulse_file]:
+            ## Increment the counter
+            k += 1
+            continue
+
+        ## Find the index for the end of this pulse window
+        pulse_i_end = int((pulse_i+1)*samples_per_pulse) 
+
+        ## Apply the window shift and an array of samples for the window timestream points
+        ## Are we really trying to find a pulse free region? seems like it
+        no_pulse_idx_start = pulse_i_end + window_shift_J_idx - N
+        no_pulse_idx_end   = pulse_i_end + window_shift_J_idx
+        no_pulse_idx_list  = np.arange(no_pulse_idx_start,no_pulse_idx_end,1,dtype=int)
+        no_pulse_noise_i   = pulse_noise[no_pulse_idx_list]
+
+        ## Caclulate the average J for this region
+        J += abs(Prf.discrete_FT(no_pulse_noise_i))**2 / n_good_pulses * 2 * T
+
+        ## Increment the counter
+        k += 1
+        
+    ## Determine the average J for plotting
+    J_avg = np.mean(J)
+
+    ## Define a mask for evaluating fourier space components
+    f_mask = np.logical_and(f <= f_max, f >= -1*f_max)
+    N_mask = len(f[f_mask])
+    f_plot = np.logical_and(f > 0, f <= f_max)
+    new_fs = max(f[f_mask])
+
+    ## Calculate the denominator for the optimal filter
+    denominator = np.sum(abs(s[f_mask])**2/J[f_mask])
+
+    ## Calculate the baseline resolution
+    b7_res = np.sqrt(((2*T*denominator)**-1))
+    print("Baseline resolution:", b7_res)
+
+    ## Plot the J we'll use for optimal filtering
+    f2p0  = plt.figure()
+    ax2p0 = f2p0.gca()
+    plt.plot(f[f_plot],J[f_plot],color='k')#,zorder=-5*j+5,color='k')
+    ax2p0.set_title(title + 'noise frequency domain')
+    ax2p0.set_xlabel("Frequency [Hz]")
+    ax2p0.set_ylabel(r"$J$")
+    ax2p0.set_xscale('log')
+    ax2p0.set_yscale('log')
+    ax2p0.set_ylim([1e-1*J_avg,5e2*J_avg])
+
+    return J_avg, denominator, b7_res
