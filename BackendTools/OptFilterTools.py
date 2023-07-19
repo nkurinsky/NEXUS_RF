@@ -945,7 +945,7 @@ def get_all_average_pulse(LED_files, vna_file, p_params, bad_pls_idxs, extra_dec
             show_plots=show_plots, verbose=verbose, idx=j)
         
 
-def align_all_pulses(LED_files, vna_file, p_params, charFs, charZs, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3):
+def align_all_pulses(LED_files, vna_file, sum_file, p_params, charFs, charZs, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3):
     
     ## Initialize an index to count files as we loop
     i = 0
