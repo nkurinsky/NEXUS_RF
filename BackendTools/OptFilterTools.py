@@ -944,3 +944,183 @@ def get_all_average_pulse(LED_files, vna_file, p_params, bad_pls_idxs, extra_dec
             window_shift_seconds=window_shift_seconds, save_shape=save_shape, 
             show_plots=show_plots, verbose=verbose, idx=j)
         
+
+def align_all_pulses(LED_files, p_params, charFs, charZs, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3):
+    
+    ## Initialize an index to count files as we loop
+    i = 0
+
+    ## Open the cleaned data and pull the data sampling rate, pulse template, and pulse noise
+    with h5py.File(LED_files[0][:-3] + '_cleaned.h5', "r") as fyle:
+        sampling_rate = np.array(fyle['sampling_rate'])
+
+    ## Define the time window for the pulse-full region, in microseconds
+    time_window_range = fraction_to_keep * p_params['time_btw_pulse'] *1e6
+    time_window = np.arange(0,time_window_range,1/sampling_rate*1e6)#[:-1]
+
+    ## Define the time window in microseconds that will be used to align the pulses later
+    # tw_min =  8000 # 200 # 3000 # 
+    # tw_max = 10000 # 300 # 4000 # 
+
+    ## Create some strings to use as plot titles and handles later
+    AWF_string = str(int(10*p_params['pulse_w'])/10) + " us"
+    title_1    = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21'
+    title_1p5  = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21, zoomed in'
+    title_1p75 = 'Alignment of pulses using largest pulse (blue)' 
+    title_2    = 'Average Pulse Shapes (along pulse alignment axis)'
+
+    ## Pull the readout frequency from the characterization data
+    ## then get the VNA data for this run
+    readout_f = charFs[0,1].real
+    f,z = PUf.read_vna(vna_file)
+
+    ## Loop over the full list of LED files
+    ## Initialize an index to count files as we loop
+    i = 0
+    for pulse_file in LED_files:
+        print('===================')
+        print('cleaning pulse file:',pulse_file)
+        print('using VNA file:     ',vna_file)
+        print('using summary file: ',sum_file)
+        char_file = sum_file
+
+        ## Get the cleaned data and average pulse
+        clean_pulse_file = pulse_file[:-3] + '_cleaned.h5'
+        with h5py.File(clean_pulse_file, "r") as fyle:
+            pulse_avg = np.array(fyle["pulse_shape"],dtype=np.complex128)
+            pulse_timestream = np.array(fyle["cleaned_data"],dtype=np.complex128)
+
+        ## Get the timestreams and average pulse in resonator basis
+        df_f, d1_Q, _, _ = Prf.resonator_basis(pulse_avg,readout_f*1e-3,f*1e-3,z,charFs[0].real*1e-3,charZs[0])
+        df_f_timestream, d1_Q_timestream, _, _ = Prf.resonator_basis(pulse_timestream[:,0],readout_f*1e-3,f*1e-3,z,charFs[0].real*1e-3,charZs[0])
+        
+        ## Get the timestreams and average pulse in quasiparticle basis
+        dk1, dk2, =                       Prf.quasiparticle_basis(df_f, d1_Q,
+                                                                  data_T     = data_T_K, 
+                                                                  MB_results = MB_fit_vals,
+                                                                  readout_f  = readout_f*1e-3)
+        dk1_timestream, dk2_timestream, = Prf.quasiparticle_basis(df_f_timestream, d1_Q_timestream,
+                                                                  data_T     = data_T_K, 
+                                                                  MB_results = MB_fit_vals,
+                                                                  readout_f  = readout_f*1e-3)
+
+        ## Baseline(mean)-subtract the average pulse, then find its stdev
+        ## Using the last five samples of the average pulse to get mean, sdev
+        pulse_avg_mb = pulse_avg - np.mean(pulse_avg[-5:],dtype=np.complex128)
+        std = np.std(abs(pulse_avg_mb[-5:]),dtype=np.complex128)
+        
+        ## Calculate the average angle of the average pulse in the specified alignment window
+        average_angle = np.mean(np.angle(pulse_avg_mb[np.logical_and(time_window>tw_min_us,time_window<tw_max_us)]))
+        
+        ## Baseline(mean)-subtract the (raw) pulse timestream for the on-resonance tone
+        ## Again using the last five samples of the average pulse to get mean
+        pulse_timestream_mb = pulse_timestream[:,0] - np.mean(pulse_avg[-5:],dtype=np.complex128)
+
+        ## Apply the rotation by the average angle to the baseline-subtracted timestream and average pulse
+        pulse_avg_rotated = pulse_avg_mb * np.exp(-1j*average_angle)
+        pulse_timestream_rotated = pulse_timestream_mb * np.exp(-1j*average_angle)
+
+        ## Define the pulse template we want to use and which timestream to use it on
+        ## Also subtract the baseline of the template to make sure baseline=0 for optimal filtering
+        
+        ## == CHOOSE ONE TO DO ANALYSIS == ##
+        
+        ## Fractional change in frequency 
+        template = df_f - np.mean(df_f[:20])
+        noise = df_f_timestream - np.mean(df_f[:20])
+        ylbl  = r"Frequency Shift $\delta f / f$"
+
+        ## Dissipation direction quasiparticle basis
+    #     template = dk2 - np.mean(dk2[:20])
+    #     noise = dk2_timestream - np.mean(dk2[:20])
+    #     ylbl  = r"Dissipation qp shift $\delta \kappa_2$ [$\mu$m$^{-3}$]"
+
+        # template = pulse_avg_rotated.real
+        # noise = pulse_timestream_rotated.real
+        # print(np.shape(pulse_avg),np.shape(df_f))
+
+        ## Open the clean data file and save the template and noise
+        with h5py.File(clean_pulse_file, "a") as fyle:
+            print("Saving clean pulse file:",clean_pulse_file)
+            if 'df_f_template' in fyle.keys():
+                del fyle['df_f_template']
+            if 'df_f_pulse_noise' in fyle.keys():
+                del fyle['df_f_pulse_noise']
+            fyle.create_dataset('df_f_template',data = np.asarray(template))
+            fyle.create_dataset('df_f_pulse_noise',data = np.asarray(noise))
+        
+        ## Define some labels to add to plots
+        label_c = 'characterization data' if i == 0 else None
+        label_V = 'VNA' if i == 0 else None
+        label_p = 'pulse data ' if i == 0 else None
+        
+        ## Grab the vna + average pulse plot, draw the vna, average pulse, and characterization data
+        ## we only have to draw the VNA on the first file
+        plt.figure(title_1)
+        plt.title(title_1)
+        plt.plot(pulse_avg.real,pulse_avg.imag,ls='-',marker='.',markersize=5,color='C'+str(i%10))
+        # plt.plot(pulse_timestream[4:,0].real,pulse_timestream[4:,0].imag,ls='None',marker='.',color='C'+str(i%10),alpha=0.1)
+        if i==0:
+            plt.plot(z.real,z.imag,color='k',label=label_V)
+        plt.plot(charZs.real,charZs.imag,marker='*',markersize=10,ls='-',label=label_c,zorder=-5*i+200)
+        plt.axhline(0,color='grey')
+        plt.axvline(0,color='grey')
+        
+        ## Adjust the plot limits
+        width = np.std(pulse_avg.real) * 8e3
+        x_c = np.mean(pulse_avg.real)
+        y_c = np.mean(pulse_avg.imag)
+        plt.axis([x_c - width/2., x_c + width/2., y_c-width/2., y_c+width/2.])
+        plt.gca().set_aspect('equal','box')
+        plt.legend()
+
+        ## Grab the zoomed-in vna + average pulse plot, draw the vna, average pulse, and characterization data
+        ## we only have to draw the VNA on the first file
+        plt.figure(title_1p5)
+        plt.title(title_1p5)
+        plt.plot(pulse_avg.real,pulse_avg.imag,ls='-',marker='.',markersize=5,color='C'+str(i%10),label=label_p,zorder=-5*i+200)
+        # if i==7:
+        #     plt.plot(pulse_avg.real,pulse_avg.imag,ls='-',marker='.',markersize=5,color='k',label=label_p,zorder=-5*i+200)
+        #     plt.plot(pulse_timestream[:,0].real,pulse_timestream[:,0].imag,ls='None',marker='.',color='C'+str(i%10),alpha=0.01)
+        if i==0:
+            plt.plot(z.real,z.imag,color='k',label=label_V)
+        # plt.plot(charZs.real,charZs.imag,marker='*',markersize=10,ls='',label=label_c,zorder=-5*i+200)
+        
+        ## Use the first file to set the extent of the zoomed-in plot
+        if i == 0:
+            width = 150 * np.std(pulse_avg.real)
+            x_c = np.mean(pulse_avg.real)
+            y_c = np.mean(pulse_avg.imag)
+            plt.axis([x_c - width/2., x_c + width/2., y_c-width/2., y_c+width/2.])
+
+        ## Grab the average pulse rotation plot
+        plt.figure(title_1p75)
+        plt.title(title_1p75)
+        plt.plot(pulse_avg_rotated.real,pulse_avg_rotated.imag,ls='-',marker='.',markersize=5,color='C'+str(i%10))
+        plt.gca().set_aspect('equal', 'box')
+        
+        ## Grab the average pulse timestream plot and draw the timestream of the average pulse
+        plt.figure(title_2)
+    #     plt.xlabel('microseconds')
+        plt.xlabel('milliseconds')
+        plt.ylabel(ylbl)
+        plt.title(title_2)
+        plt.plot(time_window/1e3,template,ls='-',marker=None,markersize=5,label=str(Voltages[::-1][i])+" V",color=cmap( (Voltages[::-1][i]-1.5) / (np.max(Voltages)-1.5) ))#'C'+str(i))
+
+        ## Increment our file counter
+        i += 1
+        
+    ## Grab the zoomed-in vna + average pulse plot
+    plt.figure(title_1p5)
+
+    ## Loop over the noise files again
+    for ai in np.arange(len(nse_files)):
+        ## Get the noise timestream and average
+        frequencies_scanned, noise_mean_scanned = PUf.avg_noi(nse_files[ai],time_threshold=30.0*blank_fraction)
+        ## Draw the points
+        plt.plot(noise_mean_scanned[0].real,noise_mean_scanned[0].imag,marker='*',markersize=10,markeredgecolor='k',ls='None',color='y',zorder=-5*i+200,alpha=ai*.2,label="Noise Averages")
+
+    plt.legend()
+
+    plt.figure(title_2)
+    plt.legend(loc='best')
