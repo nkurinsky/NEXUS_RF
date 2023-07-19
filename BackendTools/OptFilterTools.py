@@ -1230,6 +1230,10 @@ def get_noise_template(template_file, p_params, bad_pls_idxs, window_shift_J=0, 
         sampling_rate = np.array(fyle['sampling_rate'])          
         pulse_noise   = np.array(fyle["df_f_pulse_noise"])
 
+    ## Determine a window size equivalent to the full pulse template window
+    N = len(pulse_avg)
+    print(N, "samples per window")
+
     ## Determine total period of the template and create a time-domain array and a freq-domain array
     T = N/sampling_rate
     time, f = Prf.build_t_and_f(N,sampling_rate)
