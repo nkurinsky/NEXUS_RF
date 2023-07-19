@@ -1141,6 +1141,7 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
 
     with h5py.File(clean_pulse_file, "r") as fyle:
         pulse_avg = np.array(fyle['df_f_template'])
+        sampling_rate = np.array(fyle['sampling_rate'])
 
     ## Determine a window size equivalent to the full pulse template window
     N = len(pulse_avg)
