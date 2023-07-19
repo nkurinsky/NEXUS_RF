@@ -831,7 +831,6 @@ def clean_all_pulse_windows(LED_files, noise_file, vna_file, p_params, bad_pls_i
 
 
 def get_average_pulse(pulse_file, vna_file, p_params, bad_pls_idxs, extra_decimation=1, fraction_to_keep=0.5, window_shift_seconds=0, PHASE=True, save_shape=True, show_plots=False, verbose=False, idx=0):
-    cmap   = plt.get_cmap('OrRd')
     print('===================')
     print('averaging pulse file: ' + pulse_file)
 
@@ -948,6 +947,7 @@ def get_all_average_pulse(LED_files, vna_file, p_params, bad_pls_idxs, extra_dec
 
 def align_all_pulses(LED_files, vna_file, sum_file, p_params, charFs, charZs, MB_fit_vals, Voltages, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3):
     
+    cmap   = plt.get_cmap('OrRd')
     ## Initialize an index to count files as we loop
     i = 0
 
