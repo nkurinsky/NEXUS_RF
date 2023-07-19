@@ -1258,7 +1258,7 @@ def get_noise_template(template_file, p_params, bad_pls_idxs, window_shift_J=0, 
     for pulse_i in range(pulse_start,int(p_params['total_pulses']),1):
 
         ## Skip the bad pulse windows
-        if k in bad_pls_idxs[pulse_file]:
+        if k in bad_pls_idxs[template_file]:
             ## Increment the counter
             k += 1
             continue
