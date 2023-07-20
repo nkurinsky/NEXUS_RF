@@ -51,7 +51,7 @@ def dbl_pls_shape_conv(t,aD,tD,kD,aP,tP,kP):
 
 def Golwala_pulse_shape_simple(t, A, tau_qp, tau_abs):
     t0 = get_fixed_param("t0_ms")
-    diff = np.expit(-t/tau_abs) - np.exp(-t/tau_qp)
+    diff = expit(-t/tau_abs) - expit(-t/tau_qp)
     return A * tau_qp/(tau_abs-tau_qp) * diff * np.heaviside(t-t0,0.5)
 
 def Golwala_pulse_shape_full(t, A, tau_qp, tau_abs, tau_rse, tau_r):
@@ -169,22 +169,26 @@ def run_fit(t_vals, p_vals, param_est, tp_guess=0.01, td_guess=0.1, kd_fac_guess
     t_vals = t_vals[t_vals<t_cutoff_ms]
     
     ## Fit the overall shape
-    if convolve:
-        param_opt, param_cov = curve_fit(dbl_pls_shape_conv,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
-    else:
-        param_opt, param_cov = curve_fit(dbl_pls_shape,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+    try:
+        if convolve:
+            param_opt, param_cov = curve_fit(dbl_pls_shape_conv,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+        else:
+            param_opt, param_cov = curve_fit(dbl_pls_shape,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+    except RuntimeError as e:
+        print("Error during fit: ", e)
+        return param_guess, None, None
 
     return param_guess, param_opt, param_cov
 
 
-def run_Golwala_fit(t_vals, p_vals, param_est, t_qp_guess=0.8, t_abs_guess=0.5, t_rise_guess=0.01, t_r_guess=0.01, simple=True):
+def run_Golwala_fit(t_vals, p_vals, param_est, t_qp_guess=0.8, t_abs_guess=0.5, t_rise_guess=0.01, t_r_guess=0.01, t_cutoff_ms=15.0, simple=True):
 
     ## Extract the values from parameter estimation
     kp_guess = param_est["tau"]
     t_max    = param_est["tmax"]
     p_max    = param_est["pmax"]
 
-    norm_guess = p_max * np.exp((t_max-t0)/kp_guess) / (1-np.exp(-(t_max-t0)/prompt_t))
+    norm_guess = p_max * np.exp((t_max-t0)/kp_guess) / (1-np.exp(-(t_max-t0)/t_qp_guess))
 
     ## Prepare to plot the prompt guess
     param_guess = (norm_guess, t_qp_guess, t_abs_guess, t_rise_guess, t_r_guess)
