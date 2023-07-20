@@ -49,6 +49,37 @@ def dbl_pls_shape_conv(t,aD,tD,kD,aP,tP,kP):
     delay = aD * np.convolve(prmpt,dly_x,mode='same')
     return (prmpt+delay)*np.heaviside(t-t0,0.5)
 
+def Golwala_pulse_shape_simple(t, A, tau_qp, tau_abs):
+    t0 = get_fixed_param("t0_ms")
+    diff = np.expit(-t/tau_abs) - np.exp(-t/tau_qp)
+    return A * tau_qp/(tau_abs-tau_qp) * diff * np.heaviside(t-t0,0.5)
+
+def Golwala_pulse_shape_full(t, A, tau_qp, tau_abs, tau_rse, tau_r):
+    t0 = get_fixed_param("t0_ms")
+
+    a_qp  = (1 - tau_abs/tau_qp)
+    b_qp  = (1 - tau_r  /tau_qp)
+    c_qp  = (1 - tau_rse/tau_qp)
+
+    a_abs = (1 - tau_qp /tau_abs)
+    b_abs = (1 - tau_r  /tau_abs)
+    c_abs = (1 - tau_rse/tau_abs)
+
+    a_r   = (1 - tau_qp /tau_r)
+    b_r   = (1 - tau_abs/tau_r)
+    c_r   = (1 - tau_rse/tau_r)
+
+    a_rse = (1 - tau_qp /tau_rse)
+    b_rse = (1 - tau_abs/tau_rse)
+    c_rse = (1 - tau_r  /tau_rse)
+
+    t1 = expit(-t/tau_qp ) / tau_qp  / (a_qp *b_qp *c_qp )
+    t2 = expit(-t/tau_abs) / tau_abs / (a_abs*b_abs*c_abs)
+    t3 = expit(-t/tau_r  ) / tau_r   / (a_r  *b_r  *c_r  )
+    t4 = expit(-t/tau_rse) / tau_rse / (a_rse*b_rse*c_rse)
+
+    return A * tau_qp * (t1 + t2 + t3 + t4) * np.heaviside(t-t0,0.5)
+
 #### Fit routine methods ####
 
 ## For a pulse timestream, estimate the amplitude and time constants
@@ -142,6 +173,32 @@ def run_fit(t_vals, p_vals, param_est, tp_guess=0.01, td_guess=0.1, kd_fac_guess
         param_opt, param_cov = curve_fit(dbl_pls_shape_conv,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
     else:
         param_opt, param_cov = curve_fit(dbl_pls_shape,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+
+    return param_guess, param_opt, param_cov
+
+
+def run_Golwala_fit(t_vals, p_vals, param_est, t_qp_guess=0.8, t_abs_guess=0.5, t_rise_guess=0.01, t_r_guess=0.01, simple=True):
+
+    ## Extract the values from parameter estimation
+    kp_guess = param_est["tau"]
+    t_max    = param_est["tmax"]
+    p_max    = param_est["pmax"]
+
+    norm_guess = p_max * np.exp((t_max-t0)/kp_guess) / (1-np.exp(-(t_max-t0)/prompt_t))
+
+    ## Prepare to plot the prompt guess
+    param_guess = (norm_guess, t_qp_guess, t_abs_guess, t_rise_guess, t_r_guess)
+    if simple: param_guess = param_guess[:3]
+
+    ## Trim the end of the timestream
+    p_vals = p_vals[t_vals<t_cutoff_ms]
+    t_vals = t_vals[t_vals<t_cutoff_ms]
+
+    ## Fit the overall shape
+    if simple:
+        param_opt, param_cov = curve_fit(Golwala_pulse_shape_simple,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
+    else:
+        param_opt, param_cov = curve_fit(Golwala_pulse_shape_full  ,t_vals,p_vals,p0=param_guess,bounds=(0,np.inf))
 
     return param_guess, param_opt, param_cov
 
