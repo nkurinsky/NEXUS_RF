@@ -1229,9 +1229,13 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     with h5py.File(clean_noise_file, "r") as fyle:
         sampling_rate = np.array(fyle['sampling_rate'])          
         pulse_noise   = np.array(fyle["df_f_pulse_noise"])
+        pulse_avg     = np.array(fyle["df_f_template"])
 
-    ## Determine a window size equivalent to the full pulse template window
-    N = len(pulse_noise)
+    ## Determine a window size equivalent to the full noise template window
+    ## Note that this must be exactly the same size as the pulse template with 
+    ## the same sampling rate
+    N = len(pulse_avg)
+    del pulse_avg
     print(N, "samples per window")
 
     ## Determine total period of the template and create a time-domain array and a freq-domain array
@@ -1241,7 +1245,7 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     ## Determine how many samples to shift the window when calculating J
     samples_per_pulse  = sampling_rate*p_params['time_btw_pulse']
     window_shift_J_idx = int(window_shift_J*sampling_rate)
-    
+
     ## Create a container to store J in temporarily
     J = np.zeros(N)
         
