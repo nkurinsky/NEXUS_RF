@@ -948,7 +948,7 @@ def get_all_average_pulse(LED_files, vna_file, p_params, bad_pls_idxs, extra_dec
             show_plots=show_plots, verbose=verbose, idx=j)
         
 
-def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs, charZs, MB_fit_vals, Voltages, fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3, cmap=None):
+def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs, charZs, MB_fit_vals, Voltages, readout_unit='df', fraction_to_keep=0.5, tw_min_us=8000, tw_max_us=10000, data_T_K=10.0e-3, cmap=None):
     
     if cmap is None:
         cmap = plt.get_cmap('OrRd')
@@ -974,6 +974,9 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     title_1p75 = 'Alignment of pulses using largest pulse (blue)' 
     title_2    = 'Average Pulse Shapes (along pulse alignment axis)'
 
+    ## Create an output dictionary for the maximum pulse amplitude in each file
+    max_avgpulse_height = {}
+
     ## Pull the readout frequency from the characterization data
     ## then get the VNA data for this run
     readout_f = charFs[0,1].real
@@ -994,6 +997,9 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         with h5py.File(clean_pulse_file, "r") as fyle:
             pulse_avg = np.array(fyle["pulse_shape"],dtype=np.complex128)
             pulse_timestream = np.array(fyle["cleaned_data"],dtype=np.complex128)
+
+        ## >TO DO< The following conversions should happen after the rotation and alignment of the cleaned timestreams
+        ## >TO DO< Follow up on this
 
         ## Get the timestreams and average pulse in resonator basis
         df_f, d1_Q, _, _ = Prf.resonator_basis(pulse_avg,readout_f*1e-3,f*1e-3,z,charFs[0].real*1e-3,charZs[0])
@@ -1029,31 +1035,82 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         ## Also subtract the baseline of the template to make sure baseline=0 for optimal filtering
         
         ## == CHOOSE ONE TO DO ANALYSIS == ##
-        
+        readout_units = ["df", "dQ", "dk1", "dk2", "phase", "mag"]
+        if readout_unit is not in readout_units:
+            print(readout_unit, "is not a valid readout unit. Choose from:", readout_units)
+            readout_unit = readout_units[0]
+
+        template = None
+        full_ts  = None
+        ylbl     = None
+
         ## Fractional change in frequency 
-        template = df_f - np.mean(df_f[:20])
-        noise = df_f_timestream - np.mean(df_f[:20])
-        ylbl  = r"Frequency Shift $\delta f / f$"
+        if readout_unit is "df":
+            if verbose: print("Using df/f readout")
+
+            mean_avg = np.mean(df_f[:20])
+            template = df_f - mean_avg
+            full_ts  = df_f_timestream - mean_avg
+            ylbl     = r"Frequency Shift $\delta f / f$"
 
         ## Dissipation direction quasiparticle basis
-        # template = dk2 - np.mean(dk2[:20])
-        # noise = dk2_timestream - np.mean(dk2[:20])
-        # ylbl  = r"Dissipation qp shift $\delta \kappa_2$ [$\mu$m$^{-3}$]"
+        elif readout_unit is "dQ":
+            if verbose: print("Using d(1/Q) readout")
+            
+            mean_avg = np.mean(d1_Q[:20])
+            template = d1_Q - mean_avg
+            full_ts  = d1_Q_timestream - mean_avg
+            ylbl     = r"Dissipation shift $\delta (1/Q)$"
+        
+        ## Frequency direction quasiparticle basis
+        elif readout_unit is "dk1":
+            if verbose: print("Using dk1 readout")
+            
+            mean_avg = np.mean(dk1[:20])
+            template = dk1 - mean_avg
+            full_ts  = dk1_timestream - mean_avg
+            ylbl     = r"Frequency qp shift $\delta \kappa_1$ [$\mu$m$^{-3}$]"
 
-        # template = pulse_avg_rotated.real
-        # noise = pulse_timestream_rotated.real
-        # print(np.shape(pulse_avg),np.shape(df_f))
+        ## Dissipation direction quasiparticle basis
+        elif readout_unit is "dk2":
+            if verbose: print("Using dk2 readout")
+            
+            mean_avg = np.mean(dk2[:20])
+            template = dk2 - mean_avg
+            full_ts  = dk2_timestream - mean_avg
+            ylbl     = r"Dissipation qp shift $\delta \kappa_2$ [$\mu$m$^{-3}$]"
+
+        ## Rotated phase direction
+        elif readout_unit is "phase":
+            if verbose: print("Using phase readout")
+
+            mean_avg = np.mean( np.angle(pulse_avg_rotated[:20]) )
+            template = np.angle(pulse_avg_rotated) - mean_avg
+            full_ts  = np.angle(pulse_timestream_rotated) - mean_avg
+            ylbl     = r"Phase shift $\delta \phi$ [rad]"
+
+        ## Rotated log mag direction
+        elif readout_unit is "mag":
+            if verbose: print("Using log mag readout")
+
+            mean_avg = np.mean( np.log10(abs(pulse_avg_rotated[:20])) )
+            template = np.log10(abs(pulse_avg_rotated)) - mean_avg
+            full_ts  = np.log10(abs(pulse_timestream_rotated)) - mean_avg
+            ylbl     = r"Log Mag Shift $\delta |R|$ [dB]"
 
         ## Open the clean data file and save the template and noise
         with h5py.File(clean_pulse_file, "a") as fyle:
             print("Saving clean pulse file:",clean_pulse_file)
-            if 'df_f_template' in fyle.keys():
-                del fyle['df_f_template']
-            if 'df_f_pulse_noise' in fyle.keys():
-                del fyle['df_f_pulse_noise']
-            fyle.create_dataset('df_f_template',data = np.asarray(template))
-            fyle.create_dataset('df_f_pulse_noise',data = np.asarray(noise))
+            if 'signal_template' in fyle.keys():
+                del fyle['signal_template']
+            if 'full_timestream' in fyle.keys():
+                del fyle['full_timestream']
+            fyle.create_dataset('signal_template',data = np.asarray(template)) ## Save the average pulse template in selected units
+            fyle.create_dataset('full_timestream',data = np.asarray(full_ts)) ## Save the full pulse timestream in selected units
         
+        ## Save the maximum pulse height for this file
+        max_avgpulse_height[pulse_file] = np.max(template)
+
         ## Define some labels to add to plots
         label_c = 'characterization data' if i == 0 else None
         label_V = 'VNA' if i == 0 else None
@@ -1129,6 +1186,8 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
     plt.figure(title_2)
     plt.legend(loc='best')
+
+    return max_avgpulse_height
 
 
 def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use_fit_as_template=False):
