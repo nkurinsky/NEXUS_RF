@@ -1046,7 +1046,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Fractional change in frequency 
         if readout_unit == "df":
-            if verbose: print("Using df/f readout")
+            print("Using df/f readout")
 
             mean_avg = np.mean(df_f[:20])
             template = df_f - mean_avg
@@ -1055,7 +1055,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Dissipation direction quasiparticle basis
         elif readout_unit == "dQ":
-            if verbose: print("Using d(1/Q) readout")
+            print("Using d(1/Q) readout")
             
             mean_avg = np.mean(d1_Q[:20])
             template = d1_Q - mean_avg
@@ -1064,7 +1064,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         
         ## Frequency direction quasiparticle basis
         elif readout_unit == "dk1":
-            if verbose: print("Using dk1 readout")
+            print("Using dk1 readout")
             
             mean_avg = np.mean(dk1[:20])
             template = dk1 - mean_avg
@@ -1073,7 +1073,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Dissipation direction quasiparticle basis
         elif readout_unit == "dk2":
-            if verbose: print("Using dk2 readout")
+            print("Using dk2 readout")
             
             mean_avg = np.mean(dk2[:20])
             template = dk2 - mean_avg
@@ -1082,7 +1082,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Rotated phase direction
         elif readout_unit == "phase":
-            if verbose: print("Using phase readout")
+            print("Using phase readout")
 
             mean_avg = np.mean( np.angle(pulse_avg_rotated[:20]) )
             template = np.angle(pulse_avg_rotated) - mean_avg
@@ -1091,7 +1091,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Rotated log mag direction
         elif readout_unit == "mag":
-            if verbose: print("Using log mag readout")
+            print("Using log mag readout")
 
             mean_avg = np.mean( np.log10(abs(pulse_avg_rotated[:20])) )
             template = np.log10(abs(pulse_avg_rotated)) - mean_avg
