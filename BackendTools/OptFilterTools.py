@@ -1215,7 +1215,7 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
 
     return S_mag, s, A
 
-def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=0, f_max=1e4):
+def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=0, f_max=1e4, PHASE=True):
 
     ## Create titles for the plots
     title = 'readout power ' + str(p_params['rf_power']) + ': '
