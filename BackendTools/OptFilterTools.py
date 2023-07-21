@@ -1045,7 +1045,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         ylbl     = None
 
         ## Fractional change in frequency 
-        if readout_unit is "df":
+        if readout_unit == "df":
             if verbose: print("Using df/f readout")
 
             mean_avg = np.mean(df_f[:20])
@@ -1054,7 +1054,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
             ylbl     = r"Frequency Shift $\delta f / f$"
 
         ## Dissipation direction quasiparticle basis
-        elif readout_unit is "dQ":
+        elif readout_unit == "dQ":
             if verbose: print("Using d(1/Q) readout")
             
             mean_avg = np.mean(d1_Q[:20])
@@ -1063,7 +1063,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
             ylbl     = r"Dissipation shift $\delta (1/Q)$"
         
         ## Frequency direction quasiparticle basis
-        elif readout_unit is "dk1":
+        elif readout_unit == "dk1":
             if verbose: print("Using dk1 readout")
             
             mean_avg = np.mean(dk1[:20])
@@ -1072,7 +1072,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
             ylbl     = r"Frequency qp shift $\delta \kappa_1$ [$\mu$m$^{-3}$]"
 
         ## Dissipation direction quasiparticle basis
-        elif readout_unit is "dk2":
+        elif readout_unit == "dk2":
             if verbose: print("Using dk2 readout")
             
             mean_avg = np.mean(dk2[:20])
@@ -1081,7 +1081,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
             ylbl     = r"Dissipation qp shift $\delta \kappa_2$ [$\mu$m$^{-3}$]"
 
         ## Rotated phase direction
-        elif readout_unit is "phase":
+        elif readout_unit == "phase":
             if verbose: print("Using phase readout")
 
             mean_avg = np.mean( np.angle(pulse_avg_rotated[:20]) )
@@ -1090,7 +1090,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
             ylbl     = r"Phase shift $\delta \phi$ [rad]"
 
         ## Rotated log mag direction
-        elif readout_unit is "mag":
+        elif readout_unit == "mag":
             if verbose: print("Using log mag readout")
 
             mean_avg = np.mean( np.log10(abs(pulse_avg_rotated[:20])) )
