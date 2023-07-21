@@ -1202,7 +1202,7 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
     clean_pulse_file = template_file[:-3] + '_cleaned.h5'
 
     with h5py.File(clean_pulse_file, "r") as fyle:
-        pulse_avg = np.array(fyle['df_f_template'])
+        pulse_avg = np.array(fyle['signal_template'])
         sampling_rate = np.array(fyle['sampling_rate'])
     ylbl  = r"Frequency Shift $\delta f / f$"
 
@@ -1287,8 +1287,8 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     ## Open the cleaned data and pull the data sampling rate, pulse template, and pulse noise
     with h5py.File(clean_noise_file, "r") as fyle:
         sampling_rate = np.array(fyle['sampling_rate'])          
-        pulse_noise   = np.array(fyle["df_f_pulse_noise"])
-        pulse_avg     = np.array(fyle["df_f_template"])
+        pulse_noise   = np.array(fyle["full_timestream"])
+        pulse_avg     = np.array(fyle["signal_template"])
 
     ## Determine a window size equivalent to the full noise template window
     ## Note that this must be exactly the same size as the pulse template with 
