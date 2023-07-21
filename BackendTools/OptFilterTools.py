@@ -1036,7 +1036,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         
         ## == CHOOSE ONE TO DO ANALYSIS == ##
         readout_units = ["df", "dQ", "dk1", "dk2", "phase", "mag"]
-        if readout_unit is not in readout_units:
+        if readout_unit not in readout_units:
             print(readout_unit, "is not a valid readout unit. Choose from:", readout_units)
             readout_unit = readout_units[0]
 
