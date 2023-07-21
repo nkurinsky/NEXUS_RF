@@ -1246,8 +1246,9 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     samples_per_pulse  = sampling_rate*p_params['time_btw_pulse']
     window_shift_J_idx = int(window_shift_J*sampling_rate)
 
-    ## Create a container to store J in temporarily
+    ## Create containers in which to store J and average noise timestream
     J = np.zeros(N)
+    avg_noise = np.zeros(N)
         
     ## Count how many good pulses there are in this file
     n_good_pulses = p_params['num_pulses'] - len(bad_pls_idxs[template_file])
@@ -1276,6 +1277,9 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
         no_pulse_idx_end   = pulse_i_end + window_shift_J_idx
         no_pulse_idx_list  = np.arange(no_pulse_idx_start,no_pulse_idx_end,1,dtype=int)
         no_pulse_noise_i   = pulse_noise[no_pulse_idx_list]
+
+        ## Calculate the average noise timestream
+        avg_noise += (np.angle(no_pulse_noise_i) if PHASE else np.log10(abs(no_pulse_noise_i))) / n_good_pulses
 
         ## Caclulate the average J for this region
         J += abs(Prf.discrete_FT(no_pulse_noise_i))**2 / n_good_pulses * 2 * T
@@ -1309,5 +1313,13 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     ax2p0.set_xscale('log')
     ax2p0.set_yscale('log')
     ax2p0.set_ylim([1e-1*J_avg,5e2*J_avg])
+
+    ## Plot the noise timestream to make sure we got it right
+    f2p1  = plt.figure()
+    ax2p1 = f2p1.gca()
+    ax2p1.plot(time*1e3,avg_noise,color='k')
+    ax2p1.set_title(title + 'noise time domain')
+    ax2p1.set_xlabel("Time [ms]")
+    ax2p1.set_ylabel(r"$\mathrm{arg}(S_{21})$ [rad]" if PHASE else r"$\log10 |S_{21}|$ [dBc]" )
 
     return J_avg, denominator, b7_res
