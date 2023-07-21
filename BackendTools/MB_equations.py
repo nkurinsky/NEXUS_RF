@@ -19,17 +19,17 @@ def signed_log10(x):
     return np.log10(np.abs(x)) * x/np.abs(x)
 
 ## Mazin thesis, equation 2.3: The density of thermally-excited quasiparticles
-## This equation comes from the integral presentein Gao thesis, equation 2.83
+## This equation comes from the integral presented in Gao thesis, equation 2.83
 ## Gao evaluates it and presents equation 2.87 which is the same as Mazin eq 2.3
 def n_qp(T, Delta0):
     # [K, eV]
     return 2.*N_0*np.sqrt(2.*np.pi*Boltz_k*T*Delta0)*np.exp(-1.*Delta0/(Boltz_k*T))
 
-## Mazin thesis, equation 7.19:
-def n_qp_gs(T, Delta0, Gamma):
-    prefac   = 4.*N_0
-    fermidos = lambda E: 1./(1.+np.exp(E/(Boltz_k*T))) * np.real(E/np.sqrt( np.power(E,2) - np.power((Delta0-1j*Gamma),2)))
-    return prefac * quad(fermidos, 0, np.inf)
+# ## Moore thesis, equation 7.19:
+# def n_qp_gs(T, Delta0, Gamma):
+#     prefac   = 4.*N_0
+#     fermidos = lambda E: 1./(1.+np.exp(E/(Boltz_k*T))) * np.real(E/np.sqrt( np.power(E,2) - np.power((Delta0-1j*Gamma),2)))
+#     return prefac * quad(fermidos, 0, np.inf)
 
 ## Siegel thesis, equation 2.43
 def kappa_1(T, f0, Delta0):
@@ -41,6 +41,11 @@ def kappa_1(T, f0, Delta0):
 def kappa_2(T, f0, Delta0):
     xi = 1./2.*(Planck_h*f0)/(Boltz_k*T)
     return (1/(2.*Delta0*N_0))*(1.+np.sqrt((2.*Delta0)/(np.pi*Boltz_k*T))*np.exp(-1.*xi)*spec.i0(xi))
+
+def beta(T, f0, Delta0):
+    k1 = kappa_1(T, f0, Delta0)
+    k2 = kappa_2(T, f0, Delta0)
+    return k2/k1
 
 ## Siegel thesis, equation 2.59
 def f_T(T, f0, Delta0, alpha_f):
