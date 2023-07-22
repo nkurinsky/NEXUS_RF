@@ -1176,9 +1176,9 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         ## Grab the average pulse rotation plot
         plt.figure(title_4)
         plt.title(title_4)
-        plt.xlabel(r"Kappa 1 (Frequency) Shift $\delta \kappa_1$ [$\mu$m$^{-3}$]")
-        plt.ylabel(r"Kappa 2 (Dissipation) Shift $\delta \kappa_2$ [$\mu$m$^{-3}$]")
-        plt.plot(dk1,dk2,ls='-',marker='.',markersize=5,color='C'+str(i%10))
+        plt.xlabel(r"Kappa 2 (Frequency) Shift $\delta \kappa_2$ [$\mu$m$^{-3}$]")
+        plt.ylabel(r"Kappa 1 (Dissipation) Shift $\delta \kappa_1$ [$\mu$m$^{-3}$]")
+        plt.plot(dk2,dk1,ls='-',marker='.',markersize=5,color='C'+str(i%10))
         plt.gca().set_aspect('equal', 'box')
 
         ## Increment our file counter
