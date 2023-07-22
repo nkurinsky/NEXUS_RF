@@ -40,7 +40,7 @@ def parse_metadata(summary_file, blank_fraction=0.2, verbose=False):
     ## Load the summary file
     ## Show this function's output only if verbosity level 2 or greater selected
     md, charFs, charZs = Thf.UnpackSummary(summary_file, verbose=True if verbose > 1 else False)
-    rf_power = md['power']
+    rf_power = md['power'] + md['tx_gain']
     
     if verbose > 0:
         print("RF Power at USRP:", rf_power, "dBm")
