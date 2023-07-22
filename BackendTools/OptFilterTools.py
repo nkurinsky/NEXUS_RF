@@ -979,6 +979,10 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     readout_f = charFs[0,1].real
     f,z = PUf.read_vna(vna_file)
 
+    ## Reorder the files such that the largest LED voltage comes first
+    LED_files = np.sort(LED_files)[::-1]
+    Voltages  = np.sort(Voltages)[::-1]
+
     ## Loop over the full list of LED files
     ## Initialize an index to count files as we loop
     i = 0
@@ -1019,7 +1023,9 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         std = np.std(abs(pulse_avg_mb[-5:]),dtype=np.complex128)
         
         ## Calculate the average angle of the average pulse in the specified alignment window
-        average_angle = np.mean(np.angle(pulse_avg_mb[np.logical_and(time_window>tw_min_us,time_window<tw_max_us)]))
+        ## Calculate this only for the first (largest) LED file and then rotate all the others to it
+        if i==0:
+            average_angle = np.mean(np.angle(pulse_avg_mb[np.logical_and(time_window>tw_min_us,time_window<tw_max_us)]))
         
         ## Baseline(mean)-subtract the (raw) pulse timestream for the on-resonance tone
         ## Again using the last five samples of the average pulse to get mean
