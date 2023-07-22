@@ -1061,7 +1061,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         
         ## Frequency direction quasiparticle basis
         elif readout_unit == "dk1":
-            print("Using dk1 readout")
+            print("Using dk1 (qp-dissipation) readout")
             
             mean_avg = np.mean(dk1[:20])
             template = dk1 - mean_avg
@@ -1070,7 +1070,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Dissipation direction quasiparticle basis
         elif readout_unit == "dk2":
-            print("Using dk2 readout")
+            print("Using dk2 (qp-frequency) readout")
             
             mean_avg = np.mean(dk2[:20])
             template = dk2 - mean_avg
