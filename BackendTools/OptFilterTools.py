@@ -1162,6 +1162,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         plt.gca().set_aspect('equal', 'box')
         
         ## Grab the average pulse timestream plot and draw the timestream of the average pulse
+        plt.figure(title_2)
         plt.xlabel('milliseconds')
         plt.ylabel(ylbl)
         plt.title(title_2)
