@@ -952,8 +952,6 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     
     if cmap is None:
         cmap = plt.get_cmap('OrRd')
-    ## Initialize an index to count files as we loop
-    i = 0
 
     ## Open the cleaned data and pull the data sampling rate, pulse template, and pulse noise
     with h5py.File(LED_files[0][:-3] + '_cleaned.h5', "r") as fyle:
@@ -963,16 +961,14 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     time_window_range = fraction_to_keep * p_params['time_btw_pulse'] *1e6
     time_window = np.arange(0,time_window_range,1/sampling_rate*1e6)#[:-1]
 
-    ## Define the time window in microseconds that will be used to align the pulses later
-    # tw_min =  8000 # 200 # 3000 # 
-    # tw_max = 10000 # 300 # 4000 # 
-
     ## Create some strings to use as plot titles and handles later
     AWF_string = str(int(10*p_params['pulse_w'])/10) + " us"
     title_1    = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21'
     title_1p5  = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21, zoomed in'
     title_1p75 = 'Alignment of pulses using largest pulse (blue)' 
     title_2    = 'Average Pulse Shapes (along pulse alignment axis)'
+    title_3    = 'Pulse trajectory in Resonator basis' 
+    title_4    = 'Pulse trajectory in Quasiparticle basis' 
 
     ## Create an output dictionary for the maximum pulse amplitude in each file
     max_avgpulse_height = {}
@@ -999,7 +995,8 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
             pulse_timestream = np.array(fyle["cleaned_data"],dtype=np.complex128)
 
         ## >TO DO< The following conversions should happen after the rotation and alignment of the cleaned timestreams
-        ## >TO DO< Follow up on this
+        ## >TO DO< Follow up on this - actually, we only want to do the rotation if we're picking some :optimal: readout direction
+        ## based in the raw units - I think we've done it right with no rotation so far.
 
         ## Get the timestreams and average pulse in resonator basis
         df_f, d1_Q, _, _ = Prf.resonator_basis(pulse_avg,readout_f*1e-3,f*1e-3,z,charFs[0].real*1e-3,charZs[0])
@@ -1163,11 +1160,26 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         
         ## Grab the average pulse timestream plot and draw the timestream of the average pulse
         plt.figure(title_2)
-    #     plt.xlabel('microseconds')
         plt.xlabel('milliseconds')
         plt.ylabel(ylbl)
         plt.title(title_2)
         plt.plot(time_window/1e3,template,ls='-',marker=None,markersize=5,label=str(Voltages[i])+" V",color=cmap( (Voltages[i]-1.5) / (np.max(Voltages)-1.5) ))#'C'+str(i))
+
+        ## Grab the average pulse rotation plot
+        plt.figure(title_3)
+        plt.title(title_3)
+        plt.xlabel(r"Frequency Shift $\delta f/f$")
+        plt.ylabel(r"Dissipation Shift $\delta (1/Q)$")
+        plt.plot(df_f,d1_Q,ls='-',marker='.',markersize=5,color='C'+str(i%10))
+        plt.gca().set_aspect('equal', 'box')
+
+        ## Grab the average pulse rotation plot
+        plt.figure(title_4)
+        plt.title(title_4)
+        plt.xlabel(r"Kappa 1 (Frequency) Shift $\delta \kappa_1$ [$\mu$m$^{-3}$]")
+        plt.ylabel(r"Kappa 2 (Dissipation) Shift $\delta \kappa_2$ [$\mu$m$^{-3}$]")
+        plt.plot(dk1,dk2,ls='-',marker='.',markersize=5,color='C'+str(i%10))
+        plt.gca().set_aspect('equal', 'box')
 
         ## Increment our file counter
         i += 1
