@@ -952,6 +952,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     
     if cmap is None:
         cmap = plt.get_cmap('OrRd')
+    plot_width = -999
 
     ## Open the cleaned data and pull the data sampling rate, pulse template, and pulse noise
     with h5py.File(LED_files[0][:-3] + '_cleaned.h5', "r") as fyle:
@@ -965,7 +966,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     AWF_string = str(int(10*p_params['pulse_w'])/10) + " us"
     title_1    = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21'
     title_1p5  = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21, zoomed in'
-    title_1p75 = 'Alignment of pulses using largest pulse (blue)' 
+    title_1p75 = 'Alignment of pulses using largest pulse' 
     title_2    = 'Average Pulse Shapes (along pulse alignment axis)'
     title_3    = 'Pulse trajectory in Resonator basis' 
     title_4    = 'Pulse trajectory in Quasiparticle basis' 
@@ -1118,7 +1119,6 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         plt.figure(title_1)
         plt.title(title_1)
         plt.plot(pulse_avg.real,pulse_avg.imag,ls='-',marker='.',markersize=5,color='C'+str(i%10))
-        # plt.plot(pulse_timestream[4:,0].real,pulse_timestream[4:,0].imag,ls='None',marker='.',color='C'+str(i%10),alpha=0.1)
         if i==0:
             plt.plot(z.real,z.imag,color='k',label=label_V)
         plt.plot(charZs.real,charZs.imag,marker='*',markersize=10,ls='-',label=label_c,zorder=-5*i+200)
@@ -1138,19 +1138,16 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         plt.figure(title_1p5)
         plt.title(title_1p5)
         plt.plot(pulse_avg.real,pulse_avg.imag,ls='-',marker='.',markersize=5,color='C'+str(i%10),label=label_p,zorder=-5*i+200)
-        # if i==7:
-        #     plt.plot(pulse_avg.real,pulse_avg.imag,ls='-',marker='.',markersize=5,color='k',label=label_p,zorder=-5*i+200)
-        #     plt.plot(pulse_timestream[:,0].real,pulse_timestream[:,0].imag,ls='None',marker='.',color='C'+str(i%10),alpha=0.01)
         if i==0:
             plt.plot(z.real,z.imag,color='k',label=label_V)
-        # plt.plot(charZs.real,charZs.imag,marker='*',markersize=10,ls='',label=label_c,zorder=-5*i+200)
         
         ## Use the first file to set the extent of the zoomed-in plot
-        if i == 0:
-            width = 150 * np.std(pulse_avg.real)
-            x_c = np.mean(pulse_avg.real)
-            y_c = np.mean(pulse_avg.imag)
-            plt.axis([x_c - width/2., x_c + width/2., y_c-width/2., y_c+width/2.])
+        width = 150 * np.std(pulse_avg.real)
+        if width > plot_width:
+            plot_width = width
+        x_c = np.mean(pulse_avg.real)
+        y_c = np.mean(pulse_avg.imag)
+        plt.axis([x_c - plot_width/2., x_c + plot_width/2., y_c-plot_width/2., y_c+plot_width/2.])
 
         ## Grab the average pulse rotation plot
         plt.figure(title_1p75)
