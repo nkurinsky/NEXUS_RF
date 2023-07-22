@@ -1200,7 +1200,9 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     plt.legend()
 
     ax = plt.figure(title_2).gca()
-    ax.fill_between([tw_min_us/1e3,tw_max_us/1e3], y1=ax.get_xlim()[1], y2=ax.get_xlim()[0], color='k', alpha=0.2)
+    ylim = ax.get_ylim()
+    ax.fill_between([tw_min_us/1e3,tw_max_us/1e3], y1=ylim[1], y2=ylim[0], color='k', alpha=0.2)
+    ax.set_ylim(ylim)
     ax.legend(loc='best')
 
     return max_avgpulse_height
