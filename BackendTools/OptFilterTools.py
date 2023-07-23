@@ -967,7 +967,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
     title_1    = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21'
     title_1p5  = 'Power ' + str(p_params['rf_power']) + '; AWF ' + AWF_string + ': pulses in S21, zoomed in'
     title_1p75 = 'Alignment of pulses using largest pulse' 
-    title_2    = 'Average Pulse Shapes (along pulse alignment axis)'
+    title_2    = 'Average Pulse Shapes'
     title_3    = 'Pulse trajectory in Resonator basis' 
     title_4    = 'Pulse trajectory in Quasiparticle basis' 
 
@@ -1240,13 +1240,14 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
     exponential = lambda x, A, tau: np.heaviside(x-time[t_offset(N)],0.5) * A * expit(-1*(x-time[t_offset(N)])/tau)
     dbl_expA    = lambda x, A, t1, t2: np.heaviside(x-time[t_offset(N)],0.5) * A * ( expit(-1*(x-time[t_offset(N)])/t1) + expit(-1*(x-time[t_offset(N)])/t2) )
     
-    ## Fit the average pulse to an exponential (in k2)
-    popt, pcov  = curve_fit(exponential,time,pulse_avg,p0=[5.0,       1.24e-3])
-    popt2,pcov2 = curve_fit(dbl_expA,time,pulse_avg   ,p0=[5.0,       1.24e-3/5.,1.24e-3*5.])
-        
-    ## Calculate the best fit curve for the average pulse
-    pulse_fit  = exponential(time,*popt)
-    pulse_fit2 = dbl_expA(time,*popt2)
+    if use_fit_as_template:   
+        ## Fit the average pulse to an exponential (in k2)
+        popt, pcov  = curve_fit(exponential,time,pulse_avg,p0=[5.0,       1.24e-3])
+        popt2,pcov2 = curve_fit(dbl_expA,time,pulse_avg   ,p0=[5.0,       1.24e-3/5.,1.24e-3*5.])
+            
+        ## Calculate the best fit curve for the average pulse
+        pulse_fit  = exponential(time,*popt)
+        pulse_fit2 = dbl_expA(time,*popt2)
         
     ## Numerically integrate the fit, then FT it
     if use_fit_as_template:   
@@ -1268,27 +1269,29 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
     ## Create a plot to store the template waveform and best fit
     f1p5  = plt.figure()
     ax1p5 = f1p5.gca()
-    ax1p5.plot(time*1e3,pulse_fit, 'C7',linewidth=3,label='time constant: {:.2e}ms'.format(popt[-1]*1e3), ls='--' )
-    # ax1p5.plot(time*1e3,pulse_fit3,'C6',linewidth=3,label='Float weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt3[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt3[-1]*1e3))
-    ax1p5.plot(time*1e3,pulse_fit2,'k' ,linewidth=1,label='Equal weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt2[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt2[-1]*1e3))
     ax1p5.plot(time*1e3,pulse_avg, label="Average pulse")
+    if use_fit_as_template:
+        ax1p5.plot(time*1e3,pulse_fit, 'C7',linewidth=3,label='time constant: {:.2e}ms'.format(popt[-1]*1e3), ls='--' )
+        # ax1p5.plot(time*1e3,pulse_fit3,'C6',linewidth=3,label='Float weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt3[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt3[-1]*1e3))
+        ax1p5.plot(time*1e3,pulse_fit2,'k' ,linewidth=1,label='Equal weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt2[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt2[-1]*1e3))
     ax1p5.axhline(y=0,color='r',ls='--')
-    ax1p5.set_title(title + 'signal pulse timestream and fit')
+    ax1p5.set_title(title + 'signal pulse timestream')
     ax1p5.set_xlabel("Time [ms]")
     ax1p5.set_ylabel(ylbl)
     # ax1p5.set_ylabel(r"Dissipation $\delta \kappa_2$ [$\mu$m$^{-3}$]")
     plt.legend()
 
-    f1p7  = plt.figure()
-    ax1p7 = f1p7.gca()
-    ax1p7.plot(time*1e3,pulse_fit -pulse_avg,'C7',linewidth=3,label=r'$\tau=$ {:.2e}ms'.format(popt[-1]*1e3) , ls='--' )
-    # ax1p7.plot(time*1e3,pulse_fit3-pulse_avg,'C6',linewidth=3,label='Float weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt3[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt3[-1]*1e3))
-    ax1p7.plot(time*1e3,pulse_fit2-pulse_avg,'k' ,linewidth=1,label='Equal weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt2[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt2[-1]*1e3))
-    ax1p7.axhline(y=0,color='r',ls='--')
-    ax1p7.set_title(title + 'fit residuals')
-    ax1p7.set_xlabel("Time [ms]")
-    ax1p7.set_ylabel("Fit residual")
-    plt.legend()
+    if use_fit_as_template:
+        f1p7  = plt.figure()
+        ax1p7 = f1p7.gca()
+        ax1p7.plot(time*1e3,pulse_fit -pulse_avg,'C7',linewidth=3,label=r'$\tau=$ {:.2e}ms'.format(popt[-1]*1e3) , ls='--' )
+        # ax1p7.plot(time*1e3,pulse_fit3-pulse_avg,'C6',linewidth=3,label='Float weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt3[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt3[-1]*1e3))
+        ax1p7.plot(time*1e3,pulse_fit2-pulse_avg,'k' ,linewidth=1,label='Equal weights\n'+r'$\tau_1=$ {:.2e}ms'.format(popt2[-2]*1e3)+"\n"+r'$\tau_2=$ {:.2e}ms'.format(popt2[-1]*1e3))
+        ax1p7.axhline(y=0,color='r',ls='--')
+        ax1p7.set_title(title + 'fit residuals')
+        ax1p7.set_xlabel("Time [ms]")
+        ax1p7.set_ylabel("Fit residual")
+        plt.legend()
 
     return S_mag, s, A
 
