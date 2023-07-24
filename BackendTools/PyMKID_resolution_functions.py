@@ -532,6 +532,7 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
     ## Get the raw noise timestream data and pull some metadata
     data_noise, data_info = PUf.unavg_noi(noise_data_file)
     data_freqs = data_info['search freqs']
+    print("DATA FREQS:",data_freqs)
     time = data_info['time']
     # print(time[-1])
     time_correction = data_info['sampling period']
