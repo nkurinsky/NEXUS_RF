@@ -1008,16 +1008,14 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         df_f_timestream, d1_Q_timestream, _, _ = Prf.resonator_basis(pulse_timestream[:,0],readout_f*1e-3,f*1e-3,z,charFs[0].real*1e-3,charZs[0])
         
         ## Get the timestreams and average pulse in quasiparticle basis
-        print("Readout f (OptFilterTools):",readout_f,"MHz")
-        print("Readout f (OptFilterTools):",readout_f*1e-3,"GHz")
         dk1, dk2, =                       Prf.quasiparticle_basis(df_f, d1_Q,
                                                                   data_T     = data_T_K, 
                                                                   MB_results = MB_fit_vals,
-                                                                  readout_f  = readout_f*1e-3)
+                                                                  readout_f  = readout_f) ## Pass readout freq in MHz
         dk1_timestream, dk2_timestream, = Prf.quasiparticle_basis(df_f_timestream, d1_Q_timestream,
                                                                   data_T     = data_T_K, 
                                                                   MB_results = MB_fit_vals,
-                                                                  readout_f  = readout_f*1e-3)
+                                                                  readout_f  = readout_f) ## Pass readout freq in MHz
 
         ## Baseline(mean)-subtract the average pulse, then find its stdev
         ## Using the last five samples of the average pulse to get mean, sdev
