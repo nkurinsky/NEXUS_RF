@@ -1261,7 +1261,7 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
     f_mask = np.logical_and(f <= f_max, f >= -1*f_max)
     N_mask = len(f[f_mask])
     f_plot = np.logical_and(f > 0, f <= f_max)
-    new_fs = max(f[f_mask])
+    # new_fs = max(f[f_mask])
 
     ## Get the magnitude of s^2 for the masked region
     S_mag = abs(s[f_mask]**2)
@@ -1293,7 +1293,7 @@ def get_pulse_template(template_file, p_params, window_shift_J=0, f_max=1e4, use
         ax1p7.set_ylabel("Fit residual")
         plt.legend()
 
-    return S_mag, s, A
+    return f, S_mag, s, A
 
 def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=0, f_max=1e4, PHASE=True):
 
@@ -1374,7 +1374,7 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     f_mask = np.logical_and(f <= f_max, f >= -1*f_max)
     N_mask = len(f[f_mask])
     f_plot = np.logical_and(f > 0, f <= f_max)
-    new_fs = max(f[f_mask])
+    # new_fs = max(f[f_mask])
 
     ## Calculate the denominator for the optimal filter
     denominator = np.sum(abs(s[f_mask])**2/J[f_mask])
@@ -1402,4 +1402,4 @@ def get_noise_template(template_file, s, p_params, bad_pls_idxs, window_shift_J=
     ax2p1.set_xlabel("Time [ms]")
     ax2p1.set_ylabel(r"$\mathrm{arg}(S_{21})$ [rad]" if PHASE else r"$\log10 |S_{21}|$ [dBc]" )
 
-    return J_avg, denominator, b7_res
+    return f, J, denominator, b7_res
