@@ -199,14 +199,12 @@ def resonator_basis(noise_timestream,readout_f,VNA_f,VNA_z,char_f,char_z,plot_ti
     return frequency, dissipation, ideal, resonator
 
 def quasiparticle_basis(frequency,dissipation,data_T,MB_results,readout_f):
+    ## This function expects readout frequency in MHz ##
 
     # MB_f0    = MB_results[0]*1e3    ## MHz
     MB_Delta = MB_results[1]        ## meV
     MB_alpha = MB_results[2]
     # MB_Qi0   = MB_results[3]
-
-    print("Readout F (quasiparticle_basis):",readout_f,"MHz")
-    print("Readout F (quasiparticle_basis):",readout_f*1e6,"Hz")
 
     k1 = MBe.kappa_1(data_T, readout_f*1e6, MB_Delta*1e-3)*1e6*1e6*1e6 # um^3
     k2 = MBe.kappa_2(data_T, readout_f*1e6, MB_Delta*1e-3)*1e6*1e6*1e6
