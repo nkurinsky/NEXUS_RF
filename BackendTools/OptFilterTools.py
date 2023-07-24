@@ -1008,6 +1008,8 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
         df_f_timestream, d1_Q_timestream, _, _ = Prf.resonator_basis(pulse_timestream[:,0],readout_f*1e-3,f*1e-3,z,charFs[0].real*1e-3,charZs[0])
         
         ## Get the timestreams and average pulse in quasiparticle basis
+        print("Readout f (OptFilterTools):",readout_f,"MHz")
+        print("Readout f (OptFilterTools):",readout_f*1e-3,"GHz")
         dk1, dk2, =                       Prf.quasiparticle_basis(df_f, d1_Q,
                                                                   data_T     = data_T_K, 
                                                                   MB_results = MB_fit_vals,
@@ -1086,7 +1088,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Rotated phase direction
         elif readout_unit == "phase":
-            print("Using phase readout")
+            print("Using rotated phase readout")
 
             mean_avg = np.mean( np.angle(pulse_avg_rotated[:20]) )
             template = np.angle(pulse_avg_rotated) - mean_avg
@@ -1095,7 +1097,7 @@ def align_all_pulses(LED_files, nse_files, vna_file, sum_file, p_params, charFs,
 
         ## Rotated log mag direction
         elif readout_unit == "mag":
-            print("Using log mag readout")
+            print("Using rotated log mag readout")
 
             mean_avg = np.mean( np.log10(abs(pulse_avg_rotated[:20])) )
             template = np.log10(abs(pulse_avg_rotated)) - mean_avg
