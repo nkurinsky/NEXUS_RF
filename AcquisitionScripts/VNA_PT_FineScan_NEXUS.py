@@ -23,6 +23,10 @@ except ImportError:
     print("Cannot find the VNAMeas package")
     exit()
 
+## Flag to determine direction of temperature scan
+start_at_max_T = False
+return_to_base = False
+
 ## Parameters of the power sweep (in dB)
 P_min  = -55
 P_max  = -15
@@ -41,6 +45,7 @@ Temp_base =  10e-3
 Temp_min  =  20e-3
 Temp_max  = 300e-3
 Temp_step =  10e-3
+substepK  = 1.0e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
@@ -51,14 +56,15 @@ stableTime    =   5.0 * 60.## sec
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
 
-# ## Use this if starting at the top temperature
-Temps = Temps[::-1] 
-if (Temp_base) < Temps[-1]:
-    Temps = np.append(Temps,Temp_base)
-
-## Use this if starting at base temperature
-# if (Temp_base) < Temps[0]:
-#    Temps = np.append(Temp_base,Temps)
+if start_at_max_T:
+    ## Use this if starting at the top temperature
+    Temps = Temps[::-1] 
+    if (Temp_base) < Temps[-1]:
+        Temps = np.append(Temps,Temp_base)
+else:
+    # Use this if starting at base temperature
+    if (Temp_base) < Temps[0]:
+       Temps = np.append(Temp_base,Temps)
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/TempSweeps/VNA'  #VNA subfolder of Tempsweeps
@@ -293,10 +299,13 @@ if __name__ == "__main__":
         if T == Temps[-1]:
             break
 
-        ## Create an array of temperatures assuming you're going down
-        substepK = 1.0e-3
-        subTemps = np.arange(start=T-Temp_step+substepK,stop=T,step=substepK)
-        subTemps = subTemps[::-1]
+        if start_at_max_T:
+            ## Create an array of temperatures assuming you're going down
+            subTemps = np.arange(start=T-Temp_step+substepK,stop=T,step=substepK)
+            subTemps = subTemps[::-1]
+        else:
+            ## Create an array of temperatures assuming you're going up
+            subTemps = np.arange(start=T+substepK,stop=T+Temp_step,step=substepK)
 
         for sT in subTemps:
             temp_change_and_wait(sT, nf3)
@@ -308,7 +317,8 @@ if __name__ == "__main__":
         # run_power_scan(T, seriesPath, nf2, delta_Hz=2.58e6)
 
     ## Go back to base temperature
-    # print("Reverting to base temperature of",Temp_base*1e3,"mK")
-    # nf3.setSP(Temp_base)
+    if return_to_base:
+        print("Reverting to base temperature of",Temp_base*1e3,"mK")
+        nf3.setSP(Temp_base)
 
 
