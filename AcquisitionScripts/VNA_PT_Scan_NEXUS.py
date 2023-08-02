@@ -29,22 +29,22 @@ P_step =   5
 ## Set the VNA's frequency parameters
 freqmin = 4.241233e9 ## 4.24143e9 # 4.244585e9   ## Hz
 freqmax = 4.242733e9 ## 4.24293e9 # 4.244936e9   ## Hz
-n_samps = 15e3
+n_samps = 5e4
 
 ## How many readings to take at each step of the sweep
 n_avs = 15
 
 ## Temperature scan settings [K]
-Temp_base =  11e-3
+Temp_base =  10e-3
 Temp_min  =  20e-3
-Temp_max  = 340e-3
+Temp_max  = 300e-3
 Temp_step =  10e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
 tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
 sleepTime     =  30.0      ## sec
-stableTime    = 150.0      ## sec
+stableTime    = 600.0      ## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
