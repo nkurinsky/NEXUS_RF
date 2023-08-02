@@ -39,14 +39,14 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 # LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set Resonator parameters
-res     = 4.241983      ## Al   [GHz]
+res     = 4.241958      ## Al   [GHz]
 # res     = 4.244553      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set some VNA sweep parameters
 f_span_kHz = 140        ## Symmetric about the center frequency
 points     = 1400       ## Defined such that we look at 100 Hz windows
-duration   = 10         ## [Sec]
+duration   = 10         ## [Sec] ## IF_BW = points / duration
 
 ## Set the non-resonator tracking tones
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
@@ -54,9 +54,9 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cle
 
 ## Set the stimulus powers to loop over
 # powers = np.array([-30])
-powers = np.array([-60,-55,-50,-45,-40,-35,-30])
+# powers = np.array([-60,-55,-50,-45,-40,-35,-30])
 # powers = np.arange(start=-60,stop=-10,step=5)
-# powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
+powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
 # powers = np.array([-50,-45,-40,-35,-30,-25,-20,-15])
 n_pwrs = len(powers)
 
