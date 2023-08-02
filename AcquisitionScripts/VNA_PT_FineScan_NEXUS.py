@@ -37,16 +37,16 @@ n_samps = 15e3
 n_avs = 15
 
 ## Temperature scan settings [K]
-Temp_base =  11e-3
+Temp_base =  10e-3
 Temp_min  =  20e-3
-Temp_max  =  80e-3
+Temp_max  = 300e-3
 Temp_step =  10e-3
 
 ## Temperature stabilization params
 tempTolerance =   1e-4     ## K
 tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
 sleepTime     =  30.0      ## sec
-stableTime    =  10.0 * 60.## sec
+stableTime    =   5.0 * 60.## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
