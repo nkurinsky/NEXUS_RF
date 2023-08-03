@@ -689,8 +689,8 @@ def PSDs_and_cleaning(noise_data_file,VNA_file,char_zs=None,char_fs=None,extra_d
         PSDs['dissipation'] = P_dissipation_clean
         PSDs['frequency'] = P_frequency_clean
 
-        timestreams['dissipation uncleaned'] = dissipation
-        timestreams['frequency uncleaned'] = frequency
+        # timestreams['dissipation uncleaned'] = dissipation
+        # timestreams['frequency uncleaned'] = frequency
 
         timestreams['dissipation'] = dissipation_clean
         timestreams['frequency'] = frequency_clean
