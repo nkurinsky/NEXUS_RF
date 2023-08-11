@@ -5,9 +5,15 @@ from scipy.optimize import curve_fit
 from scipy.special import expit
 
 #### Fixed parameters for the fit equations ####
-t0 = 4.99 ## ms
+t0 = 4.99       ## ms
+Qr = 2.5e5
+fr = 4.242e9    ## Hz
 
-fixed_params = {"t0_ms": t0}
+fixed_params = {
+    "t0_ms": t0,
+    "Qr"   : Qr,
+    "fr_Hz": fr,
+}
 
 def set_fixed_param(key, value):
     fixed_params[key] = value
@@ -79,6 +85,33 @@ def Golwala_pulse_shape_full(t, A, tau_qp, tau_abs, tau_rse, tau_r):
     t4 = expit(-t/tau_rse) / tau_rse / (a_rse*b_rse*c_rse)
 
     return A * tau_qp * (t1 + t2 + t3 + t4) * np.heaviside(t-t0,0.5)
+
+def QP_convolved_pulse_shape(t, A_ph, A_qp, t_ph_p, k_ph_p, t_ph_d, k_ph_d, k_qp):
+    ## be fitting (prompt phonons + delayed phonons) convolved with a qp pulse response.
+    ## This means there are three sets of rise and fall times. 
+    ## The qp pulse rise time can be set to Qr/(pi*fr) so that doesn't need to be fit to. 
+    ## I think this means you'll need five time constants + 2 amplitudes to fit to the whole thing
+    t0 = get_fixed_param("t0_ms")
+    Qr = get_fixed_param("Qr")
+    fr = get_fixed_param("fr_Hz")
+
+    ## Calculate the qp rise time
+    t_qp = Qr/(np.pi * fr)
+
+    ## Get the phonon contributions
+    prmpt = (1 - expit(-(t-t0)/t_ph_p)) * expit(-(t-t0)/k_ph_p)
+    delay = (1 - expit(-(t-t0)/t_ph_d)) * expit(-(t-t0)/k_ph_d)
+    phono = A_ph * (prmpt + delay)
+
+    ## Convolve it with a qp response
+    qp    = A_qp * (1 - expit(-(t-t0)/t_qp)) * expit(-(t-t0)/k_qp)
+    qpcnv = np.convolve(phono,qp,mode='same')
+
+    ## Apply the hard edge and return the result
+    return (prmpt+delay)*np.heaviside(t-t0,0.5)
+
+
+
 
 #### Fit routine methods ####
 
