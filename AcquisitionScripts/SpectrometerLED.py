@@ -17,13 +17,6 @@ except ImportError:
         print("Cannot find the GPIB device drivers package")
         exit()
 
-## Import the usb spectrometer driver
-#try: 
-#    import stellarnet_driver as sn
-#except ImportError:
-#    print("Cannot find the StellarNet Spectrometer driver")
-#    exit()
-
 try:
     from stellarnet_driverLibs import stellarnet_driver3 as sn
 except:
@@ -37,21 +30,23 @@ except:
 ## Set Laser parameters
 afg_pulse_params = {
     "f_Hz" :   1.0,
-    "pw_us":  10.0,
+    "pw_us":1000.0,
     "V_hi" :   5.0,
     "V_lo" :   0.0,
-    "d_ms" :  10.0,
+    "d_ms" : 700.0,
     "NpB"  :   1.0,
 }
-LED_voltages = [3.0] # np.arange(start=2.000, stop=6.250, step=0.250)
-N_pulses     = 100
+LED_voltages = [0.0, 2.5, 3.0, 
+                3.5, 4.0, 4.5, 
+                5.0, 5.5, 6.0] # np.arange(start=2.000, stop=6.250, step=0.250)
+N_pulses     = 2000
 
 ## Set Spectrometer parameters
 spectro_params = {
-    "inttime": 10,
-    "scansavg": 1,
-    "smooth":   0,
-    "xtiming":  1,
+    "inttime" : 1000,  ## ms
+    "scansavg":    1,  ## > 0
+    "smooth"  :    0,  ## 1-4
+    "xtiming" :    1,  ## 1-4
 }
 
 ## File handling options
@@ -177,13 +172,12 @@ if __name__ == "__main__":
 
         ## Now loop over how many LED pulses
         for i in np.arange(N_pulses):
-
-            # ## Create an h5 group for this data, store some general metadata
-            # gPulse = fyle.create_group('Pulse'+str(i))
+            if (i%10)==0:
+                print(i,"of",N_pulses)
 
             ## Turn on the AWG output, force a trigger
             fg3102.focusInstrument()
-            fg3102.setOutputState(enable=True)
+            fg3102.setOutputState(enable=True, confirm=False)
             fg3102._sendCmd("TRIG", getResponse=False)
 
             ## Take a spectrum from the spectrometer
@@ -194,7 +188,7 @@ if __name__ == "__main__":
 
             ## Turn off the AWG output
             fg3102.focusInstrument()
-            fg3102.setOutputState(enable=False)
+            fg3102.setOutputState(enable=False, confirm=False)
 
         ## Close h5 file for writing
         fyle.close()

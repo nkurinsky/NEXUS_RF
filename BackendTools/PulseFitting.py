@@ -61,7 +61,7 @@ def Golwala_pulse_shape_simple(t, A, tau_qp, tau_abs):
     return A * tau_qp/(tau_abs-tau_qp) * diff * np.heaviside(t-t0,0.5)
 
 def Golwala_pulse_shape_full(t, A, tau_qp, tau_abs, tau_rse, tau_r):
-    t0 = get_fixed_param("t0_ms")
+    
 
     a_qp  = (1 - tau_abs/tau_qp)
     b_qp  = (1 - tau_r  /tau_qp)
@@ -86,32 +86,64 @@ def Golwala_pulse_shape_full(t, A, tau_qp, tau_abs, tau_rse, tau_r):
 
     return A * tau_qp * (t1 + t2 + t3 + t4) * np.heaviside(t-t0,0.5)
 
-def QP_convolved_pulse_shape(t, A_ph, A_qp, t_ph_p, k_ph_p, t_ph_d, k_ph_d, k_qp):
-    ## be fitting (prompt phonons + delayed phonons) convolved with a qp pulse response.
-    ## This means there are three sets of rise and fall times. 
-    ## The qp pulse rise time can be set to Qr/(pi*fr) so that doesn't need to be fit to. 
-    ## I think this means you'll need five time constants + 2 amplitudes to fit to the whole thing
+def QP_convolved_pulse_shape(t, A, w_ph_p, t_ph_p, k_ph_p, t_ph_d, k_ph_d, k_qp):
+    '''
+    Fits a resonator pulse shape to a QP pulse response convolved with 
+    (prompt phonons + delayed phonons). It requires 5 time constants &
+    2 amplitudes to fit to the whole thing. The qp pulse rise time can 
+    be set to Qr/(pi*fr) so that doesn't need to be fit to. 
+        Note that this function requires the following "fixed params" 
+    to be set using the set_fixed_param method: "t0_ms", "Qr", "fr_Hz" 
+    - Arguments:
+        = t         [ms]    ndarray[float]  Time samples over which to evaluate pulse
+        = A         [><]    float           Overall scale of convolved pulse
+        = w_ph_p    [><]    float           Weight of prompt phonon component w.r.t delayed component
+        = t_ph_p    [ms]    float           Rise time constant of the prompt phonon component
+        = k_ph_p    [ms]    float           Fall time constant of the prompt phonon component
+        = t_ph_d    [ms]    float           Rise time constant of the delayed phonon component
+        = k_ph_d    [ms]    float           Fall time constant of the delayed phonon component
+        = k_qp      [ms]    float           Quasiparticle lifetime (fall time constant)
+    - Returns:
+        = pulse     [><]    ndarray[float]  Pulse shape evaluated at time samples t, units are the same as A
+    '''
+    
+    ## Get the fixed params that are not adjusted in a fit
     t0 = get_fixed_param("t0_ms")
     Qr = get_fixed_param("Qr")
     fr = get_fixed_param("fr_Hz")
 
     ## Calculate the qp rise time
-    t_qp = Qr/(np.pi * fr)
+    t_qp = Qr/(np.pi * fr) * 1e3 ## to get in ms
 
     ## Get the phonon contributions
-    prmpt = (1 - expit(-(t-t0)/t_ph_p)) * expit(-(t-t0)/k_ph_p)
-    delay = (1 - expit(-(t-t0)/t_ph_d)) * expit(-(t-t0)/k_ph_d)
-    phono = A_ph * (prmpt + delay)
+    prompt = (1 - expit(-(t-t0)/t_ph_p)) * expit(-(t-t0)/k_ph_p)
+    delayd = (1 - expit(-(t-t0)/t_ph_d)) * expit(-(t-t0)/k_ph_d)
+    phonon = w_ph_p*prompt + delayd
 
     ## Convolve it with a qp response
-    qp    = A_qp * (1 - expit(-(t-t0)/t_qp)) * expit(-(t-t0)/k_qp)
-    qpcnv = np.convolve(phono,qp,mode='same')
+    qp    = (1 - expit(-(t-t0)/t_qp)) * expit(-(t-t0)/k_qp)
+    qpcnv = np.convolve(phonon,qp,mode='same')
+    qpcnv /= np.max(qpcnv) ## Divide out the scale, since we'll scale in the fit
 
     ## Apply the hard edge and return the result
-    return (prmpt+delay)*np.heaviside(t-t0,0.5)
+    return A*qpcnv*np.heaviside(t-t0,0.5)
 
 
+def KR_pulse_shape(t, A, B, tq, tr, tabs, tslow, tfast):
+    t0 = get_fixed_param("t0_ms")
 
+    term1 = tq * expit(-(t-t0)/tq)
+    term2 = B  * tslow * tslow * (tabs+tr) + A * tabs * tabs * (tslow+tr)
+    denom = (tabs+tr)*(tslow+tr)
+
+    exp1  = expit((t-t0)*(-1/tabs + 1/tq)) / (tabs-tq)
+    exp2  = expit((t-t0)*(-1/tabs + 1/tq - 1/tr)) * tr / (tabs*tq - tabs*tr + tq*tr)
+
+    exp3  =-1 * expit((t-t0)*( 1/tq - 1/tslow))/ (tq-tslow)
+    exp4  =     expit((t-t0)*(-1/tq - (tr+tslow)/tr/tslow)) * tr / (tq*(tr+tslow) -tslow*tr)
+
+    pulse = term1*term2*(tabs*A*(exp1+exp2) + tslow*B*(exp3+exp4)) / denom
+    return pulse * np.heaviside(t-t0,0.5)
 
 #### Fit routine methods ####
 
