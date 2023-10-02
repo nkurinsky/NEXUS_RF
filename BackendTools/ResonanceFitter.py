@@ -721,7 +721,6 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
 
         if show_plots:
             ax0.plot(f,resfunc8(f, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i].real, a_list[i].imag, phi_list[i], tau_list[i].real, tau_list[i].imag))
-            (f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau)
 
         ## Now that the subroutines have populated class attributes, let's look at them
         if verbose:
