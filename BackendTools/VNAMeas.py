@@ -10,6 +10,7 @@ class VNAMeas:
 	power   = 0.0					## [FLOAT] (dBM) RF stimulus power
 	n_avgs  = 1						## [INT] How many sweeps to take at a given power
 	n_samps = 5e4					## [FLOAT] How many samples to take evenly spaced in freq range
+	ifbw    = 0
 
 	f_min   = 4.24205e9				## [FLOAT] (Hz) minimum frequency of sweep range
 	f_max   = 4.24225e9				## [FLOAT] (Hz) minimum frequency of sweep range
@@ -54,6 +55,7 @@ class VNAMeas:
 			d_power   = f.create_dataset("power"  , data=np.array([self.power]))
 			d_n_avgs  = f.create_dataset("n_avgs" , data=np.array([self.n_avgs]))
 			d_n_samps = f.create_dataset("n_samps", data=np.array([self.n_samps]))
+			d_ifbw    = f.create_dataset("ifbw",    data=np.array([self.ifbw]))
 
 			d_f_min   = f.create_dataset("f_min"  , data=np.array([self.f_min]))
 			d_f_max   = f.create_dataset("f_max"  , data=np.array([self.f_max]))
@@ -70,7 +72,7 @@ class VNAMeas:
 		return filename+".h5"
 
 
-def decode_hdf5(filename):
+def decode_vna_hdf5(filename):
 
 	with h5py.File(filename, "r") as f:
 		_date = f["date"][0].decode('UTF-8')
@@ -82,6 +84,10 @@ def decode_hdf5(filename):
 		sweep.n_samps = f["n_samps"][0]
 		sweep.f_min   = f["f_min"][0]
 		sweep.f_max   = f["f_max"][0]
+		if "ifbw" in f.keys():
+			sweep.ifbw= f["ifbw"][0]
+		else:
+			sweep.ifbw= -1
 
 		sweep.start_T = np.array(f["start_T"])
 		sweep.final_T = np.array(f["final_T"])

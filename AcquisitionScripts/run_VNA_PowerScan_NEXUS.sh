@@ -7,6 +7,7 @@ n_scans=1
 pmin=-50
 pmax=-15
 pstep=5
+ifbw=10000
 
 # Frequency range
 # fmin=4.24195e9 ; fmax=4.24235e9	## Al -- 4.242175 G
@@ -38,6 +39,6 @@ while [ $counter -le $n_scans ]
 do
 	echo "Scan" $counter
 	python VNA_PowerScan_NEXUS.py --P0 $pmin --P1 $pmax --Ps $pstep \
-		--F0 $fmin --F1 $fmax --Fn $ns --Na $na
+		--F0 $fmin --F1 $fmax --Fn $ns --Na $na --Bw $ifbw
 	((counter++))
 done

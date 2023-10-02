@@ -25,6 +25,7 @@ n_samps = 5e4
 
 ## How many readings to take at each step of the sweep
 n_avs = 10
+ifbw  = 10e3 # 500 ## Hz
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/PowerSweeps/VNA'  #VNA subfolder of TempSweeps
@@ -57,6 +58,8 @@ def parse_args():
                         help='Number of samples to take in frequency range')
     parser.add_argument('--Na', type=int,
                         help='Number of averages to take at each power')
+    parser.add_argument('--Bw', type=int,
+                        help='IF Bandwidth in Hz')
 
     # Data path optional arguments
     parser.add_argument('--d', type=str,
@@ -116,13 +119,14 @@ def run_scan():
       sweep.n_samps = n_samps
       sweep.f_min   = freqmin
       sweep.f_max   = freqmax
+      sweep.ifbw    = ifbw
 
       ## Grab and save the fridge temperature before starting sweep
       sweep.start_T = np.array([ nf1.getTemp() ])
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
-      freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs)
+      freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs, ifb=ifbw)
 
       ## Grab and save the fridge temperature after sweep
       sweep.final_T = np.array([ nf1.getTemp() ])
@@ -166,6 +170,7 @@ if __name__ == "__main__":
 
     ## How many readings to take at each step of the sweep
     n_avs   = args.Na if args.Na is not None else n_avs
+    ifbw    = args.Bw if args.Bw is not None else ifbw
 
     ## Where to save the output data (hdf5 files)
     dataPath = args.d if args.d is not None else dataPath
