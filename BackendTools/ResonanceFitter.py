@@ -644,7 +644,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
         ## Make the labels
         ax1.set_xlabel("Frequency [GHz]")
 
-        ax0.set_ylabel(r"|$S_{21}$| [dB]")
+        ax0.set_ylabel(r"|$S_{21}$| [dBc]")
         ax1.set_ylabel(r"|filtered z| [$\sigma$]")
 
         ## Set the x-tick markers to be smaller
@@ -718,6 +718,10 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
             print(issue)
             fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i], Qc_list[i] = [f[peaklist[i]],1e4,1e5,1,0,0,1e5]
             Qi_list[i] = 0
+
+        if show_plots:
+            ax0.plot(f,resfunc8(f, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i].real, a_list[i].imag, phi_list[i], tau_list[i].real, tau_list[i].imag))
+            (f_proj, fr, Qr,  Qc_hat_mag, a_real, a_imag, phi, tau, Imtau)
 
         ## Now that the subroutines have populated class attributes, let's look at them
         if verbose:
