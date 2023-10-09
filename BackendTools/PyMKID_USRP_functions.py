@@ -380,7 +380,7 @@ def fit_poly(x,y,order=1):
     coefficients = np.linalg.solve(np.matmul(A.T,A),np.matmul(A.T,b))
     return coefficients
 
-def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
+def plot_VNA(filename, res_f_GHz=[4.24218], fig_obj1=None, fig_obj2=None):
     f, z = read_vna(filename)
     crop = 1000
     f = f[crop:-crop]*1e-3
@@ -388,7 +388,7 @@ def plot_VNA(filename, fig_obj1=None, fig_obj2=None):
     f = f[::5]
     z = z[::5]
 
-    resonances, _, _, _, _, _, _ = vna_file_fit(filename,[4.24218])#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
+    resonances, _, _, _, _, _, _ = vna_file_fit(filename,res_f_GHz)#[3.468, 3.486, 3.503, 3.505, 3.516, 3.527, 3.539])
     near = .0007
     near_res = []
     for resonance in resonances:
