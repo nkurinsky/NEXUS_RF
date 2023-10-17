@@ -44,6 +44,9 @@ def build_t_and_f(N,sampling_rate):
 
     return time,f
 
+def power_on_feedline(DAC_RF_power_dBm, attenuation_before_device_dB, external_gain_dB=0):
+    return DAC_RF_power_dBm - attenuation_before_device_dB + external_gain_dB
+
 def electronics_basis(noise_timestream,axis_option=0):
     """
     input: a noise timestream that comes from the a "USRP_Noise_*" file
