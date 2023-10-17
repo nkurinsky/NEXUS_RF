@@ -281,10 +281,10 @@ def PlotPSDsByPower(series_list, powers_list, fHz_range = [1e2,3e5],
 											   show_plots  = show_sub_plots,
 											   verbose     = verbose )
 		
-		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=str(powers_list[i])+" dBm")
-		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=str(powers_list[i])+" dBm")
-		axA.plot(PSDs["f"],PSDs['dissipation'],label=str(powers_list[i])+" dBm")
-		axB.plot(PSDs["f"],PSDs['frequency'],label=str(powers_list[i])+" dBm")
+		axa.plot(PSDs["f"],PSDs['radius'][:,0],label=("%5.1f dBm" % powers_list[i]))
+		axb.plot(PSDs["f"],PSDs['arc'][:,0],label=("%5.1f dBm" % powers_list[i]))
+		axA.plot(PSDs["f"],PSDs['dissipation'],label=("%5.1f dBm" % powers_list[i]))
+		axB.plot(PSDs["f"],PSDs['frequency'],label=("%5.1f dBm" % powers_list[i]))
 		if (MB_fit_result is not None):
 			ax1.plot(PSDs["f"],PSDs['kappa_1'],label=str(powers_list[i])+" dBm")
 			ax2.plot(PSDs["f"],PSDs['kappa_2'],label=str(powers_list[i])+" dBm")
