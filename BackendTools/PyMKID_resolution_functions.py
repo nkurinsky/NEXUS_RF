@@ -443,8 +443,8 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
             P_1_clean = np.expand_dims(P_1_clean,axis=1)
             P_2_clean = np.expand_dims(P_2_clean,axis=1)
 
-    # max_yval = max((np.amax(P_1[1:,:]),np.amax(P_2[1:,:])))
-    # min_yval = min((np.amin(P_1[1:,:]),np.amin(P_2[1:,:])))
+    max_yval = max((np.amax(P_1[1:,:]),np.amax(P_2[1:,:])))
+    min_yval = min((np.amin(P_1[1:,:]),np.amin(P_2[1:,:])))
     # ymin = 10**-1*min_yval
     # ymax = 10**1*max_yval
     if savefig == 'electronics':
@@ -454,8 +454,8 @@ def plot_PSDs(f,P_1,P_2,noise_data_file,directions,units,savefig,data_freqs=[0],
         ymin = 10**-7
         ymax = 10**2
     elif savefig[:3] == 'res':
-        ymin = 10**-22
-        ymax = 10**-16
+        ymin = 10**-3*min_yval # -22
+        ymax = 10**3*max_yval # -16
     xmin = 10**0
     xmax = 10**5
     f = f[f > 0]
