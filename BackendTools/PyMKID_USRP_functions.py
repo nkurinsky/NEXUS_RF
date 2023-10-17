@@ -407,10 +407,10 @@ def plot_VNA(filename, res_f_GHz=[4.24218], fig_obj1=None, fig_obj2=None):
 
     if fig_obj2 is None:
         fig_obj2 = plt.figure(figsize=(3,3),dpi=300)
-    ax1 = fig_obj1.gca()
+    ax1 = fig_obj2.gca()
     ax1.plot(f[near_res], 20*np.log10(abs(z[near_res])),color = 'red',marker ='.',linestyle='',markersize=2)
     ax1.plot(f[np.logical_not(near_res)],20*np.log10(abs(z[np.logical_not(near_res)])),marker='.',linestyle='',markersize=2)
-    ax1.title(filename)
+    ax1.set_title(filename)
     # plt.show()
 
 def plot_noise_and_vna(noise,VNA_z,fit_z=None,f_idx=None,char_zs=None,alpha=0.1,title='',show_legend=True,fig_obj=None,save_directory=None,verbose=True):
