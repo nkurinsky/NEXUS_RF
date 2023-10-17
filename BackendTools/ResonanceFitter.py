@@ -605,7 +605,7 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
                     lookformax = True
 
     ## Handle too many peaks
-    if (len(peaklist) > 10):
+    if (len(peaklist) > 1):#0):
         # peaklist = np.array([ np.argmax(20*np.log10(abs(np.array(z)))) ])
         # peaklist = np.array([ np.argmax(mfz) ])
         peaklist = np.array([ np.argmin(20*np.log10(np.array(z))) ])
@@ -720,7 +720,9 @@ def sweep_fit(f, z, file_fit_obj, nsig=3, fwindow=5e-4, pdf_rewrite=False, addit
             Qi_list[i] = 0
 
         if show_plots:
-            ax0.plot(f,resfunc8(f, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i].real, a_list[i].imag, phi_list[i], tau_list[i].real, tau_list[i].imag))
+            # ax0.plot(f,resfunc8(f, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i].real, a_list[i].imag, phi_list[i], tau_list[i].real, tau_list[i].imag))
+            ax0.plot(f,20.0*np.log10(abs(resfunc3(f, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i], phi_list[i], tau_list[i]))))
+            # ax0.plot(f,resfunc8(f, fr_list[i], Qr_list[i], Qc_hat_mag_list[i], a_list[i].real, a_list[i].imag, phi_list[i], tau_list[i].real, tau_list[i].imag))
 
         ## Now that the subroutines have populated class attributes, let's look at them
         if verbose:
