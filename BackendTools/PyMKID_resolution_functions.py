@@ -47,6 +47,9 @@ def build_t_and_f(N,sampling_rate):
 def power_on_feedline(DAC_RF_power_dBm, attenuation_before_device_dB, external_gain_dB=0):
     return DAC_RF_power_dBm - attenuation_before_device_dB + external_gain_dB
 
+def power_in_resonator(Pg_dBm, Qr, Qc):
+    return 2.0 * Pg_dBm * np.power(Qr,2) / Qc
+
 def electronics_basis(noise_timestream,axis_option=0):
     """
     input: a noise timestream that comes from the a "USRP_Noise_*" file
