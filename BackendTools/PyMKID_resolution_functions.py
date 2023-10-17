@@ -47,9 +47,10 @@ def build_t_and_f(N,sampling_rate):
 def power_on_feedline(DAC_RF_power_dBm, attenuation_before_device_dB, external_gain_dB=0):
     return DAC_RF_power_dBm - attenuation_before_device_dB + external_gain_dB
 
-def power_in_resonator(Pg_dBm, Qr, Qc):
+def power_in_resonator(Pg_dBm, f, Qr, Qc, fr):
+    x = (f-fr)/fr
     Pg_mW  = np.power(10,Pg_dBm/10.)
-    Pr_mW  = 2.0 * Pg_mW * np.power(Qr,2) / Qc
+    Pr_mW  = 2.0 * Pg_mW * np.power(Qr,2) / Qc * 1/(1 + 4*np.power(Qr * x,2)
     Pr_dBm = 10.0 * np.log10(Pr_mW)
     return Pr_dBm
 
