@@ -48,7 +48,10 @@ def power_on_feedline(DAC_RF_power_dBm, attenuation_before_device_dB, external_g
     return DAC_RF_power_dBm - attenuation_before_device_dB + external_gain_dB
 
 def power_in_resonator(Pg_dBm, Qr, Qc):
-    return 2.0 * Pg_dBm * np.power(Qr,2) / Qc
+    Pg_mW  = np.power(10,Pg_dBm/10.)
+    Pr_mW  = 2.0 * Pg_mW * np.power(Qr,2) / Qc
+    Pr_dBm = 10.0 * np.log10(Pr_mW)
+    return Pr_dBm
 
 def electronics_basis(noise_timestream,axis_option=0):
     """
