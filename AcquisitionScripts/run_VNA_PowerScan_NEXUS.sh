@@ -12,8 +12,9 @@ ifbw=10000
 # Frequency range
 # fmin=4.6075e9 ; fmax=4.6275e9         ## FNAL-III @ 4.6175 G, 20 MHz range
 # fmin=5.3864e9 ; fmax=5.3884e9         ## FNAL-III @ 5.3874 G, 2 MHz range
-fmin=5.3871e9 ; fmax=5.3877e9         ## FNAL-III @ 5.3874 G, 600 kHz range
+# fmin=5.3871e9 ; fmax=5.3877e9         ## FNAL-III @ 5.3874 G, 600 kHz range
 
+fmin=4.24149e9 ; fmax=4.24184e9       ## Al -- 4.241665 G, 350 kHz range
 # fmin=4.24195e9 ; fmax=4.24235e9       ## Al -- 4.242175 G
 # fmin=4.242095e9 ; fmax=4.242265e9     ## Al -- 4.242175 G, 170kHz range
 # fmin=4.242005e9 ; fmax=4.242355e9     ## Al -- 4.242175 G, 350kHz range
@@ -32,8 +33,8 @@ fmin=5.3871e9 ; fmax=5.3877e9         ## FNAL-III @ 5.3874 G, 600 kHz range
 # fmin=4.05400e9 ; fmax=4.05900e9	## Box mode
 
 # ns=100000
-# ns=150000
-ns=20000
+ns=150000
+# ns=20000
 
 # How many averages to do at each power
 na=15
