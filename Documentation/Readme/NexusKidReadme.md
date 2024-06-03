@@ -1,4 +1,4 @@
-# NEXUS KID Readme
+# NEXUS KIPMD DAQ Readme
 Dylan Temples -- November 15, 2021
 
 To "compile" this document, use the provided script:
@@ -11,44 +11,43 @@ pandoc -f markdown -t html -s -o NexusReadmeView.html NexusKidReadme.md --metada
 ```
 Then use a web browser to open the file `NexusReadmeView.html`.
 
-## Network Configuration on the KID PC
 
-The NEXUS KID PC (`nexus-arion`) has a static ip address `192.168.0.42` with subnet mask `255.255.255.0`. It can be accessed over the NEXUS LAN only, using a standard ssh connection (i.e., no Kerberos). It runs a VNC virtual desktop environment on port :5914. To create this desktop if the computer is restarted, use the following command:
+## KIPMD DAQ PC Setup - Overview
+After a reboot, the system needs to be configured before being used to acquire data with the VNA. First, from a computer on the NEXUS LAN (*e.g.*, `nexus-gateway.fnal.gov`), `SSH` into the `nexus-arion` machine at `192.168.0.42`, forwarding a VNC port (usually `5914`) and a Jupyter port (usually `8888`), if desired:
 ```
-vncserver :14 -localhost -geometry 1800x900 -depth 24
+$ ssh -K nexus-admin@192.168.0.42 -L 5914:localhost:5914 -L 9999:localhost:8888
 ```
-To verify the desktop exists, you can use the command `vncserver -list`. This must be done every time the KID PC is rebooted, so you can use the alias `make_vnc` to create it. This command can be issued over a basic CLI ssh session.
+If logging in through `nexus-network.dhcp.fnal.gov`, this has been saved in the script `~/connect_nexus-arion_ssh.sh`
 
-## Network Configuration on the NEXUS Network
-
-To access this desktop from the outside world, one must tunnel through the `nexus-network` server. A virtual desktop on port :5904 is used to connect to the virtual desktop on `nexus-arion`. If that desktop has vanished, you can create it with the same command as above, replacing :14 with :04. Once that desktop is running on `nexus-network`, you can open the virtual desktop and connect to the KID PC's virtual desktop.
-
-First, on the virtual desktop :04 on `nexus-network`, open a terminal and ssh into `nexus-arion` forwarding the port 5914:
+Once logged in (with the usual password), create a VNC desktop using the following command.
 ```
-ssh nexus-admin@192.168.0.42 -L 5914:localhost:5914
+$ vncserver :14 -localhost -geometry 1800x900 -depth 24
 ```
-The password for the `nexus-admin` account is SoupRnexus. Once that connection is established, you can open Remmina or Remote Desktop software to connect to `localhost:14` using the password SoupRvnc. This completes the setup of the virtual desktop on `nexus-network` at port :04.
+Alternatively, use the alias `make_vnc`, which just calls the above command. Now from the desktop where you entered the above in a terminal, open a VNC viewer and direct it to `localhost:14`. Upon entering the VNC viewer password (SoupRvnc), you should see a standard desktop with a file browser and a terminal open.
 
-## Accessing the KID PC from the outside world
-
-To connect to the KID PC while not on the Fermilab network, follow these steps.
-
-1. Connect to the Fermilab VPN using your Services account and one-time password.
-
-2. Get a Kerberos ticket: `kinit <user>`
-
-3. Open a terminal and ssh into the `nexus-network` server, forwarding the virtual desktop port:
+First, some memory needs to be adjusted to allow the USRP to work optimally. Issue the commands:
 ```
-ssh -K nexusadmin@nexus-network.dhcp.fnal.gov -L 5904:localhost:5904
+$ sudo sysctl -w net.core.rmem_max=24862979
+$ sudo sysctl -w net.core.wmem_max=24862979
 ```
-note that for this to work, your username must be added to the `.k5login` file in the home directory of `nexusadmin`.
+(note `Ctrl+r` is useful to retrieve these commands from the terminal memory).
 
-4. With the connection established, open a VNC viewer on your PC and connect to `localhost:04`.
+Next, the network needs to be configured properly. To do so, run the following commands
+```
+$ rm_route40
+$ usb_lan_down
+$ sudo ufw disable
+```
+The latter two commands should have no effect as the computer should start up with the USB LAN dongle disabled and the firewall also disabled.
 
 
-On the first layer of the virtual desktop, another VNC viewer software should be running already connected to `nexus-arion` port 5914. If it is not, follow the instructions in the previous section to establish the virtual desktop connection.
 
-## Checking Connections on NEXUS LAN
+## Network Configuration Details
+
+### NEXUS LAN
+The NEXUS KID PC (`nexus-arion`) is configured for a static ip address `192.168.0.42` with subnet mask `255.255.255.0`. It can be accessed over the NEXUS LAN only, using a standard ssh connection (i.e., no Kerberos). SSH connections over FNAL WAN are forbidden.
+
+#### Checking Connections on NEXUS LAN
 
 From `nexus-arion`, you should be able to `ping` all the network devices on the NEXUS LAN, including the power strip (192.169.0.145), HEMT power supplies (192.168.0.40 and 192.168.0.41), and the RF switch (192.168.0.43). If you do not get a response, ensure the device is powered on.
 
@@ -100,6 +99,43 @@ Firewall rules can be added with commands like `sudo ufw allow proto tcp from 19
 
 - The USB ethernet dongle connects to the Fermilab network, which dictates the firewall rules above (ensuring no ssh connections can be established except for the LAN). This connection is disabled by default (when the machine reboots) and can be enabled with the command `usb_lan_up` if you need to see the internet (for updates, etc.). Only enable the USB LAN connection if the ufw is enabled. The connection can be disabled again using the command `usb_lan_down`. These are simple aliases and can be found by `cat ~/.bash_aliases`.
 
+### Fermilab WAN
+
+### Accessing the KID PC from the outside world
+
+To connect to the KID PC while not on the Fermilab network, follow these steps.
+
+1. Connect to the Fermilab VPN using your Services account and one-time password.
+
+2. Get a Kerberos ticket: `kinit <user>`
+
+3. Open a terminal and ssh into the `nexus-network` server, forwarding the virtual desktop port:
+```
+ssh -K nexusadmin@nexus-network.dhcp.fnal.gov -L 5904:localhost:5904
+```
+note that for this to work, your username must be added to the `.k5login` file in the home directory of `nexusadmin`.
+
+4. With the connection established, open a VNC viewer on your PC and connect to `localhost:04`.
+
+
+On the first layer of the virtual desktop, another VNC viewer software should be running already connected to `nexus-arion` port 5914. If it is not, follow the instructions in the previous section to establish the virtual desktop connection.
+
+## VNC Desktop Configuration Details
+
+The KIPMD DAQ PC runs a VNC virtual desktop environment on port :5914. To create this desktop if the computer is restarted, use the following command:
+```
+vncserver :14 -localhost -geometry 1800x900 -depth 24
+```
+To verify the desktop exists, you can use the command `vncserver -list`. This must be done every time the KID PC is rebooted, so you can use the alias `make_vnc` to create it. This command can be issued over a basic CLI ssh session.
+
+To access this desktop from the outside world, one must tunnel through a server on both the NEXUS LAN and the FNAL WAN (*e.g.*, `nexus-network.dhcp.fnal.gov`). A virtual desktop on port :5904 is used to connect to the virtual desktop on `nexus-arion`. If that desktop has vanished, you can create it with the same command as above, replacing :14 with :04. Once that desktop is running on `nexus-network`, you can open the virtual desktop and connect to the KID PC's virtual desktop.
+
+First, on the virtual desktop :04 on `nexus-network`, open a terminal and ssh into `nexus-arion` forwarding the port 5914:
+```
+ssh nexus-admin@192.168.0.42 -L 5914:localhost:5914
+```
+The password for the `nexus-admin` account is SoupRnexus. Once that connection is established, you can open Remmina or Remote Desktop software to connect to `localhost:14` using the password SoupRvnc. This completes the setup of the virtual desktop on `nexus-network` at port :04.
+
 
 ## Getting or Setting the RF Switch Configuration
 
@@ -109,7 +145,7 @@ file:///home/nexus-admin/Downloads/MCL_PTE_Ethernet_Config(X1).HTML
 ```
 There is no password set for the device (if it somehow gets enabled, the default is 1234), so just enter the IP address of th switch and click "Read Current Configuration". Once the fields below populate, you can adjust them and save the new configuration if necessary.
 
-## Connecting to the Laser Driver Arduino
+<!-- ## Connecting to the Laser Driver Arduino
 
 Connect the USB cable from the laser Arduino to the USB signal conditioner board. The other port of the board should be connected to a USB port on the back of the KID PC. Once it is connected, the device should appear at `/dev/ttyUSB0`. 
 
@@ -128,7 +164,7 @@ If you cannot run the GUI because it cannot find an available port to communicat
 sudo usermod -a -G dialout nexus-admin
 sudo chmod a+rw /dev/ttyUSB0
 ```
-then restart the machine.
+then restart the machine. -->
 
 ## Operating the RF Switch
 
