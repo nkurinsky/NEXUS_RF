@@ -362,4 +362,23 @@ class AFG3102():
         return
 
    
+    ## After configuring pulse parameters, one can set the trigger to be an internal
+    ## source firing at a fixed period. For instance, running this after configureSource()
+    ## will overwrite the trigger settings and won't wait for a USRP 1PPS trigger
+    def configureTimedTriggerSource(self, trig_period_sec=1.0, ch=1, confirm=True):
+        ## First check that the channel provided is okay
+        if not (ch==1 or ch==2):
+            print("Error:", ch, "is not a valid channel string. Options: 1, 2")
+            return
+        ch_str = "SOURce" + str(int(ch))
+
+        ## Set the trigger to internal timer
+        self._sendCmd("TRIGger:SOURce TIMer", getResponse=False)
+        if confirm:
+            print("Trigger source:", self._sendCmd("TRIGger:SOURce?"))
+
+        ## Set the trigger period
+        self._sendCmd("TRIGger:TIMer "+str(trig_period_sec), getResponse=False)
+        if confirm:
+            print("Trigger period (sec):", self._sendCmd("TRIGger:TIMer?"))
     
