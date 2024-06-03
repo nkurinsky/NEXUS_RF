@@ -61,7 +61,7 @@ afg_pulse_params = {
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-# LED_voltages = np.array([4.000])
+# LED_voltages = np.array([6.000])
 # LED_voltages = np.arange(start=2.000, stop=6.250, step=0.250)
 LED_voltages = np.arange(start=2.000, stop=5.500, step=0.500)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
@@ -71,27 +71,31 @@ LED_voltages = np.arange(start=2.000, stop=5.500, step=0.500)
 rate    = 100e6
 tx_gain = 0
 rx_gain = 17.0
+# LO      = 5.35e9
 LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 # LO      = 4.20e9       ## (Nb 6) [Hz] Round numbers, no finer than 50 MHz
 led_dec   = 100        ## Default decimation for the LED timestreams
 
 ## Set Resonator parameters
-res     = 4.24195700      ## Al   [GHz]
+# res     = 5.3874      ## Al   [GHz]
+res     = 4.241665    ## FNAL-I Al [GHz]
+# res     = 4.24195700      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
 
 ## Set some VNA sweep parameters
-f_span_kHz = 140        ## Symmetric about the center frequency
-points     = 1400       ## Defined such that we look at 100 Hz windows
-duration   = 10         ## [Sec]
+f_span_kHz = 200        ## Symmetric about the center frequency
+points     = 2000       ## Defined such that we look at 100 Hz windows
+duration   = 15         ## [Sec]
 
 ## Set the non-resonator tracking tones
+# tracking_tones = np.array([5.3774e9,5.3974e9]) ## (Al)    In Hz a.k.a. cleaning tones to remove correlated noise
 tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning tones to remove correlated noise
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-# powers = np.array([-40])
-powers = np.array([-30, -15])
+powers = np.array([-15])
+# powers = np.array([-30, -15])
 # powers  = np.array([-24,-22,-20,-18,-16])
 n_pwrs  = len(powers)
 
@@ -235,6 +239,7 @@ def create_dirs():
 
 def runLaser(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, lapse_noise, lapse_laser, laser_dec, points, ntones, delay_duration, delay_over=None, h5_group_obj=None):
     
+    print("LO [Hz]:",freq)
     delay = puif.run_delay(series=series, 
         tx_gain      = tx_gain, 
         rx_gain      = rx_gain, 

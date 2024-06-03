@@ -4,21 +4,28 @@
 n_scans=1
 
 # Power range
-pmin=-50
-pmax=-15
+pmin=-55
+pmax=-10
 pstep=5
 ifbw=10000
 
-# Frequency range
+### Frequency range ###
+### =============== ###
+
+## FNAL-III -- Al resonator
 # fmin=4.6075e9 ; fmax=4.6275e9         ## FNAL-III @ 4.6175 G, 20 MHz range
 # fmin=5.3864e9 ; fmax=5.3884e9         ## FNAL-III @ 5.3874 G, 2 MHz range
-fmin=5.3871e9 ; fmax=5.3877e9         ## FNAL-III @ 5.3874 G, 600 kHz range
+# fmin=5.3871e9 ; fmax=5.3877e9         ## FNAL-III @ 5.3874 G, 600 kHz range
 
+## FNAL-I -- Al resonator
+fmin=4.24142e9 ; fmax=4.24177e9       ## Al -- 4.241595 G, 350 kHz range
+# fmin=4.24149e9 ; fmax=4.24184e9       ## Al -- 4.241665 G, 350 kHz range
 # fmin=4.24195e9 ; fmax=4.24235e9       ## Al -- 4.242175 G
 # fmin=4.242095e9 ; fmax=4.242265e9     ## Al -- 4.242175 G, 170kHz range
 # fmin=4.242005e9 ; fmax=4.242355e9     ## Al -- 4.242175 G, 350kHz range
 # fmin=4.241233e9 ; fmax=4.2427330e9    ## Al -- 4.241983 G, 1.5MHz range
 
+## FNAL-I -- Nb resonators
 # fmin=3.93545e9 ; fmax=3.93695e9	## Nb 1 -- 3.93620 G, 1.5 MHz range
 # fmin=3.98250e9 ; fmax=3.98400e9	## Nb 2 -- 3.98325 G, 1.5 MHz range
 # fmin=4.02605e9 ; fmax=4.02755e9	## Nb 3 -- 4.02680 G, 1.5 MHz range
@@ -32,11 +39,11 @@ fmin=5.3871e9 ; fmax=5.3877e9         ## FNAL-III @ 5.3874 G, 600 kHz range
 # fmin=4.05400e9 ; fmax=4.05900e9	## Box mode
 
 # ns=100000
-# ns=150000
-ns=20000
+ns=100000
+# ns=20000
 
 # How many averages to do at each power
-na=15
+na=10
 
 counter=1
 while [ $counter -le $n_scans ]
