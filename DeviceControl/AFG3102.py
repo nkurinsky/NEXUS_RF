@@ -1,3 +1,5 @@
+## For reference, see: https://download.tek.com/manual/AFG3000-Arbitrary-FunctionGenerator-Programmer-Manual-077074302.pdf
+
 import socket
 from time import sleep
 
