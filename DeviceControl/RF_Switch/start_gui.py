@@ -90,9 +90,9 @@ def func_vna():
     btn_vna["state"]  = "disabled"
     cnx_str.set("VNA")
 
-    if(rfsw.SetSwitchState("A", 2)):
+    if(rfsw.SetSwitchState("A", 1)):
         tkinter.messagebox.showinfo("Error",rfsw.error)
-    if(rfsw.SetSwitchState("B", 2)):
+    if(rfsw.SetSwitchState("B", 1)):
         tkinter.messagebox.showinfo("Error",rfsw.error)
 btn_vna['command'] = func_vna
 
@@ -101,9 +101,9 @@ def func_usrp():
     btn_usrp["state"] = "disabled"
     cnx_str.set("USRP")
 
-    if(rfsw.SetSwitchState("A", 1)):
+    if(rfsw.SetSwitchState("A", 2)):
         tkinter.messagebox.showinfo("Error",rfsw.error)
-    if(rfsw.SetSwitchState("B", 1)):
+    if(rfsw.SetSwitchState("B", 2)):
         tkinter.messagebox.showinfo("Error",rfsw.error)
 btn_usrp['command'] = func_usrp
 
