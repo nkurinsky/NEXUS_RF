@@ -42,17 +42,18 @@ n_avs =  5
 ifbw_Hz = 500.0
 
 ## Temperature scan settings [K]
-Temp_base =  34e-3
-Temp_min  =  34e-3
-Temp_max  =  50e-3
-Temp_step =  10e-3
-substepK  = 1.0e-3
+Temp_base =  30.0e-3
+Temp_min  =  30.0e-3
+Temp_max  = 100.0e-3
+Temp_step =   5.0e-3
+substepK  =   1.0e-3
 
 ## Temperature stabilization params
-tempTolerance =   1e-4     ## K
-tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
-sleepTime     =  30.0      ## sec
-stableTime    =  30.0 * 60.## sec
+tempTolerance =   1e-4      ## K
+tempTolFrac   =   0.005     ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
+sleepTime     =  30.0       ## sec
+stableTime    =  60.0 * 60. ## sec
+stableTimeSub =  10.0 * 60. ## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)
@@ -131,7 +132,7 @@ def create_series_dir():
 
     return series, seriesPath
 
-def temp_change_and_wait(new_sp_K,nf_inst):
+def temp_change_and_wait(new_sp_K,nf_inst,waittime=stableTime):
 
     print("CHANGING SETPOINT TO",new_sp_K*1e3,"mK")
     try:
@@ -167,8 +168,8 @@ def temp_change_and_wait(new_sp_K,nf_inst):
         except:
             print("Socket Failed, skipping reading")
 
-    print("Holding at current temp for",stableTime,"seconds")
-    sleep(stableTime)
+    print("Holding at current temp for",waittime,"seconds")
+    sleep(waittime)
 
     print("Done.")
     return 0
@@ -309,7 +310,7 @@ if __name__ == "__main__":
             subTemps = np.arange(start=T+substepK,stop=T+Temp_step,step=substepK)
 
         for sT in subTemps:
-            temp_change_and_wait(sT, nf3)
+            temp_change_and_wait(sT, nf3, waittime=stableTimeSub)
 
         # ## Create a new directory
         # series, seriesPath = create_series_dir()
