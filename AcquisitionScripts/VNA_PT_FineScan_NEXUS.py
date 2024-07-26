@@ -24,27 +24,27 @@ except ImportError:
     exit()
 
 ## Flag to determine direction of temperature scan
-start_at_max_T = True
-return_to_base = True
+start_at_max_T = False
+return_to_base = False
 
 ## Parameters of the power sweep (in dB)
 P_min  = -45
-P_max  = -25
+P_max  = -20
 P_step =   5
 
 ## Set the VNA's frequency parameters
-freqmin = 5.38715e9 ## 4.241233e9 ## 4.24143e9 # 4.244585e9   ## Hz
-freqmax = 5.38765e9 ## 4.242733e9 ## 4.24293e9 # 4.244936e9   ## Hz
-n_samps = 5e3
+freqmin = 4.24118e9 ## 5.38715e9 ## 4.241233e9 ## 4.24143e9 # 4.244585e9   ## Hz
+freqmax = 4.24160e9 ## 5.38765e9 ## 4.242733e9 ## 4.24293e9 # 4.244936e9   ## Hz
+n_samps = 1e4
 
 ## How many readings to take at each step of the sweep
 n_avs =  5
-ifbw_Hz = 100.0
+ifbw_Hz = 500.0
 
 ## Temperature scan settings [K]
-Temp_base =  10e-3
-Temp_min  =  10e-3
-Temp_max  = 100e-3
+Temp_base =  34e-3
+Temp_min  =  34e-3
+Temp_max  =  50e-3
 Temp_step =  10e-3
 substepK  = 1.0e-3
 
@@ -52,7 +52,7 @@ substepK  = 1.0e-3
 tempTolerance =   1e-4     ## K
 tempTolFrac   =   0.005    ## Fraction of SP to wait for stability, picked by max(this,absTempTol)
 sleepTime     =  30.0      ## sec
-stableTime    =  10.0 * 60.## sec
+stableTime    =  30.0 * 60.## sec
 
 ## Create the temperature array
 Temps = np.arange(Temp_min,Temp_max+Temp_step,Temp_step)

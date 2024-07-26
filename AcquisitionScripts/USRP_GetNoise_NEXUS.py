@@ -41,7 +41,8 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set Resonator parameters
 # res     = 5.38740       ## Al   [GHz]
-res     = 4.241665      ## Al   [GHz] - FNAL-I, NR-23
+res     = 4.241595      ## Al   [GHz] - FNAL-I, NR-24
+# res     = 4.241665      ## Al   [GHz] - FNAL-I, NR-23
 # res     = 4.241958      ## Al   [GHz]
 # res     = 4.244553      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
