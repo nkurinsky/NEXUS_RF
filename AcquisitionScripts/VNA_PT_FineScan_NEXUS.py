@@ -42,8 +42,8 @@ n_avs =  5
 ifbw_Hz = 500.0
 
 ## Temperature scan settings [K]
-Temp_base =  30.0e-3
-Temp_min  =  30.0e-3
+Temp_base =  35.0e-3
+Temp_min  =  35.0e-3
 Temp_max  = 100.0e-3
 Temp_step =   5.0e-3
 substepK  =   1.0e-3

@@ -274,14 +274,18 @@ def poll_and_plot_plclog(date_str, num_days):
     a.xaxis.set_major_formatter(myFmt)
     return f
 
-def poll_and_plot_MACRT(date_str, num_days):
+def poll_and_plot_MACRT(date_str, num_days,fig_obj=None):
     series  = create_date_range(date_str, num_days)
     offset  = datetime.timedelta(days=0, hours=0, minutes=0)
     data_df = read_MACRT_data(series, offset)
     
     #Example of plotting
-    f = plt.figure(figsize = (12,4))
-    a = plt.gca()
+    if fig_obj is None:
+        f = plt.figure(figsize = (12,4))
+        a = plt.gca()
+    else:
+        f = fig_obj
+        a = f.gca()
 
     a.plot(data_df['ctime'], data_df['MIXING CHAMB_Conv'], label='Mixing Chamber NR7', color='dodgerblue')
     a.set_xlabel('Time')
@@ -292,7 +296,7 @@ def poll_and_plot_MACRT(date_str, num_days):
     f.autofmt_xdate()
     myFmt = mdates.DateFormatter('%m-%d %H:%M:%S')
     a.xaxis.set_major_formatter(myFmt)
-    return f
+    return f, a
 
 if __name__ == "__main__":
     f = poll_and_plot_MACRT('2022-06-18',11)
