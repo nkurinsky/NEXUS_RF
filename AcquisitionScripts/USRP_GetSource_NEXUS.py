@@ -46,7 +46,7 @@ vna_time   = 15         ## [Sec] ## IF_BW = points / duration
 tracking_tones = np.array([4.231e9,4.251e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-power = np.array([-15])
+powers = np.array([-15])
 # powers = np.array([-60,-55,-50,-45,-40,-35,-30])
 # powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
 n_pwrs = len(powers)
