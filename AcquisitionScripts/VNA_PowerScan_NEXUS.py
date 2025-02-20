@@ -14,14 +14,16 @@ sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/BackendTools")
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
-P_min  = -55.0
-P_max  = -20.0
-P_step =   1.0
+P_min  = -50.0
+P_max  = -10.0
+P_step =   5.0
 
 ## Set the VNA's frequency parameters
-freqmin = 4.24205e9 # 4.24212e9   ## Hz
-freqmax = 4.24225e9 # 4.24262e9   ## Hz
-n_samps = 5e4
+fcenter = 4.241265e9  ## Hz
+fspan   = 300.0e3     ## Hz
+freqmin = fcenter - fspan/2. # 4.2411025e9 # 4.24212e9   ## Hz
+freqmax = fcenter + fspan/2. # 4.2414525e9 # 4.24262e9   ## Hz
+n_samps = 5e4 + 1
 
 ## How many readings to take at each step of the sweep
 n_avs = 10

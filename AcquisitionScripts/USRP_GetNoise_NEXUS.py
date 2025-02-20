@@ -41,7 +41,7 @@ LO      = 4.25e9       ## (Al and Nb 7) [Hz] Round numbers, no finer than 50 MHz
 
 ## Set Resonator parameters
 # res     = 5.38740       ## Al   [GHz]
-res     = 4.241595      ## Al   [GHz] - FNAL-I, NR-24
+res     = 4.241265      ## Al   [GHz] - FNAL-I, NR-24
 # res     = 4.241665      ## Al   [GHz] - FNAL-I, NR-23
 # res     = 4.241958      ## Al   [GHz]
 # res     = 4.244553      ## Nb 7 [GHz]
@@ -54,14 +54,14 @@ duration   = 15         ## [Sec] ## IF_BW = points / duration
 
 ## Set the non-resonator tracking tones
 # tracking_tones = np.array([5.3774e9,5.3974e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
-tracking_tones = np.array([4.235e9,4.255e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
+tracking_tones = np.array([4.231e9,4.251e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-# powers = np.array([-30])
+powers = np.array([-15])
 # powers = np.array([-60,-55,-50,-45,-40,-35,-30])
 # powers = np.arange(start=-60,stop=-10,step=5)
-powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
+# powers = np.array([-70,-65,-60,-55,-50,-45,-40,-35,-30,-25,-20,-15])
 # powers = np.array([-20,-15])
 n_pwrs = len(powers)
 
@@ -77,6 +77,7 @@ filename=None
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/USRP_Noise_Scans'
+#dataPath = '/data/USRP_Source_Data'
 
 ## Sub directory definitions
 dateStr    = '' # str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date

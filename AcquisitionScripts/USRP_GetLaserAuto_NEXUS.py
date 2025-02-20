@@ -61,9 +61,9 @@ afg_pulse_params = {
     "V_lo" :   0.0,
     "d_ms" :   5.0,
 }
-# LED_voltages = np.array([6.000])
+LED_voltages = np.array([4.0]) # 6.000])
 # LED_voltages = np.arange(start=2.000, stop=6.250, step=0.250)
-LED_voltages = np.arange(start=2.000, stop=5.500, step=0.500)
+# LED_voltages = np.arange(start=2.000, stop=5.500, step=0.500)
 # LED_voltages = np.arange(start=3.00, stop=7.00, step=1.0)
 # LED_voltages = LED_voltages[::-1]
 
@@ -78,7 +78,8 @@ led_dec   = 100        ## Default decimation for the LED timestreams
 
 ## Set Resonator parameters
 # res     = 5.3874      ## Al   [GHz]
-res     = 4.241665    ## FNAL-I Al [GHz]
+res     = 4.24153    ## FNAL-I Al [GHz]
+# res     = 4.241665    ## FNAL-I Al [GHz]
 # res     = 4.24195700      ## Al   [GHz]
 # res     = 4.244760      ## Nb 7 [GHz]
 # res     = 4.202830      ## Nb 6 [GHz]
@@ -94,7 +95,7 @@ tracking_tones = np.array([4.235e9,4.255e9]) ## (Al)    In Hz a.k.a. cleaning to
 # tracking_tones = np.array([4.193e9,4.213e9]) ## (Nb 6)  In Hz a.k.a. cleaning tones to remove correlated noise
 
 ## Set the stimulus powers to loop over
-powers = np.array([-15])
+powers = np.array([-20])
 # powers = np.array([-30, -15])
 # powers  = np.array([-24,-22,-20,-18,-16])
 n_pwrs  = len(powers)
