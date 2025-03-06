@@ -320,8 +320,8 @@ def runNoise(tx_gain, rx_gain, _iter, rate, freq, front_end, fspan, lapse_VNA, l
 
         ## Determine how long to acquire noise
         dur_noise = lapse_noise if ((np.abs(delta) < 0.005) and (cal_lapse_sec < lapse_noise)) else cal_lapse_sec  ## passed in sec
-        gScan.create_dataset("duration",       data=np.array([dur_noise]))
-        gScan.create_dataset("timestart",      data=np.array([time.time()]))
+        gScan.attrs.create("duration",  dur_noise)
+        gScan.attrs.create("timestart", time.time())
 
         print("Starting Noise Run...")
         ## Do a noise run with the USRP
@@ -376,10 +376,10 @@ def doRun(this_power):
     ## Ensure the power doesn't go above -25 dBm
     ## Due to power splitting across tones
     if this_power > -25:
-        USRP_power   = -25
+        USRP_power  = -25
         args.txgain = this_power - USRP_power
     else:
-        USRP_power   = this_power
+        USRP_power  = this_power
 
     ## Calculate some derived quantities
     N_power = np.power(10.,(((-1*USRP_power)-14)/20.))
