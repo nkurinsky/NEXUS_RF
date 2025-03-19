@@ -15,22 +15,29 @@ except ImportError:
         print("Cannot find the pyUSRP package")
         exit()
 
-def get_paths(basepath, dt=None):
+def get_paths(base_path, dt=None, create_dirs=True):
     ## Check that a valid datetime has been passed
     if (dt is None) or (type(dt) != type(datetime.datetime.now())):
         dt = datetime.datetime.now()
+
+    if not os.path.exists(base_path):
+        os.makedirs(base_path)
     
     ## Get the first-level directory (for the date)
     date_str  = str(dt.strftime('%Y%m%d')) #sweep date
-    date_path = os.path.join(basepath,date_str)
+    date_path = os.path.join(base_path,date_str)
+    if not os.path.exists(date_path):
+        os.makedirs(date_path)
 
     ## Get the second-level directory (for the series)
     series      = str(dt.strftime('%Y%m%d_%H%M%S'))
     series_path = os.path.join(date_path,series)
+    if not os.path.exists(series_path):
+        os.makedirs(series_path)
 
-    return date_path, series_path, {"series":series, "date_str":date_str}
+    print ("Scan to be stored as series "+series+" in path "+date_path)
 
-
+    return date_path, series_path, series
 
 def generate_daq_params(front_end="A", rate=100e6, tx_gain=0.0, rx_gain=17.0, LO_freq=4.25e9, rf_power=-30.0, 
                         delay_duration=10.0, vna_duration=15.0, stream_duration=30.0, calibration_duration=5.0,
@@ -326,7 +333,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
 
 
 
-def run_full_suite(series, run_params, f_res_GHz, h5_group_obj=None, subrun_id=0):
+def run_full_suite(series, run_params, f_res_GHz, type="Noise", h5_group_obj=None, subrun_id=0):
 
     ## Instantiate an output file
     new_file = False
@@ -347,7 +354,7 @@ def run_full_suite(series, run_params, f_res_GHz, h5_group_obj=None, subrun_id=0
 
     _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun, cooltime_s=5)
 
-    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, type="Noise")
+    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, type=type)
 
     ## Store the resulting arrays in this h5 group
     gSubrun.create_dataset('freqs',data=cal_freqs)
