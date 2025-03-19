@@ -75,15 +75,20 @@ sweepPath  = '' # os.path.join(dataPath,dateStr)
 series     = '' # str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
 seriesPath = '' # os.path.join(sweepPath,series)
 
-def get_paths():
-    ## Sub directory definitions
-    dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-    sweepPath = os.path.join(dataPath,dateStr)
+def get_paths(basepath, dt=None):
+    ## Check that a valid datetime has been passed
+    if (dt is None) or (type(dt) != type(datetime.datetime.now()))
+        dt = datetime.datetime.now()
+    
+    ## Get the first-level directory (for the date)
+    date_str  = str(dt.strftime('%Y%m%d')) #sweep date
+    date_path = os.path.join(basepath,date_str)
 
-    series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-    seriesPath = os.path.join(sweepPath,series)
+    ## Get the second-level directory (for the series)
+    series      = str(dt.strftime('%Y%m%d_%H%M%S'))
+    series_path = os.path.join(date_path,series)
 
-    return dateStr, sweepPath, series, seriesPath
+    return date_path, series_path, {"series":series, "date_str":date_str}
 
 def parse_args():
     ## Instantiate the parser
@@ -441,7 +446,7 @@ if __name__ == "__main__":
         ## Loop over the subruns to get desired total acqusition duration
         while total_acq_time < args.timeRun:
 
-            dateStr, sweepPath, series, seriesPath = get_paths()
+            sweepPath, seriesPath, _ = get_paths()
             doRun(powers[i])
             total_acq_time += args.timeSub
 
