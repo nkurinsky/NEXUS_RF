@@ -149,8 +149,8 @@ if __name__ == "__main__":
     daq_params = daq.generate_daq_params(
         front_end="A", 
         rate=args.rate, 
-        tx_gain=args.tx_gain, 
-        rx_gain=args.rx_gain, 
+        tx_gain=args.txgain, 
+        rx_gain=args.rxgain, 
         LO_freq=args.LOfrq, 
         delay_duration=10.0, 
         vna_duration=args.timeVNA, 
