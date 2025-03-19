@@ -173,11 +173,11 @@ if __name__ == "__main__":
     for i in np.arange(len(powers)):
 
         ## Define and create the output directories
-        date_path, series_path, series = daq.get_paths(base_path)
-        os.chdir(seriesPath) ## When doing this, no need to provide subfolder
+        date_path, series_path, series = daq.get_paths(dataPath)
+        os.chdir(series_path) ## When doing this, no need to provide subfolder
 
         ## Instantiate an output file
-        fyle = h5py.File(os.path.join(seriesPath,'noise_averages_'+series+'.h5'),'w')
+        fyle = h5py.File('noise_averages_'+series+'.h5','w')
 
         ## Ensure the power doesn't go above -25 dBm
         ## Due to power splitting across tones
