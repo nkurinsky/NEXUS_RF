@@ -188,7 +188,7 @@ if __name__ == "__main__":
         else:
             daq_params["rf_power"] = this_power
 
-        daq.run_full_suite(series, run_params, f_res_GHz, type="Noise", h5_group_obj=fyle, subrun_id=i)
+        daq.run_full_suite(series, daq_params, res, type="Noise", h5_group_obj=fyle, subrun_id=i)
 
         ## Free up the file now that we're done
         fyle.close()
