@@ -5,7 +5,7 @@ import argparse
 import h5py
 import numpy as np
 
-import USRP_GetNoise_NEXUS_v2 as daq
+import USRP_Acquisition_Methods as daq
 
 try:
     import pyUSRP as u
