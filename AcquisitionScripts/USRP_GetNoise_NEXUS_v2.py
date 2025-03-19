@@ -184,7 +184,7 @@ if __name__ == "__main__":
         this_power = powers[i]
         if this_power > -25:
             daq_params["rf_power"] = -25
-            daq_params["tx_gain"]  = this_power - USRP_power
+            daq_params["tx_gain"]  = this_power - daq_params["rf_power"]
         else:
             daq_params["rf_power"] = this_power
 
