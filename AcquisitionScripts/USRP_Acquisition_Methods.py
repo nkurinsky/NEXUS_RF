@@ -232,7 +232,7 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
     return fs*1e9, qs, vna_filename
 
 
-def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"):
+def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="Noise"):
 
     ## Create some output objects
     ## Each entry is a single number
@@ -270,7 +270,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
         print("Amplitudes:         ", amplitudes)
         print("LO Frequency [Hz]:  ", run_params["LO_freq"])
 
-        outfname = "USRP_"+type+"_"+series+"_delta"+str(int(100.*delta))
+        outfname = "USRP_"+run_type+"_"+series+"_delta"+str(int(100.*delta))
 
         ## Determine how long to acquire noise, passed in seconds
         dur_noise = ( run_params["stream"]["duration_s"] 
@@ -335,7 +335,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
 
 
 
-def run_full_suite(series, run_params, f_res_GHz, type="Noise", h5_group_obj=None, subrun_id=0):
+def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj=None, subrun_id=0):
 
     ## Instantiate an output file
     new_file = False
@@ -356,7 +356,7 @@ def run_full_suite(series, run_params, f_res_GHz, type="Noise", h5_group_obj=Non
 
     _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun, cooltime_s=5)
 
-    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, type=type)
+    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, type=run_type)
 
     ## Store the resulting arrays in this h5 group
     gSubrun.create_dataset('freqs',data=cal_freqs)
