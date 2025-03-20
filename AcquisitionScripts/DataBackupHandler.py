@@ -13,7 +13,7 @@ search_subdirs = (
     # 'USRP_Source_Data',
 )
 
-dry_run = True
+dry_run = False
 
 if __name__ == "__main__":
 
@@ -58,6 +58,7 @@ if __name__ == "__main__":
                 ## Check for a completed acquisition that hasn't already been copied
                 if ('acq-complete' in src_allfiles): #and not os.exists(tgt_filename):
 
+                    ## If the targz for this series does not exist, we need to create it
                     if not os.path.exists(tgt_filename):
 
                         ## If the targz does not exist yet:
@@ -67,13 +68,16 @@ if __name__ == "__main__":
                         print("Calling command:", tar_cmd)
                         if not dry_run: return_code = subprocess.run(tar_cmd, shell=True)
 
+                    ## If there are no event files in this series, we need to create them
+                    if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles])
+
                         ## Run the eventerizer on this series
                         print("Running eventerizer on:", seriesdir)
                         evt_cmd = "python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
                         print("Calling command:", evt_cmd)
                         if not dry_run: subprocess.run(evt_cmd, shell=True)
                         
-                        ## Run the eventerizer on all files, then delete them
+                        ## Once the eventerizer has been run on all files, then delete them
                         for srcfile in src_allfiles:
 
                             h5fname = srcfile.split('/')[-1]
@@ -97,7 +101,3 @@ if __name__ == "__main__":
                 else:
                     print("Skipping series:", tgt_filename, "as it is not finished.") 
                     continue
-
-
-                # tgt_seriesdir = os.path.join(tgt_datedir,seriesdir)
-
