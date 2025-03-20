@@ -81,9 +81,11 @@ if __name__ == "__main__":
                     else: print("Skipping event building on", seriesdir, "as event files already exist.")
 
                     ## Only delete the files once the data has been backed up and eventerizer has been run
-                    if np.any(["_events" in srcfile.lower() for srcfile in src_allfiles]) and os.path.exists(tgt_filename):
+                    ## Note we need to re-list the files in this directory to confirm event files have been made
+                    ## if they were made on this execution cycle.
+                    if np.any(["_events" in srcfile.lower() for srcfile in os.listdir(src_seriesdir)]) and os.path.exists(tgt_filename):
                         cwd = os.getcwd() ; os.chdir(src_seriesdir)
-                        for srcfile in src_allfiles:
+                        for srcfile in os.listdir(src_seriesdir):
                             h5fname = srcfile.split('/')[-1]
 
                             ## Only delete the right files
