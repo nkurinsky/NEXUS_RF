@@ -210,9 +210,11 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
     if (res_search_freqs_GHz is None): res_search_freqs_GHz = [ run_params["vna"]["f_center_Hz"]/1e9 ]
     print("Fitting VNA sweep to find resonator frequency...")
     fs, qs, _,_,_,_,_ = vna_file_fit(vna_filename + '.h5',res_search_freqs_GHz,show_plots=False,save=True,verbose=False)
-    run_params["vna"]["result_fs"] = fs ## Store it in Hz
+    run_params["vna"]["result_fs"] = fs*1e9 ## Store it in Hz
     run_params["vna"]["result_qs"] = qs
     print("Done.")
+    print("Fitted Fs (GHz):",fs)
+    print("Fitted Qs      :",qs)
 
     ## Create a VNA group for our summary h5 file
     if h5_group_obj is not None:
