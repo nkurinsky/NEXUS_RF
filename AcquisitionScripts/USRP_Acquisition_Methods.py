@@ -250,7 +250,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
     for j, delta in enumerate(run_params["stream"]["cal_deltas"]):
 
         ## Make array of the central tone and tracking tones (e.g.: [fres, fTa, fTb])
-        readout_tones  = np.append([f + delta*float(f)/q], run_params["stream"]["track_tones"])
+        readout_tones  = np.append([f + delta*float(f)/q], run_params["stream"]["track_tones_Hz"])
         n_ro_tones     = len(readout_tones)
         readout_tones  = np.around(readout_tones, decimals=0)
 
