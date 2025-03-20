@@ -5,7 +5,6 @@ import numpy as np
 source_topleveldir = '/data'
 target_topleveldir = '/data-backup'
 
-
 search_subdirs = (
     'USRP_Background_Data',
     # 'USRP_Laser_Data',
@@ -14,12 +13,13 @@ search_subdirs = (
     # 'USRP_Source_Data',
 )
 
-## Get the list of source and target directories
-source_dirs = [os.path.join(source_topleveldir,srcdir) for srcdir in search_subdirs]
-target_dirs = [os.path.join(target_topleveldir,srcdir) for srcdir in search_subdirs]
-
+dry_run = True
 
 if __name__ == "__main__":
+
+    ## Get the list of source and target directories
+    source_dirs = [os.path.join(source_topleveldir,srcdir) for srcdir in search_subdirs]
+    target_dirs = [os.path.join(target_topleveldir,srcdir) for srcdir in search_subdirs]
 
     # ## Do this until eternity
     # while(1):
@@ -43,7 +43,7 @@ if __name__ == "__main__":
             ## if not, create it (provided there is data to be copied)
             if (len(src_serieslist)>0) and (not os.path.isdir(tgt_datedir)):
                 print("Creating directory:", tgt_datedir)
-                # os.mkdir(tgt_datedir)
+                if not dry_run: os.mkdir(tgt_datedir)
             else: print("Skipping creation of directory:", tgt_datedir, "as it already exists.")
 
             for seriesdir in src_serieslist:
@@ -65,22 +65,30 @@ if __name__ == "__main__":
                         cwd = os.getcwd() ; os.chdir(src_seriesdir)
                         tar_cmd = "tar -czf " + tgt_filename + " ./*.h5"
                         print("Calling command:", tar_cmd)
-                        # return_code = subprocess.run(tar_cmd.split(" "), shell=True)
+                        if not dry_run: return_code = subprocess.run(tar_cmd.split(" "), shell=True)
+
+                        ## Run the eventerizer on this series
+                        print("Running eventerizer on:", seriesdir)
+                        evt_cmd = "python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
+                        print("Calling command:", evt_cmd)
+                        if not dry_run: subprocess.run(evt_cmd.split(" "), shell=True)
                         
                         ## Run the eventerizer on all files, then delete them
                         for srcfile in src_allfiles:
 
-                            ## Only run eventerizer on the right files
-                            if (srcfile[-3:]==".h5") and ("USRP_" in srcfile.split('/')[-1]):
+                            h5fname = srcfile.split('/')[-1]
 
-                                if ("VNA" in srcfile.split('/')[-1]) or ("Noise" in srcfile.split('/')[-1]):
+                            ## Only delete the right files
+                            if (h5fname[-3:]==".h5") and ("USRP_" in h5fname):
+
+                                if ("VNA" in h5fname) or ("Noise" in h5fname) or ("Delay" in h5fname):
                                     continue
-
-                                ## Run the eventerizer on this file
-                                print("Running eventerizer on:", srcfile)
 
                                 ## Delete this source file to keep disk space available
                                 print("Deleting:", srcfile)
+                                rm_cmd = "rm " + srcfile
+                                print("Calling command:", rm_cmd)
+                                if not dry_run: return_code = subprocess.run(rm_cmd.split(" "), shell=True)
 
                     else:
                         print("Skipping series:", tgt_filename, "as it has already been copied.")
