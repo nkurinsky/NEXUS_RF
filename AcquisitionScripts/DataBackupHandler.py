@@ -2,8 +2,8 @@ import sys, os
 import subprocess
 import numpy as np
 
-dry_run = False
-use_cores  = None # [ 25, 26, 27, 28]
+dry_run = True
+use_cores  = [ 25, 26, 27, 28 ] # None # 
 
 source_topleveldir = '/data'
 target_topleveldir = '/data-backup'
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     target_dirs = [os.path.join(target_topleveldir,srcdir) for srcdir in search_subdirs]
 
     ## Force all subprocesses to run on specific cores if we want to
-    cmd_prefix = '' if (use_cores is None) else 'taskset -c '+','.join(use_cores)+' '
+    cmd_prefix = '' if (use_cores is None) else 'taskset -c '+','.join([str(core) for core in use_cores])+' '
 
     # ## Do this until eternity
     # while(1):
