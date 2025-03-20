@@ -154,7 +154,7 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
 
 
     ## Determine how many equivalent tones to split the DAC power output into to achieve the requested output power
-    N_power = np.power(10.,(((-1*params["rf_power"])-14)/20.))
+    N_power = np.power(10.,(((-1*run_params["rf_power"])-14)/20.))
     pwr_clc = np.round(-14-20*np.log10(N_power),2)
     print("To achieve",pwr_clc,"dBm of power for VNA scan, must split DAC power into",N_power,"equivalent tones")
 
