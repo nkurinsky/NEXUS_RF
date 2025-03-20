@@ -24,6 +24,9 @@ if __name__ == "__main__":
     # ## Do this until eternity
     # while(1):
 
+    ## Record where we started
+    cwd = os.getcwd()
+
     ## Check each source directory
     for srcdir, tgtdir in zip(source_dirs,target_dirs):
 
@@ -58,29 +61,28 @@ if __name__ == "__main__":
                 ## Check for a completed acquisition that hasn't already been copied
                 if ('acq-complete' in src_allfiles): #and not os.exists(tgt_filename):
 
-                    ## If the targz for this series does not exist, we need to create it
-                    if not os.path.exists(tgt_filename):
+                    ## Move into the series directory
+                    os.chdir(src_seriesdir)
 
-                        ## If the targz does not exist yet:
-                        ## Create a tarball of current src directory, place in tgt directory
-                        cwd = os.getcwd() ; os.chdir(src_seriesdir)
+                    ## If the targz for this series does not exist yet, we need to create it
+                    if not os.path.exists(tgt_filename):
                         tar_cmd = "tar -czf " + tgt_filename + " ./*.h5"
                         print("Calling command:", tar_cmd)
                         if not dry_run: return_code = subprocess.run(tar_cmd, shell=True)
                     else: print("Skipping series:", tgt_filename, "as it has already been copied.")
 
-                    ## If there are no event files in this series, we need to create them
+                    ## If there are no event files in this series, run the eventerizer on this series
                     if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles]):
-
-                        ## Run the eventerizer on this series
                         print("Running eventerizer on:", seriesdir)
                         evt_cmd = "python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
                         print("Calling command:", evt_cmd)
                         if not dry_run: subprocess.run(evt_cmd, shell=True)
-                        
-                        ## Once the eventerizer has been run on all files, then delete them
-                        for srcfile in src_allfiles:
+                    else: print("Skipping event building on", seriesdir, "as event files already exist.")
 
+                    ## Only delete the files once the data has been backed up and eventerizer has been run
+                    if np.any(["_events" in srcfile.lower() for srcfile in src_allfiles]) and os.path.exists(tgt_filename):
+                        
+                        for srcfile in src_allfiles:
                             h5fname = srcfile.split('/')[-1]
 
                             ## Only delete the right files
@@ -93,10 +95,13 @@ if __name__ == "__main__":
                                 print("Deleting:", srcfile)
                                 rm_cmd = "rm " + srcfile
                                 print("Calling command:", rm_cmd)
-                                # if not dry_run: return_code = subprocess.run(rm_cmd, shell=True)
-                    else: print("Skipping event building on", seriesdir, "as event files already exist.")
+                                if not dry_run: return_code = subprocess.run(rm_cmd, shell=True)
+                    
+                    
+                    ## Return to where we started
+                    os.chdir(cwd)
                         
                 ## If the acquisition hasn't been completed
                 else:
-                    print("Skipping series:", tgt_filename, "as it is not finished.") 
+                    print("Skipping series:", seriesdir, "as it is not finished.") 
                     continue
