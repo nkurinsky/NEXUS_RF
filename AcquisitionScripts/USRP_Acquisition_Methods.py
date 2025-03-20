@@ -345,7 +345,7 @@ def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj
         h5_group_obj = h5py.File('noise_averages_'+series+'.h5','w')
 
     ## Create an h5 group for this data, store some general metadata
-    gSubrun = h5_group_obj.create_group('Power'+str(int(subrun_id)))
+    gSubrun = h5_group_obj.create_group('Run'+str(int(subrun_id)))
     gSubrun.attrs.create("power",   run_params["rf_power"])
     gSubrun.attrs.create("tx_gain", run_params["tx_gain"])
     gSubrun.attrs.create("rx_gain", run_params["rx_gain"])
