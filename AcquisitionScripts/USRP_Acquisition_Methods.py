@@ -357,7 +357,7 @@ def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj
 
     _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun, cooltime_s=5)
 
-    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, type=run_type)
+    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, run_type=run_type)
 
     ## Store the resulting arrays in this h5 group
     gSubrun.create_dataset('freqs',data=cal_freqs)
