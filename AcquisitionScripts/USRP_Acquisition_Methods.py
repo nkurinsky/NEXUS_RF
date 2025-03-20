@@ -243,7 +243,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
     q = run_params["vna"]["result_qs"][0]
 
     ## Determine how many equivalent tones to split the DAC power output into to achieve the requested output power
-    N_power = np.power(10.,(((-1*params["rf_power"])-14)/20.))
+    N_power = np.power(10.,(((-1*run_params["rf_power"])-14)/20.))
     pwr_clc = np.round(-14-20*np.log10(N_power),2)
 
     ## For each power, loop over all the calibration offsets
