@@ -70,7 +70,7 @@ if __name__ == "__main__":
                     else: print("Skipping series:", tgt_filename, "as it has already been copied.")
 
                     ## If there are no event files in this series, we need to create them
-                    if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles])
+                    if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles]):
 
                         ## Run the eventerizer on this series
                         print("Running eventerizer on:", seriesdir)
