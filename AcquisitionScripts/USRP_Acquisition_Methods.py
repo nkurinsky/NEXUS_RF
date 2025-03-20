@@ -111,6 +111,7 @@ def run_delay(series, run_params, h5_group_obj=None, delay_over_s=None):
         if search_key in u.LINE_DELAY.keys():
             print("Line delay found in current USRP/GPU_SDR configuration.")
             delay = u.LINE_DELAY[search_key]*1e-9 ## line delay is stored as ns, pull it out as sec
+            filename = None
 
         ## If not, make a measurement
         else:
