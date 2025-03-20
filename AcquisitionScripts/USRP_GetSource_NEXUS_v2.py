@@ -213,11 +213,15 @@ if __name__ == "__main__":
             gTrace.attrs.create("duration", args.timeSub)
 
             ## Take a "trace" for the subRun time ; note that we don't care about the output since we aren't saving the calibration tones
-            daq.run_stream(series, daq_params, h5_group_obj=None, cooltime_s=0, run_type="Background", suffix=subrun_cntr)
+            daq.run_stream(series, daq_params, h5_group_obj=None, cooltime_s=0, run_type=run_type, suffix=subrun_cntr)
 
             ## Update for next iteration of the loop
             total_acq_time += args.timeSub
             subrun_cntr += 1
+
+        ## Write a file to indicate this Series has completed
+        with open('acq-complete', 'w') as the_file:
+            the_file.write(str(time.time())+'\n')
 
         ## Free up the file now that we're done
         fyle.close()
