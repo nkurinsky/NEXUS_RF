@@ -2,6 +2,9 @@ import sys, os
 import subprocess
 import numpy as np
 
+dry_run = False
+use_cores  = None # [ 25, 26, 27, 28]
+
 source_topleveldir = '/data'
 target_topleveldir = '/data-backup'
 
@@ -13,13 +16,14 @@ search_subdirs = (
     # 'USRP_Source_Data',
 )
 
-dry_run = False
-
 if __name__ == "__main__":
 
     ## Get the list of source and target directories
     source_dirs = [os.path.join(source_topleveldir,srcdir) for srcdir in search_subdirs]
     target_dirs = [os.path.join(target_topleveldir,srcdir) for srcdir in search_subdirs]
+
+    ## Force all subprocesses to run on specific cores if we want to
+    cmd_prefix = '' if (use_cores is None) else 'taskset -c '+','.join(use_cores)+' '
 
     # ## Do this until eternity
     # while(1):
@@ -61,7 +65,7 @@ if __name__ == "__main__":
                     ## If the targz for this series does not exist yet, we need to create it
                     if not os.path.exists(tgt_filename):
                         cwd = os.getcwd() ; os.chdir(src_seriesdir)
-                        tar_cmd = "tar -czf " + tgt_filename + " ./*.h5"
+                        tar_cmd = cmd_prefix+"tar -czf " + tgt_filename + " ./*.h5"
                         print("Calling command:", tar_cmd)
                         if not dry_run: return_code = subprocess.run(tar_cmd, shell=True)
                         os.chdir(cwd)
@@ -70,7 +74,7 @@ if __name__ == "__main__":
                     ## If there are no event files in this series, run the eventerizer on this series
                     if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles]):
                         print("Running eventerizer on:", seriesdir)
-                        evt_cmd = "python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
+                        evt_cmd = cmd_prefix+"python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
                         print("Calling command:", evt_cmd)
                         if not dry_run: subprocess.run(evt_cmd, shell=True)
                     else: print("Skipping event building on", seriesdir, "as event files already exist.")
@@ -88,7 +92,7 @@ if __name__ == "__main__":
 
                                 ## Delete this source file to keep disk space available
                                 print("Deleting:", srcfile)
-                                rm_cmd = "rm " + srcfile
+                                rm_cmd = cmd_prefix+"rm " + srcfile
                                 print("Calling command:", rm_cmd)
                                 if not dry_run: return_code = subprocess.run(rm_cmd, shell=True)
                         os.chdir(cwd)
