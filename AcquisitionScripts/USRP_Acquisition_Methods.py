@@ -232,7 +232,7 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
     return fs*1e9, qs, vna_filename
 
 
-def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="Noise"):
+def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="Noise", suffix=None):
 
     ## Create some output objects
     ## Each entry is a single number
@@ -271,6 +271,8 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="No
         print("LO Frequency [Hz]:  ", run_params["LO_freq"])
 
         outfname = "USRP_"+run_type+"_"+series+"_delta"+str(int(100.*delta))
+        if (suffix is not None):
+            outfname += "_" + str(suffix)
 
         ## Determine how long to acquire noise, passed in seconds
         dur_noise = ( run_params["stream"]["duration_s"] 
@@ -332,7 +334,6 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="No
             os.remove(noise_file)
 
     return cal_freqs, cal_means, noise_file
-
 
 
 def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj=None, subrun_id=0):
