@@ -42,8 +42,8 @@ res     = 4.241265      ## Al   [GHz] - FNAL-I, NR-24
 
 ## Set some VNA sweep parameters
 f_span_kHz = 200        ## Symmetric about the center frequency
-points     = 2000       ## Defined such that we look at 100 Hz windows
-duration   = 15         ## [Sec] ## IF_BW = points / duration
+vna_points = 2000       ## Defined such that we look at 100 Hz windows
+vna_time   = 15         ## [Sec] ## IF_BW = points / duration
 
 ## Set the non-resonator tracking tones
 # tracking_tones = np.array([5.3774e9,5.3974e9]) ## (Al or Nb 7)    In Hz a.k.a. cleaning tones to remove correlated noise
@@ -93,8 +93,8 @@ def parse_args():
     ## Read the arguments for the VNA scan details
     parser.add_argument('--VNAfspan', '-fv', type=float, default=f_span_kHz,
         help='Frequency span in kHz over which to do the VNA scan (default '+str(f_span_kHz)+' kHz)')
-    parser.add_argument('--points'   , '-p' , type=int  , default=points, 
-        help='Number of points used in the scan (default '+str(points)+' points)')
+    parser.add_argument('--points'   , '-p' , type=int  , default=vna_points, 
+        help='Number of points used in the scan (default '+str(vna_points)+' points)')
     parser.add_argument('--iter'  , '-i' , type=int, default=1, 
         help='How many iterations to perform (default 1)')
     
