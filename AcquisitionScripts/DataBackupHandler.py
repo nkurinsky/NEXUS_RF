@@ -13,7 +13,7 @@ search_subdirs = (
     # 'USRP_Source_Data',
 )
 
-dry_run = False
+dry_run = True
 
 if __name__ == "__main__":
 
@@ -54,11 +54,12 @@ if __name__ == "__main__":
                 src_allfiles  = os.listdir(src_seriesdir)
 
                 tgt_filename  = os.path.join(tgt_datedir,seriesdir+".tar.gz")
+
+                print(src_allfiles)
                 
                 ## Check for a completed acquisition that hasn't already been copied
                 if ('acq-complete' in src_allfiles): #and not os.exists(tgt_filename):
                     
-
                     ## If the targz for this series does not exist yet, we need to create it
                     if not os.path.exists(tgt_filename):
                         cwd = os.getcwd() ; os.chdir(src_seriesdir)
@@ -84,7 +85,6 @@ if __name__ == "__main__":
 
                             ## Only delete the right files
                             if (h5fname[-3:]==".h5") and ("USRP_" in h5fname):
-
                                 if ("VNA" in h5fname) or ("Noise" in h5fname) or ("Delay" in h5fname):
                                     continue
 
