@@ -4,6 +4,7 @@ import numpy as np
 
 dry_run = True
 use_cores  = [ 25, 26, 27, 28 ] # None # 
+cfg_file = "eventerizer_cfg.json"
 
 source_topleveldir = '/data'
 target_topleveldir = '/data-backup'
@@ -74,7 +75,7 @@ if __name__ == "__main__":
                     ## If there are no event files in this series, run the eventerizer on this series
                     if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles]):
                         print("Running eventerizer on:", seriesdir)
-                        evt_cmd = cmd_prefix+"python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
+                        evt_cmd = cmd_prefix+"python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d "+srcdir+" -s "+seriesdir+" -c "+cfg_file
                         print("Calling command:", evt_cmd)
                         if not dry_run: subprocess.run(evt_cmd, shell=True)
                     else: print("Skipping event building on", seriesdir, "as event files already exist.")
