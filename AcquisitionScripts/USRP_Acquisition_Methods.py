@@ -266,7 +266,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
         print("Readout  tones [Hz]:", readout_tones)
         print("Relative tones [Hz]:", relative_tones)
         print("Amplitudes:         ", amplitudes)
-        print("LO Frequency [Hz]:  ", freq)
+        print("LO Frequency [Hz]:  ", run_params["LO_freq"])
 
         outfname = "USRP_"+type+"_"+series+"_delta"+str(int(100.*delta))
 
@@ -280,7 +280,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"
             gScan = h5_group_obj.create_group('Scan'+str(j))
             gScan.attrs.create("delta", delta)
             gScan.attrs.create("file",  outfname+".h5")
-            gScan.attrs.create("LOfrequency", freq)
+            gScan.attrs.create("LOfrequency", run_params["LO_freq"])
             gScan.attrs.create("duration",  dur_noise)
             gScan.create_dataset("readout_tones",  data=readout_tones)
             gScan.create_dataset("relative_tones", data=relative_tones)
