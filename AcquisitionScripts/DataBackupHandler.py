@@ -1,5 +1,6 @@
 import sys, os
 import subprocess
+import numpy as np
 
 source_topleveldir = '/data'
 target_topleveldir = '/data-backup'
@@ -43,7 +44,7 @@ if __name__ == "__main__":
             if (len(src_serieslist)>0) and (not os.path.isdir(tgt_datedir)):
                 print("Creating directory:", tgt_datedir)
                 # os.mkdir(tgt_datedir)
-            else: print("Skipping directory:", tgt_datedir, "as it already exists.")
+            else: print("Skipping creation of directory:", tgt_datedir, "as it already exists.")
 
             for seriesdir in src_serieslist:
 
@@ -55,9 +56,9 @@ if __name__ == "__main__":
                 tgt_filename  = os.path.join(tgt_datedir,seriesdir+".tar.gz")
                 
                 ## Check for a completed acquisition that hasn't already been copied
-                if ('acq-complete' in src_allfiles) #and not os.exists(tgt_filename):
+                if ('acq-complete' in src_allfiles): #and not os.exists(tgt_filename):
 
-                    if not os.exists(tgt_filename):
+                    if not os.path.exists(tgt_filename):
 
                         ## If the targz does not exist yet:
                         ## Create a tarball of current src directory, place in tgt directory
@@ -70,7 +71,10 @@ if __name__ == "__main__":
                         for srcfile in src_allfiles:
 
                             ## Only run eventerizer on the right files
-                            if (srcfile[-3:]==".h5") and "USRP_" in srcfile.split('/')[-1]:
+                            if (srcfile[-3:]==".h5") and ("USRP_" in srcfile.split('/')[-1]):
+
+                                if ("VNA" in srcfile.split('/')[-1]) or ("Noise" in srcfile.split('/')[-1]):
+                                    continue
 
                                 ## Run the eventerizer on this file
                                 print("Running eventerizer on:", srcfile)
@@ -79,11 +83,11 @@ if __name__ == "__main__":
                                 print("Deleting:", srcfile)
 
                     else:
-                        print("Skipping series:". tgt_filename, "as it has already been copied.")
+                        print("Skipping series:", tgt_filename, "as it has already been copied.")
 
                 ## If the acquisition hasn't been completed, or the data has already been copied
                 else:
-                    print("Skipping series:", tgt_filename, "as it is either not finished.") 
+                    print("Skipping series:", tgt_filename, "as it is not finished.") 
                     continue
 
 
