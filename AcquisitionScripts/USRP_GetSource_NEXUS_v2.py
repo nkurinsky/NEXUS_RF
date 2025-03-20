@@ -60,7 +60,7 @@ cal_deltas = np.linspace(start=-0.05, stop=0.05, num=3)
 cal_lapse_sec = 10.
 
 ## Where to save the output data (hdf5 files)
-dataPath = '/data/USRP_'+run_type+'_Scans'
+dataPath = '/data/USRP_'+run_type+'_Data'
 
 def parse_args():
     ## Instantiate the parser
