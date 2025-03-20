@@ -67,6 +67,7 @@ if __name__ == "__main__":
                         tar_cmd = "tar -czf " + tgt_filename + " ./*.h5"
                         print("Calling command:", tar_cmd)
                         if not dry_run: return_code = subprocess.run(tar_cmd, shell=True)
+                    else: print("Skipping series:", tgt_filename, "as it has already been copied.")
 
                     ## If there are no event files in this series, we need to create them
                     if not np.any(["_events" in srcfile.lower() for srcfile in src_allfiles])
@@ -93,11 +94,9 @@ if __name__ == "__main__":
                                 rm_cmd = "rm " + srcfile
                                 print("Calling command:", rm_cmd)
                                 # if not dry_run: return_code = subprocess.run(rm_cmd, shell=True)
-
-                    else:
-                        print("Skipping series:", tgt_filename, "as it has already been copied.")
-
-                ## If the acquisition hasn't been completed, or the data has already been copied
+                    else: print("Skipping event building on", seriesdir, "as event files already exist.")
+                        
+                ## If the acquisition hasn't been completed
                 else:
                     print("Skipping series:", tgt_filename, "as it is not finished.") 
                     continue
