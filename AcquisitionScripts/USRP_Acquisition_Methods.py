@@ -343,12 +343,12 @@ def run_full_suite(series, run_params, f_res_GHz, type="Noise", h5_group_obj=Non
 
     ## Create an h5 group for this data, store some general metadata
     gSubrun = h5_group_obj.create_group('Power'+str(int(subrun_id)))
-    gSubrun.attrs.create("power",   USRP_power)
-    gSubrun.attrs.create("tx_gain", args.txgain)
-    gSubrun.attrs.create("rx_gain", args.rxgain)
-    gSubrun.attrs.create("N_power", N_power)
-    gSubrun.attrs.create("rate",    args.rate)
-    gSubrun.attrs.create("LOfreq",  args.LOfrq)
+    gSubrun.attrs.create("power",   run_params["rf_power"])
+    gSubrun.attrs.create("tx_gain", run_params["tx_gain"])
+    gSubrun.attrs.create("rx_gain", run_params["rx_gain"])
+    # gSubrun.attrs.create("N_power", N_power)
+    gSubrun.attrs.create("rate",    run_params["rate"])
+    gSubrun.attrs.create("LOfreq",  run_params["LO_freq"])
 
     _, _ = run_delay(series, run_params, h5_group_obj=gSubrun, delay_over_s=None)
 
