@@ -227,7 +227,7 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
         gVNA.create_dataset('fit_Q_fac', data=np.array(qs))
 
     ## Extract the important parameters from fit, Get res freqs in Hz (fs is in GHz)
-    else: return fs*1e9, qs, vna_filename
+    return fs*1e9, qs, vna_filename
 
 
 def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, type="Noise"):
