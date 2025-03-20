@@ -194,7 +194,7 @@ if __name__ == "__main__":
         daq_params["stream"]["duration_s"] = args.timeNoise
 
         ## Now do a line delay, VNA, and noise acquisition
-        daq.run_full_suite(series, daq_params, [res], type="Noise", h5_group_obj=fyle, subrun_id=i)
+        daq.run_full_suite(series, daq_params, [res], run_type="Noise", h5_group_obj=fyle, subrun_id=i)
 
         ## Update the run parameters so that we don't do calibrations
         daq_params["stream"]["cal_deltas"] = [0.0]
