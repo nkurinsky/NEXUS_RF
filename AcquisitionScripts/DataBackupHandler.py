@@ -65,13 +65,13 @@ if __name__ == "__main__":
                         cwd = os.getcwd() ; os.chdir(src_seriesdir)
                         tar_cmd = "tar -czf " + tgt_filename + " ./*.h5"
                         print("Calling command:", tar_cmd)
-                        if not dry_run: return_code = subprocess.run(tar_cmd.split(" "), shell=True)
+                        if not dry_run: return_code = subprocess.run(tar_cmd, shell=True)
 
                         ## Run the eventerizer on this series
                         print("Running eventerizer on:", seriesdir)
                         evt_cmd = "python /home/nexus-admin/KIPD_Analysis/Scripts/Eventerizer.py -d " +srcdir+ " -s " +seriesdir
                         print("Calling command:", evt_cmd)
-                        if not dry_run: subprocess.run(evt_cmd.split(" "), shell=True)
+                        if not dry_run: subprocess.run(evt_cmd, shell=True)
                         
                         ## Run the eventerizer on all files, then delete them
                         for srcfile in src_allfiles:
@@ -88,7 +88,7 @@ if __name__ == "__main__":
                                 print("Deleting:", srcfile)
                                 rm_cmd = "rm " + srcfile
                                 print("Calling command:", rm_cmd)
-                                if not dry_run: return_code = subprocess.run(rm_cmd.split(" "), shell=True)
+                                # if not dry_run: return_code = subprocess.run(rm_cmd, shell=True)
 
                     else:
                         print("Skipping series:", tgt_filename, "as it has already been copied.")
