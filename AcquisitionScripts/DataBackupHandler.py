@@ -107,4 +107,5 @@ if __name__ == "__main__":
                         print("Skipping series:", seriesdir, "as it is not finished.") 
                         continue
 
+        print(time.time())
         time.sleep(pause_time_sec)
