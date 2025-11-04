@@ -191,7 +191,7 @@ def run_vna(series, run_params, res_search_freqs_MHz=None, h5_group_obj=None):
         print("Relative to LO: start", f0, "Hz; stop",f1,"Hz")
 
         ## Create the boilerplate file name and run the VNA scan
-        outfname = "USRP_VNA_"+series
+        outfname = "USRP_VNA_"+series+"_"+str(i)
 
         print("Starting single VNA run...")
         vna_filename  = u.Single_VNA(start_f = f0, last_f = f1, 
