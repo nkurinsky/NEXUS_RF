@@ -65,8 +65,8 @@ def generate_daq_params(f_res_GHz, front_end="A", rate=100e6, tx_gain=0.0, rx_ga
             "f_stop_Hz"      : f_stop_Hz,
             "n_points"       : vna_npoints,
             "iterations"     : vna_iterations,
-            "results_fs"     : [],
-            "results_qs"     : [],
+            "result_fs"     : [],
+            "result_qs"     : [],
         },
 
         "stream"    : {
@@ -154,7 +154,7 @@ def run_delay(series, run_params, h5_group_obj=None, delay_over_s=None):
     return delay, filename
 
 
-def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None):
+def run_vna(series, run_params, res_search_freqs_MHz=None, h5_group_obj=None):
 
     ## Determine how many equivalent tones to split the DAC power output into to achieve the requested output power
     N_power = np.power(10.,(((-1*run_params["rf_power"])-14)/20.))
@@ -216,12 +216,20 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None):
         time.sleep(run_params["waittime_s"])
 
         ## Fit the data acquired in this noise scan
-        if (res_search_freqs_GHz is None): res_search_freqs_GHz = [ run_params["vna"]["f_center_Hz"]/1e9 ]
+        if (res_search_freqs_MHz is None): res_search_freqs_MHz = [ f_res_GHz*1e3 ]
         print("Fitting VNA sweep to find resonator frequency...")
-        fs, qs, _,_,_,_,_ = vna_file_fit(vna_filename + '.h5',res_search_freqs_GHz,show_plots=False,save=True,verbose=False)
-        print("Done.")
-        print("Fitted Fs (GHz):",fs)
-        print("Fitted Qs      :",qs)
+        try:
+            fs, qs, _,_,_,_,_ = vna_file_fit(vna_filename + '.h5',res_search_freqs_MHz,show_plots=False,save=True,verbose=False)
+            print("Done.")
+            print("Fitted Fs (GHz):",fs)
+            print("Fitted Qs      :",qs)
+            ##>TODO< Still a bug in the above, its finding the arrays to be empty, probably GHz vs MHz
+        except Exception as e:
+            print(e)
+            fs = [ f_res_GHz ]
+            qs = [ 3e5 ] 
+            print("Defaulting to Fs (GHz):",fs)
+            print("Defaulting to Qs      :",qs)
 
         ## Create a VNA group for our summary h5 file
         if h5_group_obj is not None:
@@ -272,14 +280,11 @@ def run_stream(series, run_params, h5_group_obj=None, run_type="Noise", suffix=N
         outfname += "_" + str(suffix)
 
     ## Determine how long to acquire noise, passed in seconds
-    dur_noise = ( run_params["stream"]["duration_s"] 
-                if ((np.abs(delta) < 0.005) and (run_params["stream"]["calib_s"] < run_params["stream"]["duration_s"])) 
-                else run_params["stream"]["calib_s"] )
+    dur_noise = ( run_params["stream"]["duration_s"] )
 
     ## Create a group for the noise scan parameters
-    if (h5_group_obj is not None) and (delta==0):
-        gScan = h5_group_obj.create_group('Scan'+str(j))
-        gScan.attrs.create("delta", delta)
+    if (h5_group_obj is not None):
+        gScan = h5_group_obj.create_group('Scan'+str(0))
         gScan.attrs.create("file",  outfname+".h5")
         gScan.attrs.create("LOfrequency", run_params["LO_freq"])
         gScan.attrs.create("duration",  dur_noise)
@@ -345,9 +350,9 @@ def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj
 
     _, _ = run_delay(series, run_params, h5_group_obj=gSubrun, delay_over_s=None)
 
-    _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun, cooltime_s=5)
+    _, _, _ = run_vna(series, run_params, res_search_freqs_MHz=1e3*f_res_GHz, h5_group_obj=gSubrun)
 
-    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, run_type=run_type)
+    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, run_type=run_type)
 
     ## Store the resulting arrays in this h5 group
     gSubrun.create_dataset('freqs',data=cal_freqs)
