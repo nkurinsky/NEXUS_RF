@@ -216,10 +216,10 @@ def run_vna(series, run_params, res_search_freqs_MHz=None, h5_group_obj=None):
         time.sleep(run_params["waittime_s"])
 
         ## Fit the data acquired in this noise scan
-        if (res_search_freqs_MHz is None): res_search_freqs_MHz = [ f_res_GHz*1e3 ]
+        if (res_search_freqs_GHz is None): res_search_freqs_GHz = [ f_res_GHz ]
         print("Fitting VNA sweep to find resonator frequency...")
         try:
-            fs, qs, _,_,_,_,_ = vna_file_fit(vna_filename + '.h5',res_search_freqs_MHz,show_plots=False,save=True,verbose=False)
+            fs, qs, _,_,_,_,_ = vna_file_fit(vna_filename + '.h5',res_search_freqs_GHz,show_plots=False,save=True,verbose=False)
             print("Done.")
             print("Fitted Fs (GHz):",fs)
             print("Fitted Qs      :",qs)
@@ -331,7 +331,7 @@ def run_stream(series, run_params, h5_group_obj=None, run_type="Noise", suffix=N
     return info['search freqs'], mean_ts, noise_file
 
 
-def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj=None, subrun_id=0):
+def run_full_suite(series, run_params, run_type="Noise", f_res_GHz=None, h5_group_obj=None, subrun_id=0):
 
     ## Instantiate an output file
     new_file = False
@@ -350,7 +350,7 @@ def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj
 
     _, _ = run_delay(series, run_params, h5_group_obj=gSubrun, delay_over_s=None)
 
-    _, _, _ = run_vna(series, run_params, res_search_freqs_MHz=1e3*f_res_GHz, h5_group_obj=gSubrun)
+    _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun)
 
     cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, run_type=run_type)
 
