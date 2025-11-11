@@ -43,7 +43,7 @@ def generate_daq_params(front_end="A", rate=100e6, tx_gain=0.0, rx_gain=17.0, LO
                         delay_duration=10.0, vna_duration=15.0, stream_duration=30.0, calibration_duration=5.0,
                         f_center_Hz=4.241265e9, f_span_Hz=200.0e3, f_start_Hz=None, f_stop_Hz=None, 
                         vna_npoints=2000, vna_iterations=1, cal_deltas=np.linspace(start=-0.05, stop=0.05, num=3),
-                        tracking_tones=np.array([4.231e9,4.251e9])):
+                        tracking_tones=np.array([4.231e9,4.251e9]), daq_decimation=100, waittime_s=5.0):
     params = {
         "front_end" : front_end,
         "rate"      : rate,
@@ -51,6 +51,7 @@ def generate_daq_params(front_end="A", rate=100e6, tx_gain=0.0, rx_gain=17.0, LO
         "rx_gain"   : rx_gain,
         "LO_freq"   : LO_freq,
         "rf_power"  : rf_power,
+        "waittime_s": waittime_s, 
 
         "delay"     : {
             "duration_s" : delay_duration,
@@ -71,6 +72,7 @@ def generate_daq_params(front_end="A", rate=100e6, tx_gain=0.0, rx_gain=17.0, LO
             "calib_s"        : calibration_duration,
             "cal_deltas"     : cal_deltas,
             "track_tones_Hz" : tracking_tones,
+            "daq_decimation" : daq_decimation,
         },
     }
 
@@ -151,7 +153,7 @@ def run_delay(series, run_params, h5_group_obj=None, delay_over_s=None):
     return delay, filename
 
 
-def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, cooltime_s=5):
+def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None):
 
 
     ## Determine how many equivalent tones to split the DAC power output into to achieve the requested output power
@@ -205,7 +207,7 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
 
     ## Wait for the chip to cool off?
     print("Waiting for chip to cool...")
-    time.sleep(cooltime_s)
+    time.sleep(run_params["waittime_s"])
 
     ## Fit the data acquired in this noise scan
     if (res_search_freqs_GHz is None): res_search_freqs_GHz = [ run_params["vna"]["f_center_Hz"]/1e9 ]
@@ -233,7 +235,7 @@ def run_vna(series, run_params, res_search_freqs_GHz=None, h5_group_obj=None, co
     return fs*1e9, qs, vna_filename
 
 
-def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="Noise", suffix=None):
+def run_stream(series, run_params, h5_group_obj=None, run_type="Noise", suffix=None):
 
     ## Create some output objects
     ## Each entry is a single number
@@ -301,7 +303,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="No
                                     tx_gain    = run_params["tx_gain"], 
                                     rx_gain    = run_params["rx_gain"], 
                                     rate       = run_params["rate"],  ## passed in Samps per sec
-                                    decimation = 100, 
+                                    decimation = run_params["stream"]["daq_decimation"], 
                                     RF         = run_params["LO_freq"],  ## passed in Hz 
                                     Front_end  = run_params["front_end"],
                                     Device     = None,
@@ -316,7 +318,7 @@ def run_stream(series, run_params, h5_group_obj=None, cooltime_s=5, run_type="No
 
         ## Wait for the chip to cool off?
         print("Waiting for chip to cool...")
-        time.sleep(cooltime_s) ## 30 seconds
+        time.sleep(run_params["waittime_s"]) ## 30 seconds
 
         ## Add an extension to the file path
         noise_file += '.h5'
@@ -356,9 +358,9 @@ def run_full_suite(series, run_params, f_res_GHz, run_type="Noise", h5_group_obj
 
     _, _ = run_delay(series, run_params, h5_group_obj=gSubrun, delay_over_s=None)
 
-    _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun, cooltime_s=5)
+    _, _, _ = run_vna(series, run_params, res_search_freqs_GHz=f_res_GHz, h5_group_obj=gSubrun)
 
-    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, cooltime_s=5, run_type=run_type)
+    cal_freqs, cal_means, _ = run_stream(series, run_params, h5_group_obj=gSubrun, run_type=run_type)
 
     ## Store the resulting arrays in this h5 group
     gSubrun.create_dataset('freqs',data=cal_freqs)

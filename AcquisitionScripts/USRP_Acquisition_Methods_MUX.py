@@ -43,7 +43,7 @@ def generate_daq_params(f_res_GHz, front_end="A", rate=100e6, tx_gain=0.0, rx_ga
                         delay_duration=10.0, vna_duration=15.0, stream_duration=30.0, calibration_duration=5.0,
                         f_span_Hz=200.0e3, f_start_Hz=None, f_stop_Hz=None, 
                         vna_npoints=2000, vna_iterations=1, cal_deltas=np.linspace(start=-0.05, stop=0.05, num=3),
-                        tracking_tones=np.array([4.231e9,4.251e9]), waittime_s=5.0):
+                        tracking_tones=np.array([4.231e9,4.251e9]), daq_decimation=100, waittime_s=5.0):
     params = {
         "f_res_GHz" : f_res_GHz if len(np.shape(f_res_GHz))>0 else [f_res_GHz],
         "front_end" : front_end,
@@ -74,6 +74,7 @@ def generate_daq_params(f_res_GHz, front_end="A", rate=100e6, tx_gain=0.0, rx_ga
             "calib_s"        : calibration_duration,
             "cal_deltas"     : cal_deltas,
             "track_tones_Hz" : tracking_tones,
+            "daq_decimation" : daq_decimation,
         },
     }
 
@@ -302,7 +303,7 @@ def run_stream(series, run_params, h5_group_obj=None, run_type="Noise", suffix=N
                                 tx_gain    = run_params["tx_gain"], 
                                 rx_gain    = run_params["rx_gain"], 
                                 rate       = run_params["rate"],  ## passed in Samps per sec
-                                decimation = 100, 
+                                decimation = run_params["stream"]["daq_decimation"], 
                                 RF         = run_params["LO_freq"],  ## passed in Hz 
                                 Front_end  = run_params["front_end"],
                                 Device     = None,
