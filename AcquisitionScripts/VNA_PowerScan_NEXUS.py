@@ -14,20 +14,21 @@ sys.path.insert(1, "/home/nexus-admin/NEXUS_RF/BackendTools")
 from VNAMeas import * #vna measurement class
 
 ## Parameters of the power sweep (in dB)
-P_min  = -50.0
-P_max  = -10.0
+P_min  = -55.0
+P_max  =   0.0
 P_step =   5.0
 
 ## Set the VNA's frequency parameters
-fcenter = 4.241265e9  ## Hz
-fspan   = 300.0e3     ## Hz
+#fcenter = 2.11385e9 # 4.526200e9  ## Hz
+fcenter = np.array([3.9232e9, 4.0740e9, 4.8573e9, 6.1063e9, 6.3336e9, 6.7843e9])  ## Hz
+fspan   =  2.0e6     ## Hz
 freqmin = fcenter - fspan/2. # 4.2411025e9 # 4.24212e9   ## Hz
 freqmax = fcenter + fspan/2. # 4.2414525e9 # 4.24262e9   ## Hz
-n_samps = 5e4 + 1
+n_samps = 2e4 + 1
 
 ## How many readings to take at each step of the sweep
-n_avs = 10
-ifbw  = 10e3 # 500 ## Hz
+n_avs =  5
+ifbw  = 1e2 # 500 # 10e3 # 500 ## Hz
 
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/PowerSweeps/VNA'  #VNA subfolder of TempSweeps
@@ -93,7 +94,7 @@ def create_dirs():
 def run_scan():
 
     ## Diagnostic text
-    print("Current Fridge MC Temperature (mK): ", nf1.getTemp()*1e3)
+    #print("Current Fridge MC Temperature (mK): ", nf1.getTemp()*1e3)
 
     print("--Power Scan Settings-------")
     print("-   Start Power (dB):", P_min)
@@ -124,14 +125,14 @@ def run_scan():
       sweep.ifbw    = ifbw
 
       ## Grab and save the fridge temperature before starting sweep
-      sweep.start_T = np.array([ nf1.getTemp() ])
+      sweep.start_T = np.array([ -1.0 ]) # nf1.getTemp() ])
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
       freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs, ifb=ifbw)
 
       ## Grab and save the fridge temperature after sweep
-      sweep.final_T = np.array([ nf1.getTemp() ])
+      sweep.final_T = np.array([ -1.0 ]) # nf1.getTemp() ])
 
       ## Save the result to our class instance
       sweep.frequencies = np.array(freqs)
@@ -152,7 +153,7 @@ def run_scan():
 if __name__ == "__main__":
     #start = time.time()
     ## Initialize the NEXUS temperature servers
-    nf1 = NEXUSHeater(server_ip="192.168.0.34",server_port=11034)
+    #nf1 = NEXUSHeater(server_ip="192.168.0.34",server_port=11034)
 
     ## Initialize the VNA
     v = VNA()
