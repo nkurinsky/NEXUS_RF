@@ -167,8 +167,8 @@ if __name__ == "__main__":
     P_step = args.Ps if args.Ps is not None else P_step
 
     ## Set the VNA's frequency parameters
-    freqmin = args.F0 if args.F0 is not None else freqmin
-    freqmax = args.F1 if args.F1 is not None else freqmax
+    #freqmin = #args.F0 if args.F0 is not None else freqmin
+    #freqmax = #args.F1 if args.F1 is not None else freqmax
     n_samps = args.Fn if args.Fn is not None else n_samps
 
     ## How many readings to take at each step of the sweep
@@ -178,11 +178,14 @@ if __name__ == "__main__":
     ## Where to save the output data (hdf5 files)
     dataPath = args.d if args.d is not None else dataPath
 
-    ## Create the output directories
-    create_dirs()
-
-    ## Run the power scan
-    run_scan()
+    ## Loop over every tone
+    for fmin, fmax in zip(freqmin, freqmax):
+    
+        ## Create the output directories
+        create_dirs()
+    
+        ## Run the power scan
+        run_scan()
 
     #end=time.time()
     #print(-(start-end)/60.,"minutes")
