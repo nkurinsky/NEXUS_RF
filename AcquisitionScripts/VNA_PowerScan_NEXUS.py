@@ -33,13 +33,6 @@ ifbw  = 1e2 # 500 # 10e3 # 500 ## Hz
 ## Where to save the output data (hdf5 files)
 dataPath = '/data/PowerSweeps/VNA'  #VNA subfolder of TempSweeps
 
-## Sub directory definitions
-dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
-sweepPath = dataPath + '/' + dateStr
-
-series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
-seriesPath = sweepPath + '/' + series 
-
 def parse_args():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='Script to take a frequency sweep with the CMT VNA at a set of specified RF powers')
@@ -53,10 +46,10 @@ def parse_args():
                         help='Power step for scan [dBm]')
 
     # Frequency sweep optional arguments
-    parser.add_argument('--F0', type=float,
-                        help='Minimum frequency for sweep [Hz]')
-    parser.add_argument('--F1', type=float,
-                        help='Maximum frequency for scan [Hz] (must be above minimum frequency)')
+    # parser.add_argument('--F0', type=float,
+    #                     help='Minimum frequency for sweep [Hz]')
+    # parser.add_argument('--F1', type=float,
+    #                     help='Maximum frequency for scan [Hz] (must be above minimum frequency)')
     parser.add_argument('--Fn', type=int,
                         help='Number of samples to take in frequency range')
     parser.add_argument('--Na', type=int,
@@ -73,13 +66,20 @@ def parse_args():
 
     # Do some conditional checks
     if (args.P1 is not None):
-        if (args.P1 > -10):
-            print(args.P1, "dBm is too large, setting P_max to -10")
-            args.P1 = -10.0
+        if (args.P1 > 0):
+            print(args.P1, "dBm is too large, setting P_max to 0")
+            args.P1 = 0.0
 
     return args
 
 def create_dirs():
+    ## Sub directory definitions
+    dateStr   = str(datetime.datetime.now().strftime('%Y%m%d')) #sweep date
+    sweepPath = dataPath + '/' + dateStr
+
+    series     = str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+    seriesPath = sweepPath + '/' + series 
+
     if not os.path.exists(dataPath):
         os.makedirs(dataPath)
 
@@ -89,9 +89,9 @@ def create_dirs():
     if not os.path.exists(seriesPath):
         os.makedirs(seriesPath)
     print ("Scan stored as series "+series+" in path "+sweepPath)
-    return 0
+    return series, seriesPath
 
-def run_scan():
+def run_scan(series, seriesPath):
 
     ## Diagnostic text
     #print("Current Fridge MC Temperature (mK): ", nf1.getTemp()*1e3)
@@ -120,8 +120,8 @@ def run_scan():
       sweep.power   = power
       sweep.n_avgs  = n_avs
       sweep.n_samps = n_samps
-      sweep.f_min   = freqmin
-      sweep.f_max   = freqmax
+      sweep.f_min   = fmin
+      sweep.f_max   = fmax
       sweep.ifbw    = ifbw
 
       ## Grab and save the fridge temperature before starting sweep
@@ -129,7 +129,7 @@ def run_scan():
 
       ## Set the VNA stimulus power and take a frequency sweep
       v.setPower(power)
-      freqs, S21_real, S21_imag = v.takeSweep(freqmin, freqmax, n_samps, n_avs, ifb=ifbw)
+      freqs, S21_real, S21_imag = v.takeSweep(fmin, fmax, n_samps, n_avs, ifb=ifbw)
 
       ## Grab and save the fridge temperature after sweep
       sweep.final_T = np.array([ -1.0 ]) # nf1.getTemp() ])
@@ -182,10 +182,10 @@ if __name__ == "__main__":
     for fmin, fmax in zip(freqmin, freqmax):
     
         ## Create the output directories
-        create_dirs()
+        series, seriesPath = create_dirs()
     
         ## Run the power scan
-        run_scan()
+        run_scan(series, seriesPath)
 
     #end=time.time()
     #print(-(start-end)/60.,"minutes")
