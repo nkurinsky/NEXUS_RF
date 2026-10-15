@@ -174,6 +174,23 @@ def parse_args():
             "--LOfrq requires one value or the same number as --resFreq"
         )
 
+    ## Require each LO to be a multiple of 50 MHz
+    nearest_grid_mhz = np.round(lo_mhz / 50.0) * 50.0
+    if not np.all(np.isclose(
+        lo_mhz, nearest_grid_mhz, rtol=0.0, atol=1e-6
+    )):
+        parser.error("--LOfrq values must be multiples of 50 MHz")
+
+    ## Normalize insignificant floating-point differences to the exact grid
+    lo_mhz = nearest_grid_mhz
+
+    ## Require each LO to be within 150 MHz of its paired resonator
+    res_mhz = res_ghz * 1e3
+    if np.any(np.abs(lo_mhz - res_mhz) > 150.0 + 1e-6):
+        parser.error(
+            "Each --LOfrq must be within 150 MHz of its paired --resFreq"
+        )
+
     ## Preserve the existing script's sampling-rate and span limits
     if not 0 < args.rate <= 100:
         parser.error("--rate must be > 0 and <= 100 Msps")
