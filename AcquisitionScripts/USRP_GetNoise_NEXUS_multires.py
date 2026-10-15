@@ -37,7 +37,7 @@ default_vna_params = {
 ## Set timestream parameters
 default_readout_params = {
     "res"            : [4.241265],          ## Always must be list [GHz]
-    "tracking_tones" : [4.231e9,4.251e9],   ## Cleaning tones to remove correlated noise [GHz]
+    "tracking_offset_MHz" : 10.0,           ## Symmetric cleaning-tone offset from resonance [MHz]
     "powers"         : np.arange(start=-60,stop=-10,step=5),  ## dBm
     "duration"       : 15,                  ## [Sec] ## IF_BW ~= points / duration
     "cal_deltas"     : np.linspace(start=-0.05, stop=0.05, num=3), ## These deltas are fractions of the central frequency. This can be used to do a pseudo-VNA post facto
@@ -91,10 +91,17 @@ def parse_args():
         default=default_readout_params["res"],
         help="Resonant frequencies [GHz]",
     )
+    ## Shared symmetric offset; explicit pairs override this value
     parser.add_argument(
-        "--trkFreq", "-ft", type=float, nargs="+",
-        default=default_readout_params["tracking_tones"],
-        help="Tracking frequencies [Hz]",
+        "--trackOffset", type=float,
+        default=default_readout_params["tracking_offset_MHz"],
+        help="Shared tracking offset [MHz]; creates tones at res +/- offset",
+    )
+    ## Repeat once per resonator for signed lower/upper offsets
+    parser.add_argument(
+        "--trackPair", type=float, nargs=2, action="append", default=None,
+        metavar=("LOW_MHZ", "HIGH_MHZ"),
+        help="Signed tracking offsets [MHz]; repeat once per LO/res pair",
     )
     parser.add_argument(
         "--power", "-P", type=float, nargs="+",
@@ -149,7 +156,6 @@ def parse_args():
 
     lo_mhz = numeric_array(args.lo_mhz, "--LOfrq")
     res_ghz = numeric_array(args.res_ghz, "--resFreq")
-    tracking = numeric_array(args.trkFreq, "--trkFreq")
     powers = numeric_array(args.power, "--power")
     cal_deltas = numeric_array(
         args.calDeltas, "--calDeltas", allow_empty=True
@@ -173,6 +179,30 @@ def parse_args():
         parser.error(
             "--LOfrq requires one value or the same number as --resFreq"
         )
+
+    ## Validate the shared tracking offset
+    if not np.isfinite(args.trackOffset) or args.trackOffset <= 0:
+        parser.error("--trackOffset must be finite and > 0 MHz")
+
+    ## Build one signed lower/upper pair per resonator
+    if args.trackPair is None:
+        offsets_mhz = np.tile(
+            [-args.trackOffset, args.trackOffset], (res_ghz.size, 1)
+        )
+    else:
+        offsets_mhz = np.array(args.trackPair, dtype=float)
+        if offsets_mhz.shape != (res_ghz.size, 2):
+            parser.error("--trackPair must be supplied once per resonator")
+        if not np.all(np.isfinite(offsets_mhz)):
+            parser.error("--trackPair offsets must be finite")
+        if np.any(offsets_mhz[:, 0] >= 0) or np.any(offsets_mhz[:, 1] <= 0):
+            parser.error("--trackPair requires a negative then positive offset")
+
+    ## Convert offsets to absolute tracking frequencies for each resonator [Hz]
+    with np.errstate(over="ignore", invalid="ignore"):
+        tracking = res_ghz[:, None] * 1e9 + offsets_mhz * 1e6
+    if not np.all(np.isfinite(tracking)) or np.any(tracking <= 0):
+        parser.error("Tracking frequencies must be finite and > 0 Hz")
 
     ## Require each LO to be a multiple of 50 MHz
     nearest_grid_mhz = np.round(lo_mhz / 50.0) * 50.0
@@ -209,8 +239,6 @@ def parse_args():
         parser.error("--LOfrq values must be > 0 and <= 6000 MHz")
     if np.any(res_ghz <= 0):
         parser.error("--resFreq values must be > 0 GHz")
-    if np.any(tracking <= 0):
-        parser.error("--trkFreq values must be > 0 Hz")
 
     ## Preserve the existing script's requested power limits
     if np.any((powers < -70) | (powers > -15)):
@@ -297,7 +325,7 @@ if __name__ == "__main__":
                 stream_duration=params["ro"]["duration"], 
                 calibration_duration=params["ro"]["cal_lapse_sec"],
                 cal_deltas=params["ro"]["cal_deltas"],
-                tracking_tones=params["ro"]["tracking_tones"],
+                tracking_tones=params["ro"]["tracking_tones"][j],
                 delay_duration=10.0, 
             )
 
@@ -331,8 +359,8 @@ if __name__ == "__main__":
                     daq.run_full_suite(series, daq_params, [res_ghz], run_type="Noise", h5_group_obj=fyle, subrun_id=i)
 
                 ## Update the metadata tracker
-                scan_info[f"F{res_ghz}"]["series"].append(series)
-                scan_info[f"F{res_ghz}"]["powers"].append(this_power)
+                scan_info[f"R{j}_F{res_ghz}"]["series"].append(series)
+                scan_info[f"R{j}_F{res_ghz}"]["powers"].append(this_power)
 
         ## Dump the metadata to a json file
         json_fname = f"usrp-noise-metadata-{first_series}.json"
