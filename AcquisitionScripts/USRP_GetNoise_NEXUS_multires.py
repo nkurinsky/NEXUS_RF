@@ -259,7 +259,7 @@ if __name__ == "__main__":
         ## Now look for all LO/res pairs and iterate over them
         for j, (lo_hz, res_ghz) in enumerate(zip(params["daq"]["LO"], params["ro"]["res"])):
 
-            scan_info[f"F{res_ghz}"] = {
+            scan_info[f"R{j}_F{res_ghz}"] = {
                 "LO_MHz": lo_hz/1e6,
                 "series": [],
                 "powers": [],
