@@ -24,7 +24,7 @@ default_daq_params = {
     "rate"    : 100e6,
     "tx_gain" : 0,
     "rx_gain" : 17.0,
-    "LO"      : [3.95e9, 4.00e9, 4.90e9, 6.15e9, 6.35e9, 6.80e9],         ## [Hz] Round numbers, no finer than 50 MHz. Always must be list, same length as res freqs
+    "LO"      : [3.95e9, 4.05e9, 4.85e9], #, 6.15e9, 6.35e9, 6.80e9],         ## [Hz] Round numbers, no finer than 50 MHz. Always must be list, same length as res freqs
 }
 
 ## Set VNA sweep parameters
@@ -36,7 +36,7 @@ default_vna_params = {
 
 ## Set timestream parameters
 default_readout_params = {
-    "res"            : [3.9232, 4.0740, 4.8573, 6.1063, 6.3336, 6.7843],          ## Always must be list [GHz]
+    "res"            : [3.9232, 4.0740, 4.8573], #, 6.1063, 6.3336, 6.7843],          ## Always must be list [GHz]
     "tracking_offset_MHz" : 10.0,           ## Symmetric cleaning-tone offset from resonance [MHz]
     "powers"         : np.arange(start=-60,stop=-10,step=5),  ## dBm
     "duration"       : 30,                  ## [Sec] ## IF_BW ~= points / duration
